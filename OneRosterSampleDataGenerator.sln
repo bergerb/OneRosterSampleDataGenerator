@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30804.86
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneRosterSampleDataGenerator", "OneRosterSampleDataGenerator\OneRosterSampleDataGenerator.csproj", "{5D8A4192-E114-4334-9732-82CAA938CB25}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{8358BE49-BE75-47D4-A561-63375F2C1045}"
+	ProjectSection(SolutionItems) = preProject
+		..\Templates\Planets\courses.csv = ..\Templates\Planets\courses.csv
+		..\Templates\Planets\firstnames.csv = ..\Templates\Planets\firstnames.csv
+		..\Templates\Planets\grades.csv = ..\Templates\Planets\grades.csv
+		..\Templates\Planets\lastnames.csv = ..\Templates\Planets\lastnames.csv
+		..\Templates\Planets\orgs.csv = ..\Templates\Planets\orgs.csv
+		..\Templates\Planets\teachers.csv = ..\Templates\Planets\teachers.csv
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneRosterSampleDataGenerator.UnitTests", "OneRosterSampleDataGenerator.UnitTests\OneRosterSampleDataGenerator.UnitTests.csproj", "{446A7C85-081A-491B-B908-C6A18ADA7D47}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5D8A4192-E114-4334-9732-82CAA938CB25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D8A4192-E114-4334-9732-82CAA938CB25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D8A4192-E114-4334-9732-82CAA938CB25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D8A4192-E114-4334-9732-82CAA938CB25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{446A7C85-081A-491B-B908-C6A18ADA7D47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{446A7C85-081A-491B-B908-C6A18ADA7D47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{446A7C85-081A-491B-B908-C6A18ADA7D47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{446A7C85-081A-491B-B908-C6A18ADA7D47}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {724E47C7-D64E-4144-8F9F-4CA1F24330D9}
+	EndGlobalSection
+EndGlobal
