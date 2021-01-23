@@ -3,19 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30804.86
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneRosterSampleDataGenerator", "OneRosterSampleDataGenerator\OneRosterSampleDataGenerator.csproj", "{5D8A4192-E114-4334-9732-82CAA938CB25}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OneRosterSampleDataGenerator", "OneRosterSampleDataGenerator\OneRosterSampleDataGenerator.csproj", "{5D8A4192-E114-4334-9732-82CAA938CB25}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{8358BE49-BE75-47D4-A561-63375F2C1045}"
 	ProjectSection(SolutionItems) = preProject
-		..\Templates\Planets\courses.csv = ..\Templates\Planets\courses.csv
-		..\Templates\Planets\firstnames.csv = ..\Templates\Planets\firstnames.csv
-		..\Templates\Planets\grades.csv = ..\Templates\Planets\grades.csv
-		..\Templates\Planets\lastnames.csv = ..\Templates\Planets\lastnames.csv
-		..\Templates\Planets\orgs.csv = ..\Templates\Planets\orgs.csv
-		..\Templates\Planets\teachers.csv = ..\Templates\Planets\teachers.csv
+		Templates\Planets\courses.csv = Templates\Planets\courses.csv
+		Templates\Planets\firstnames.csv = Templates\Planets\firstnames.csv
+		Templates\Planets\grades.csv = Templates\Planets\grades.csv
+		Templates\Planets\lastnames.csv = Templates\Planets\lastnames.csv
+		Templates\Planets\orgs.csv = Templates\Planets\orgs.csv
+		Templates\Planets\teachers.csv = Templates\Planets\teachers.csv
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneRosterSampleDataGenerator.UnitTests", "OneRosterSampleDataGenerator.UnitTests\OneRosterSampleDataGenerator.UnitTests.csproj", "{446A7C85-081A-491B-B908-C6A18ADA7D47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OneRosterSampleDataGenerator.Models", "OneRosterSampleDataGenerator.Models\OneRosterSampleDataGenerator.Models.csproj", "{7BF19E67-0298-435A-BA74-872C845E277D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneRosterSampleDataGenerator.UnitTests", "OneRosterSampleDataGenerator.UnitTests\OneRosterSampleDataGenerator.UnitTests.csproj", "{1FAC472C-1052-4DE3-B5B1-6E32F24D7276}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +29,14 @@ Global
 		{5D8A4192-E114-4334-9732-82CAA938CB25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D8A4192-E114-4334-9732-82CAA938CB25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D8A4192-E114-4334-9732-82CAA938CB25}.Release|Any CPU.Build.0 = Release|Any CPU
-		{446A7C85-081A-491B-B908-C6A18ADA7D47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{446A7C85-081A-491B-B908-C6A18ADA7D47}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{446A7C85-081A-491B-B908-C6A18ADA7D47}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{446A7C85-081A-491B-B908-C6A18ADA7D47}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BF19E67-0298-435A-BA74-872C845E277D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BF19E67-0298-435A-BA74-872C845E277D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BF19E67-0298-435A-BA74-872C845E277D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BF19E67-0298-435A-BA74-872C845E277D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1FAC472C-1052-4DE3-B5B1-6E32F24D7276}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1FAC472C-1052-4DE3-B5B1-6E32F24D7276}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1FAC472C-1052-4DE3-B5B1-6E32F24D7276}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1FAC472C-1052-4DE3-B5B1-6E32F24D7276}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
