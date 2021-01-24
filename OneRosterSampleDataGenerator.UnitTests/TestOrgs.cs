@@ -4,14 +4,14 @@ using System.Linq;
 namespace OneRosterSampleDataGenerator.UnitTests
 {
     [TestClass]
-    public class TestBuildings
+    public class TestOrgs
     {
         [TestMethod]
-        public void TestBuildingsAvailable()
+        public void TestOrgsAvailable()
         {
             var OneRoster = new OneRoster();
             // check for valid grades
-            Assert.IsTrue(OneRoster.buildings.Count() > 0);
+            Assert.IsTrue(OneRoster.orgs.Count() > 0);
         }
     }
 }

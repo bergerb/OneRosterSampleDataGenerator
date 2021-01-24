@@ -12,7 +12,7 @@ namespace OneRosterSampleDataGenerator.Models
         public string lastName { get; set; }
         public string currentGrade => this.grade.name;
         public Grade grade { get; set; }
-        public string currentBuildingName => this.building.name; 
-        public Building building { get; set; }
+        public string currentOrgName => this.org.name; 
+        public Org org { get; set; }
     }
 }
