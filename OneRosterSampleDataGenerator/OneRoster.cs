@@ -15,7 +15,6 @@ namespace OneRosterSampleDataGenerator
         public List<Grade> grades = new List<Grade>();
         public List<Building> buildings = new List<Building>();
 
-        //const string GRADES_FILE = @"C:\Users\Brent\source\repos\OneRosterSampleDataGenerator\Templates\Planets\grades.csv";
         Assembly assembly = Assembly.GetExecutingAssembly();
         const string GRADES_FILE = @"../../../../Templates/planets/grades.csv";
         const string ORGS_FILE = @"../../../../Templates/planets/orgs.csv";
@@ -23,12 +22,24 @@ namespace OneRosterSampleDataGenerator
         string[] elemGrades = "KG,01,02,03,04,05".Split(',');
         string[] middleGrades = "06,07,08".Split(',');
         string[] highGrades = "09,10,11,12".Split(',');
+
         /// <summary>
         /// Instantiate OneRoster 
         /// </summary>
         public OneRoster()
         {
             // Build Grades
+            GenerateGrades();
+            // Build Schools
+            GenerateOrgs();
+        }
+
+        #region "Grades"
+        /// <summary>
+        /// Generate Gradess
+        /// </summary>
+        void GenerateGrades()
+        {
             if (GRADES == "ALL")
             {
                 using (var reader = new StreamReader(GRADES_FILE))
@@ -48,7 +59,15 @@ namespace OneRosterSampleDataGenerator
                     }
                 }
             }
-            // Build Schools
+        }
+        #endregion
+
+        #region "Orgs"
+        /// <summary>
+        /// Generate Orgs
+        /// </summary>
+        void GenerateOrgs()
+        {
             var maxSchools = File.ReadAllLines(ORGS_FILE).Length;
             var rnd = new Random();
             var randomSeq = Enumerable.Range(1, maxSchools).OrderBy(r => rnd.NextDouble()).Take(NUM_SCHOOLS).ToList();
@@ -79,6 +98,7 @@ namespace OneRosterSampleDataGenerator
                 buildings.Add(newBuilding);
             }
         }
+        #endregion
 
     }
 }
