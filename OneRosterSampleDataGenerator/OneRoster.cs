@@ -14,6 +14,7 @@ namespace OneRosterSampleDataGenerator
         string GRADES = "ALL";
         public List<Grade> grades = new List<Grade>();
         public List<Building> buildings = new List<Building>();
+        public List<Course> courses = new List<Course>();
 
         Assembly assembly = Assembly.GetExecutingAssembly();
         const string GRADES_FILE = @"../../../../Templates/planets/grades.csv";
