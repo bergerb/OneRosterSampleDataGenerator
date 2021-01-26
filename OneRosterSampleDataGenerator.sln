@@ -17,7 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{8358BE49
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OneRosterSampleDataGenerator.Models", "OneRosterSampleDataGenerator.Models\OneRosterSampleDataGenerator.Models.csproj", "{7BF19E67-0298-435A-BA74-872C845E277D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OneRosterSampleDataGenerator.UnitTests", "OneRosterSampleDataGenerator.UnitTests\OneRosterSampleDataGenerator.UnitTests.csproj", "{1FAC472C-1052-4DE3-B5B1-6E32F24D7276}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OneRosterSampleDataGenerator.UnitTests", "OneRosterSampleDataGenerator.UnitTests\OneRosterSampleDataGenerator.UnitTests.csproj", "{1FAC472C-1052-4DE3-B5B1-6E32F24D7276}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7733D8BF-BCBB-4F7E-A00C-7E10894A3574}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -69,13 +69,11 @@ namespace OneRosterSampleDataGenerator
             {
                 foreach (var grade in org.gradesOffer)
                 {
-                    //var randomFirstName = Enumerable.Range(0, maxFirstNames).OrderBy(r => rnd.NextDouble()).ToList();
-                    //var randomLastName = Enumerable.Range(0, maxLastNames).OrderBy(r => rnd.NextDouble()).ToList();
                     for (var i = 1; i < NUM_STUDENTS_PER_GRADE; i++)
                     {
                         NUM_STUDENT_ID++;
-                        var FName = rnd.Next(0, maxFirstNames);//Enumerable.Range(0, maxFirstNames).OrderBy(r => rnd.NextDouble()).Take(1).First();
-                        var LName = rnd.Next(0, maxLastNames); //Enumerable.Range(0, maxLastNames).OrderBy(r => rnd.NextDouble()).Take(1).First();
+                        var FName = rnd.Next(0, maxFirstNames);
+                        var LName = rnd.Next(0, maxLastNames); 
                         var stu = new Student
                         {
                             id = Guid.NewGuid(),
@@ -84,6 +82,8 @@ namespace OneRosterSampleDataGenerator
                             familyName = File.ReadLines(STUDENT_LASTNAME_FILE).Skip(LName).Take(1).First(),
                             grade = grade,
                             org = org,
+                            // Assign each student all courses of their current grade
+                            courses = courses.Where(e => e.title.Contains(grade.name)).ToList()
                         };
                         students.Add(stu);
                     }
