@@ -7,7 +7,8 @@ namespace OneRosterSampleDataGenerator.Models
     public interface IUser
     {
         Guid id { get; set; }
-        int identifier { get; set; }
+        bool enabledUser { get; set; }
+        string identifier { get; set; }
         //FirstName
         string givenName { get; set; }
         string familyName { get; set; }

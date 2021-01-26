@@ -20,11 +20,14 @@ namespace OneRosterSampleDataGenerator
 
         int NUM_STUDENT_ID = 910000000;
 
+        int NUM_STAFF_ID = 1;
+
         string GRADES = "ALL";
         public List<Grade> grades = new List<Grade>();
         public List<Org> orgs = new List<Org>();
         public List<Course> courses = new List<Course>();
         public List<Student> students = new List<Student>();
+        public List<Teacher> teachers = new List<Teacher>();
 
         Org parentOrg = new Org
         {
@@ -38,6 +41,7 @@ namespace OneRosterSampleDataGenerator
         const string COURSES_FILE = @"../../../../Templates/planets/courses.csv";
         const string STUDENT_FIRSTNAME_FILE = @"../../../../Templates/planets/firstnames.csv";
         const string STUDENT_LASTNAME_FILE = @"../../../../Templates/planets/lastnames.csv";
+        const string TEACHERS_FILE = @"../../../../Templates/planets/teachers.csv";
 
         string[] elemGrades = "KG,01,02,03,04,05".Split(',');
         string[] middleGrades = "06,07,08".Split(',');
@@ -58,6 +62,30 @@ namespace OneRosterSampleDataGenerator
             // Build Students List
             GenerateStudents();
         }
+        /// <summary>
+        /// Creates a Teacher Record
+        /// </summary>
+        /// <returns></returns>
+        public Teacher CreateTeacher(Org? org = null)
+        {
+            var maxTeachers = File.ReadAllLines(TEACHERS_FILE).Length - 1;
+            var rnd = new Random();
+            var rndLine = rnd.Next(0, maxTeachers);
+            var teacherName = File.ReadLines(TEACHERS_FILE).Skip(rndLine).Take(1).First();
+            var staffid = "00000000" + NUM_STAFF_ID.ToString();
+            Teacher teacher = new Teacher
+            {
+                id = Guid.NewGuid(),
+                identifier = staffid.Substring(staffid.Length - 8, 8),
+                enabledUser = true,
+                givenName = teacherName.Split(" ")[0],
+                familyName = teacherName.Split(" ")[1],
+                org = org
+            };
+            NUM_STAFF_ID++;
+            teachers.Add(teacher);
+            return teacher;
+        }
 
         #region "Students"
         void GenerateStudents()
@@ -73,11 +101,12 @@ namespace OneRosterSampleDataGenerator
                     {
                         NUM_STUDENT_ID++;
                         var FName = rnd.Next(0, maxFirstNames);
-                        var LName = rnd.Next(0, maxLastNames); 
+                        var LName = rnd.Next(0, maxLastNames);
                         var stu = new Student
                         {
                             id = Guid.NewGuid(),
-                            identifier = NUM_STUDENT_ID,
+                            identifier = NUM_STUDENT_ID.ToString(),
+                            enabledUser = true,
                             givenName = File.ReadLines(STUDENT_FIRSTNAME_FILE).Skip(FName).Take(1).First(),
                             familyName = File.ReadLines(STUDENT_LASTNAME_FILE).Skip(LName).Take(1).First(),
                             grade = grade,
@@ -126,7 +155,7 @@ namespace OneRosterSampleDataGenerator
         /// </summary>
         void GenerateOrgs()
         {
-            var maxSchools = File.ReadAllLines(ORGS_FILE).Length;
+            var maxSchools = File.ReadAllLines(ORGS_FILE).Length - 1;
             var rnd = new Random();
 
             //TODO: Validate this is possible
@@ -184,6 +213,7 @@ namespace OneRosterSampleDataGenerator
                 }
             }
         }
+
         #endregion
     }
 }
