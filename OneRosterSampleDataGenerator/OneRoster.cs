@@ -22,7 +22,10 @@ namespace OneRosterSampleDataGenerator
 
         int NUM_STAFF_ID = 1;
 
+        string CURRENT_YEAR = "";
+
         string GRADES = "ALL";
+        public List<AcademicSession> academicSessions = new List<AcademicSession>();
         public List<Grade> grades = new List<Grade>();
         public List<Org> orgs = new List<Org>();
         public List<Course> courses = new List<Course>();
@@ -52,6 +55,7 @@ namespace OneRosterSampleDataGenerator
         /// </summary>
         public OneRoster()
         {
+            GenerateAcademicSessions();
             // Build Grades
             GenerateGrades();
             // Build Orgs
@@ -62,6 +66,58 @@ namespace OneRosterSampleDataGenerator
             // Build Students List
             GenerateStudents();
         }
+        #region "Academic Sessions"
+
+        private void GenerateAcademicSessions()
+        {
+            // Get Current School Year
+            var schoolYear = Utility.GetCurrentSchoolYear();
+            var nextSchoolYear = Utility.GetNextSchoolYear();
+            // Create SchoolYear Term
+            AcademicSession academicSession = new AcademicSession
+            {
+                sourcedId = Guid.NewGuid(),
+                status = "active",
+                dateLastModified = DateTime.Now,
+                title = $"FY {schoolYear} - {nextSchoolYear}",
+                startDate = $"7/1/{schoolYear}",
+                endDate = $"6/30/{nextSchoolYear}",
+                type = "schoolYear",
+                schoolYear = schoolYear
+            };
+            this.academicSessions.Add(academicSession);
+
+            AcademicSession academicSessionS1 = new AcademicSession
+            {
+                sourcedId = Guid.NewGuid(),
+                status = "active",
+                dateLastModified = DateTime.Now,
+                title = $"S1 {schoolYear} - {nextSchoolYear}",
+                startDate = $"7/1/{schoolYear}",
+                endDate = $"1/15/{nextSchoolYear}",
+                type = "schoolYear",
+                schoolYear = schoolYear
+            };
+            this.academicSessions.Add(academicSessionS1);
+
+            AcademicSession academicSessionS2 = new AcademicSession
+            {
+                sourcedId = Guid.NewGuid(),
+                status = "active",
+                dateLastModified = DateTime.Now,
+                title = $"S2 {schoolYear} - {nextSchoolYear}",
+                startDate = $"1/16/{nextSchoolYear}",
+                endDate = $"6/30/{nextSchoolYear}",
+                type = "schoolYear",
+                schoolYear = schoolYear
+            };
+            this.academicSessions.Add(academicSessionS2);
+
+        }
+
+        #endregion
+
+        #region "Teacher"
         /// <summary>
         /// Creates a Teacher Record
         /// </summary>
@@ -86,6 +142,7 @@ namespace OneRosterSampleDataGenerator
             teachers.Add(teacher);
             return teacher;
         }
+        #endregion
 
         #region "Students"
         void GenerateStudents()
@@ -206,7 +263,8 @@ namespace OneRosterSampleDataGenerator
                         id = Guid.NewGuid(),
                         title = values[1],
                         courseCode = values[0],
-                        orgSourcedId = parentOrg.id
+                        orgSourcedId = parentOrg.id,
+                        academicSessionId = this.academicSessions.Where(e => e.title.Contains(values[2].ToString())).FirstOrDefault().sourcedId
 
                     };
                     courses.Add(newCourse);
