@@ -21,7 +21,7 @@ namespace OneRosterSampleDataGenerator.UnitTests
             Teacher newTeacher = OneRoster.CreateTeacher();
 
             Assert.IsNotNull(newTeacher);
-            Assert.IsNull(newTeacher.org);
+            Assert.IsNull(newTeacher?.org);
         }
         [TestMethod]
         public void TestNewTeacherWithOrg()
@@ -29,7 +29,7 @@ namespace OneRosterSampleDataGenerator.UnitTests
             Teacher newTeacher = OneRoster.CreateTeacher(OneRoster.orgs.First());
 
             Assert.IsNotNull(newTeacher);
-            Assert.IsNotNull(newTeacher.org);
+            Assert.IsNotNull(newTeacher?.org);
         }
     }
 }

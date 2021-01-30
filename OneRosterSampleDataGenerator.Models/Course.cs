@@ -11,5 +11,6 @@ namespace OneRosterSampleDataGenerator.Models
         public string courseCode { get; set; }
         public Guid orgSourcedId { get; set; }
         public Guid academicSessionId { get; set; }
+        public Grade grade { get; set; }
     }
 }

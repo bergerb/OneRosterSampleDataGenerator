@@ -18,6 +18,8 @@ namespace OneRosterSampleDataGenerator
         int NUM_SCHOOLS = 20;
         int NUM_STUDENTS_PER_GRADE = 200;
 
+        int NUM_CLASS_SIZE = 20;
+
         int NUM_STUDENT_ID = 910000000;
 
         int NUM_STAFF_ID = 1;
@@ -31,6 +33,8 @@ namespace OneRosterSampleDataGenerator
         public List<Course> courses = new List<Course>();
         public List<Student> students = new List<Student>();
         public List<Teacher> teachers = new List<Teacher>();
+        public List<Class> classes = new List<Class>();
+        public List<Enrollment> enrollments = new List<Enrollment>();
 
         Org parentOrg = new Org
         {
@@ -65,7 +69,54 @@ namespace OneRosterSampleDataGenerator
             GenerateCourses();
             // Build Students List
             GenerateStudents();
+            // Build Classes List
+            GenerateClasses();
         }
+
+        #region "Classes"
+        public void GenerateClasses()
+        {
+            foreach (Org org in orgs)
+            {
+                foreach (Grade grade in org.gradesOffer)
+                {
+                    foreach (Course course in courses.Where(e => e.grade == grade))
+                    {
+                        // Create new class after meeting class size
+                        var studentCount = (from s in students
+                                            where s.org.id == org.id &&
+                                            s.courses.Contains(course)
+                                            select s).Count();
+                        var classCount = (studentCount / NUM_CLASS_SIZE) + 1;
+
+                        for (int i = 1; i <= classCount; i++)
+                        {
+                            string sectionNumber = i.ToString().PadLeft(3, '0');
+
+                            Class @class = new Class
+                            {
+                                id = Guid.NewGuid(),
+                                status = "active",
+                                dateLastModified = DateTime.Now,
+                                grades = grade.name,
+                                courseSourcedId = course.id,
+                                title = $"{course.title} SEC {sectionNumber}",
+                                classCode = org.number + course.courseCode + sectionNumber,
+                                schoolSourcedId = org.id,
+                                termSourcedid = course.academicSessionId
+                            };
+                            classes.Add(@class);
+                        }
+                    }
+                }
+                //foreach (Course course in courses.Where(e=>)
+                //{
+
+                //}
+            }
+        }
+        #endregion
+
         #region "Academic Sessions"
 
         private void GenerateAcademicSessions()
@@ -258,14 +309,16 @@ namespace OneRosterSampleDataGenerator
                 {
                     var line = reader.ReadLine();
                     var values = line.Split(',');
+                    var tmpGrade = values[1].ToString();
+                    var grade = tmpGrade.Substring(tmpGrade.Length - 2, 2);
                     Course newCourse = new Course
                     {
                         id = Guid.NewGuid(),
                         title = values[1],
                         courseCode = values[0],
                         orgSourcedId = parentOrg.id,
-                        academicSessionId = this.academicSessions.Where(e => e.title.Contains(values[2].ToString())).FirstOrDefault().sourcedId
-
+                        academicSessionId = this.academicSessions.Where(e => e.title.Contains(values[2].ToString())).FirstOrDefault().sourcedId,
+                        grade = grades.Where(e => e.name.Contains(grade)).First()
                     };
                     courses.Add(newCourse);
                 }
