@@ -73,6 +73,37 @@ namespace OneRosterSampleDataGenerator
             GenerateClasses();
         }
 
+        #region "Enrollments"
+
+        public Enrollment addEnrollment(IUser user, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId, string role)
+        {
+            Enrollment enrollment = new Enrollment
+            {
+                id = Guid.NewGuid(),
+                status = "active",
+                dateLastModified = DateTime.Now,
+                classSourcedId = classSourcedId,
+                courseSourcedId = courseSourcedId,
+                schoolSourcedId = schoolSourcedId,
+                userSourcedId = user.id,
+                role = role
+
+            };
+            enrollments.Add(enrollment);
+            return enrollment;
+        }
+
+        public Enrollment addTeacherEnrollment(Teacher teacher, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
+        {
+            return addEnrollment(teacher, classSourcedId, courseSourcedId, schoolSourcedId, "teacher");
+        }
+
+        public Enrollment addStudentEnrollment(Student student, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
+        {
+            return addEnrollment(student, classSourcedId, courseSourcedId, schoolSourcedId, "student");
+        }
+        #endregion
+
         #region "Classes"
         public void GenerateClasses()
         {
@@ -87,6 +118,7 @@ namespace OneRosterSampleDataGenerator
                                             where s.org.id == org.id &&
                                             s.courses.Contains(course)
                                             select s).Count();
+                        // Determine how many class sections are needed
                         var classCount = (studentCount / NUM_CLASS_SIZE) + 1;
 
                         for (int i = 1; i <= classCount; i++)
@@ -106,6 +138,14 @@ namespace OneRosterSampleDataGenerator
                                 termSourcedid = course.academicSessionId
                             };
                             classes.Add(@class);
+                            // if class is homeroom add a new teacher
+                            //   every homeroom will have only one teacher
+                            if (course.title.ToLower().Contains("homeroom"))
+                            {
+                                Teacher teacher = CreateTeacher(org);
+                                addTeacherEnrollment(teacher, @class.id, course.id, org.id);
+                            }
+                            
                         }
                     }
                 }
@@ -173,7 +213,7 @@ namespace OneRosterSampleDataGenerator
         /// Creates a Teacher Record
         /// </summary>
         /// <returns></returns>
-        public Teacher CreateTeacher(Org? org = null)
+        public Teacher CreateTeacher(Org org = null)
         {
             var maxTeachers = File.ReadAllLines(TEACHERS_FILE).Length - 1;
             var rnd = new Random();

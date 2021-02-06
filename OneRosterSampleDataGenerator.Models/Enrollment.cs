@@ -10,6 +10,7 @@ namespace OneRosterSampleDataGenerator.Models
         public string status { get; set; }
         public DateTime dateLastModified { get; set; }
         public Guid classSourcedId { get; set; }
+        public Guid courseSourcedId { get; set; }
         public Guid schoolSourcedId { get; set; }
         public Guid userSourcedId { get; set; }
         public string role { get; set; }
