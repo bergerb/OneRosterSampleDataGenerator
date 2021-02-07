@@ -18,6 +18,16 @@ namespace OneRosterSampleDataGenerator.Models
 
         public string currentOrgName => this.org.name;
 
-        public Org org { get;set; }
+        public Org org { get; set; }
+
+        public List<Class> classes;
+        public void AddClass(Class @class)
+        {
+            if (classes == null)
+                classes = new List<Class>();
+            classes.Add(@class);
+        }
     }
+
 }
+
