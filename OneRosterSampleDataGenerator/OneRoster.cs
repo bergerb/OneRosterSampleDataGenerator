@@ -74,7 +74,14 @@ namespace OneRosterSampleDataGenerator
         }
 
         #region "Enrollments"
-
+        /// <summary>
+        /// Adds an enumeration of students to given class, course, and org
+        /// </summary>
+        /// <param name="i"></param>
+        /// <param name="students"></param>
+        /// <param name="class"></param>
+        /// <param name="course"></param>
+        /// <param name="org"></param>
         public void AddStudentsToClass(int i, IEnumerable<Student> students, Class @class, Course course, Org org)
         {
             foreach (Student student in students.Skip((i - 1) * NUM_CLASS_SIZE).Take(NUM_CLASS_SIZE))
@@ -83,6 +90,12 @@ namespace OneRosterSampleDataGenerator
             }
         }
 
+        /// <summary>
+        /// Add teacher to given class, course, and org
+        /// </summary>
+        /// <param name="class"></param>
+        /// <param name="course"></param>
+        /// <param name="org"></param>
         public void AddTeacherToClass(Class @class, Course course, Org org)
         {
             Teacher teacher = null;
@@ -106,6 +119,15 @@ namespace OneRosterSampleDataGenerator
             
         }
 
+        /// <summary>
+        /// Add Enrollment for IUser for given class, course, and org
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="classSourcedId"></param>
+        /// <param name="courseSourcedId"></param>
+        /// <param name="schoolSourcedId"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
         public Enrollment addEnrollment(IUser user, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId, string role)
         {
             Enrollment enrollment = new Enrollment
@@ -124,11 +146,27 @@ namespace OneRosterSampleDataGenerator
             return enrollment;
         }
 
+        /// <summary>
+        /// Add Teacher Enrollment
+        /// </summary>
+        /// <param name="teacher"></param>
+        /// <param name="classSourcedId"></param>
+        /// <param name="courseSourcedId"></param>
+        /// <param name="schoolSourcedId"></param>
+        /// <returns></returns>
         public Enrollment addTeacherEnrollment(Teacher teacher, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
         {
             return addEnrollment(teacher, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.teacher.ToString());
         }
 
+        /// <summary>
+        /// Add Student Enrollmen t
+        /// </summary>
+        /// <param name="student"></param>
+        /// <param name="classSourcedId"></param>
+        /// <param name="courseSourcedId"></param>
+        /// <param name="schoolSourcedId"></param>
+        /// <returns></returns>
         public Enrollment addStudentEnrollment(Student student, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
         {
             return addEnrollment(student, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.student.ToString());
@@ -136,6 +174,9 @@ namespace OneRosterSampleDataGenerator
         #endregion
 
         #region "Classes"
+        /// <summary>
+        /// Start Class Generation Process
+        /// </summary>
         public void GenerateClasses()
         {
             foreach (Org org in orgs)
@@ -182,11 +223,12 @@ namespace OneRosterSampleDataGenerator
                 }
             }
         }
-
         #endregion
 
         #region "Academic Sessions"
-
+        /// <summary>
+        /// Star Academic Sessions Generation
+        /// </summary>
         private void GenerateAcademicSessions()
         {
             // Get Current School Year
@@ -233,7 +275,6 @@ namespace OneRosterSampleDataGenerator
             this.academicSessions.Add(academicSessionS2);
 
         }
-
         #endregion
 
         #region "Teacher"
@@ -264,6 +305,9 @@ namespace OneRosterSampleDataGenerator
         #endregion
 
         #region "Students"
+        /// <summary>
+        /// Start Student Generation
+        /// </summary>
         void GenerateStudents()
         {
             var rnd = new Random();
@@ -299,7 +343,7 @@ namespace OneRosterSampleDataGenerator
 
         #region "Grades"
         /// <summary>
-        /// Generate Gradess
+        /// Start Grade Generation
         /// </summary>
         void GenerateGrades()
         {
@@ -368,6 +412,9 @@ namespace OneRosterSampleDataGenerator
         #endregion
 
         #region "Courses"
+        /// <summary>
+        /// Start Course Generation
+        /// </summary>
         void GenerateCourses()
         {
             using (var reader = new StreamReader(COURSES_FILE))
@@ -392,7 +439,6 @@ namespace OneRosterSampleDataGenerator
                 }
             }
         }
-
         #endregion
     }
 }
