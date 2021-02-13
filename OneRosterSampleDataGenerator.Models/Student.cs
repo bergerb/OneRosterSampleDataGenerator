@@ -4,9 +4,9 @@ using System.Text;
 
 namespace OneRosterSampleDataGenerator.Models
 {
-    public class Student : IUser
+    public class Student : BaseModel, IUser
     {
-        public Guid id { get; set; }
+        public Guid sourcedId { get; set; }
         public string identifier { get; set; }
         public bool enabledUser { get; set; }
         public string givenName { get; set; }

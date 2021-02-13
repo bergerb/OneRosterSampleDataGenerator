@@ -6,7 +6,7 @@ namespace OneRosterSampleDataGenerator.Models
 {
     public interface IUser
     {
-        Guid id { get; set; }
+        Guid sourcedId { get; set; }
         bool enabledUser { get; set; }
         string identifier { get; set; }
         //FirstName

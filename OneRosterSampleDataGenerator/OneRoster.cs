@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using static OneRosterSampleDataGenerator.Utility.OneRosterEnums;
 
 namespace OneRosterSampleDataGenerator
 {
@@ -38,9 +37,10 @@ namespace OneRosterSampleDataGenerator
 
         Org parentOrg = new Org
         {
-            id = Guid.NewGuid(),
+            sourcedId = Guid.NewGuid(),
             name = "Test District",
-            number = "9999"
+            identifier = "9999",
+            orgType = OrgType.district
         };
 
         const string GRADES_FILE = @"../../../../Templates/planets/grades.csv";
@@ -86,7 +86,7 @@ namespace OneRosterSampleDataGenerator
         {
             foreach (Student student in students.Skip((i - 1) * NUM_CLASS_SIZE).Take(NUM_CLASS_SIZE))
             {
-                addStudentEnrollment(student, @class.id, course.id, org.id);
+                addStudentEnrollment(student, @class.sourcedId, course.sourcedId, org.sourcedId);
             }
         }
 
@@ -115,7 +115,7 @@ namespace OneRosterSampleDataGenerator
                     teacher = CreateTeacher(org);
             }
             teacher.AddClass(@class);
-            addTeacherEnrollment(teacher, @class.id, course.id, org.id);
+            addTeacherEnrollment(teacher, @class.sourcedId, course.sourcedId, org.sourcedId);
             
         }
 
@@ -128,18 +128,17 @@ namespace OneRosterSampleDataGenerator
         /// <param name="schoolSourcedId"></param>
         /// <param name="role"></param>
         /// <returns></returns>
-        public Enrollment addEnrollment(IUser user, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId, string role)
+        public Enrollment addEnrollment(IUser user, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId, RoleType role)
         {
             Enrollment enrollment = new Enrollment
             {
-                id = Guid.NewGuid(),
-                status = StatusType.active.ToString(),
-                dateLastModified = DateTime.Now,
+                sourcedId = Guid.NewGuid(),
+                Status = StatusType.active,
                 classSourcedId = classSourcedId,
                 courseSourcedId = courseSourcedId,
                 schoolSourcedId = schoolSourcedId,
-                userSourcedId = user.id,
-                role = role
+                userSourcedId = user.sourcedId,
+                Role = role
 
             };
             enrollments.Add(enrollment);
@@ -156,7 +155,7 @@ namespace OneRosterSampleDataGenerator
         /// <returns></returns>
         public Enrollment addTeacherEnrollment(Teacher teacher, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
         {
-            return addEnrollment(teacher, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.teacher.ToString());
+            return addEnrollment(teacher, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.teacher);
         }
 
         /// <summary>
@@ -169,7 +168,7 @@ namespace OneRosterSampleDataGenerator
         /// <returns></returns>
         public Enrollment addStudentEnrollment(Student student, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
         {
-            return addEnrollment(student, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.student.ToString());
+            return addEnrollment(student, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.student);
         }
         #endregion
 
@@ -187,7 +186,7 @@ namespace OneRosterSampleDataGenerator
                     {
                         // Create new class after meeting class size
                         var students = (from s in this.students
-                                        where s.org.id == org.id &&
+                                        where s.org.sourcedId == org.sourcedId &&
                                         s.courses.Contains(course)
                                         select s);
 
@@ -200,15 +199,14 @@ namespace OneRosterSampleDataGenerator
 
                             Class @class = new Class
                             {
-                                id = Guid.NewGuid(),
-                                status = StatusType.active.ToString(),
-                                dateLastModified = DateTime.Now,
+                                sourcedId = Guid.NewGuid(),
+                                Status = StatusType.active,
                                 grades = grade.name,
-                                courseSourcedId = course.id,
+                                courseSourcedId = course.sourcedId,
                                 title = $"{course.title} SEC {sectionNumber}",
-                                classCode = org.number + course.courseCode + sectionNumber,
-                                schoolSourcedId = org.id,
-                                termSourcedid = course.academicSessionId,
+                                classCode = org.identifier + course.courseCode + sectionNumber,
+                                schoolSourcedId = org.sourcedId,
+                                termSourcedid = course.schoolYearSourcedId,
                                 classType = (course.title.Contains("HOMEROOM") ? IMSClassType.homeroom.ToString() : IMSClassType.scheduled.ToString())
                             };
                             classes.Add(@class);
@@ -238,12 +236,11 @@ namespace OneRosterSampleDataGenerator
             AcademicSession academicSession = new AcademicSession
             {
                 sourcedId = Guid.NewGuid(),
-                status = StatusType.active.ToString(),
-                dateLastModified = DateTime.Now,
+                Status = StatusType.active,
                 title = $"FY {schoolYear} - {nextSchoolYear}",
                 startDate = $"7/1/{schoolYear}",
                 endDate = $"6/30/{nextSchoolYear}",
-                type = "schoolYear",
+                sessionType = SessionType.schoolYear,
                 schoolYear = schoolYear
             };
             this.academicSessions.Add(academicSession);
@@ -251,12 +248,11 @@ namespace OneRosterSampleDataGenerator
             AcademicSession academicSessionS1 = new AcademicSession
             {
                 sourcedId = Guid.NewGuid(),
-                status = StatusType.active.ToString(),
-                dateLastModified = DateTime.Now,
+                Status = StatusType.active,
                 title = $"S1 {schoolYear} - {nextSchoolYear}",
                 startDate = $"7/1/{schoolYear}",
                 endDate = $"1/15/{nextSchoolYear}",
-                type = "schoolYear",
+                sessionType = SessionType.schoolYear,
                 schoolYear = schoolYear
             };
             this.academicSessions.Add(academicSessionS1);
@@ -264,12 +260,11 @@ namespace OneRosterSampleDataGenerator
             AcademicSession academicSessionS2 = new AcademicSession
             {
                 sourcedId = Guid.NewGuid(),
-                status = StatusType.active.ToString(),
-                dateLastModified = DateTime.Now,
+                Status = StatusType.active,
                 title = $"S2 {schoolYear} - {nextSchoolYear}",
                 startDate = $"1/16/{nextSchoolYear}",
                 endDate = $"6/30/{nextSchoolYear}",
-                type = SessionType.schoolYear.ToString(),
+                sessionType = SessionType.schoolYear,
                 schoolYear = schoolYear
             };
             this.academicSessions.Add(academicSessionS2);
@@ -291,7 +286,7 @@ namespace OneRosterSampleDataGenerator
             var staffid = "00000000" + NUM_STAFF_ID.ToString();
             Teacher teacher = new Teacher
             {
-                id = Guid.NewGuid(),
+                sourcedId = Guid.NewGuid(),
                 identifier = staffid.Substring(staffid.Length - 8, 8),
                 enabledUser = true,
                 givenName = teacherName.Split(" ")[0],
@@ -324,7 +319,7 @@ namespace OneRosterSampleDataGenerator
                         var LName = rnd.Next(0, maxLastNames);
                         var stu = new Student
                         {
-                            id = Guid.NewGuid(),
+                            sourcedId = Guid.NewGuid(),
                             identifier = NUM_STUDENT_ID.ToString(),
                             enabledUser = true,
                             givenName = File.ReadLines(STUDENT_FIRSTNAME_FILE).Skip(FName).Take(1).First(),
@@ -389,10 +384,11 @@ namespace OneRosterSampleDataGenerator
                 var paddedOrgNum = ("0000" + schoolNum.ToString());
                 Org newOrg = new Org
                 {
-                    id = Guid.NewGuid(),
-                    number = paddedOrgNum.Substring(paddedOrgNum.Length - 4, 4),
+                    sourcedId = Guid.NewGuid(),
+                    identifier = paddedOrgNum.Substring(paddedOrgNum.Length - 4, 4),
                     name = $"{line} {schoolTypes[rnd.Next(schoolTypes.Length)]}",
-                    parentOrgId = parentOrg.id
+                    parentSourcedId = parentOrg.sourcedId,
+                    orgType = OrgType.school
                 };
                 if (newOrg.name.Contains("Elementary"))
                 {
@@ -428,11 +424,11 @@ namespace OneRosterSampleDataGenerator
                     var grade = tmpGrade.Substring(tmpGrade.Length - 2, 2);
                     Course newCourse = new Course
                     {
-                        id = Guid.NewGuid(),
+                        sourcedId = Guid.NewGuid(),
                         title = values[1],
                         courseCode = values[0],
-                        orgSourcedId = parentOrg.id,
-                        academicSessionId = this.academicSessions.Where(e => e.title.Contains(values[2].ToString())).FirstOrDefault().sourcedId,
+                        orgSourcedId = parentOrg.sourcedId,
+                        schoolYearSourcedId = this.academicSessions.Where(e => e.title.Contains(values[2].ToString())).FirstOrDefault().sourcedId,
                         grade = grades.Where(e => e.name.Contains(grade)).First()
                     };
                     courses.Add(newCourse);

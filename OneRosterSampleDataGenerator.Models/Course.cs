@@ -4,13 +4,14 @@ using System.Text;
 
 namespace OneRosterSampleDataGenerator.Models
 {
-    public class Course
+    public class Course : BaseModel
     {
-        public Guid id { get; set; }
+        public Guid sourcedId { get; set; }
+        public DateTime dateLastModified => CreatedAt;
+        public Guid schoolYearSourcedId { get; set; }
         public string title { get; set; }
         public string courseCode { get; set; }
         public Guid orgSourcedId { get; set; }
-        public Guid academicSessionId { get; set; }
         public Grade grade { get; set; }
     }
 }
