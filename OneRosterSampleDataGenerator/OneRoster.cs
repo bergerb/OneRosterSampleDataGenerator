@@ -34,6 +34,7 @@ namespace OneRosterSampleDataGenerator
         public List<Teacher> teachers = new List<Teacher>();
         public List<Class> classes = new List<Class>();
         public List<Enrollment> enrollments = new List<Enrollment>();
+        public List<Demographic> demographics = new List<Demographic>();
 
         Org parentOrg = new Org
         {
@@ -71,8 +72,30 @@ namespace OneRosterSampleDataGenerator
             GenerateStudents();
             // Build Classes List
             GenerateClasses();
+            // Build Demographic List
+            GenerateDemographics();
         }
 
+        #region "Demographics"
+        public void GenerateDemographics()
+        {
+            foreach(Student student in this.students)
+            {
+                this.demographics.Add(new Demographic()
+                {
+                    sourcedId = student.sourcedId,
+                    Status = StatusType.active,
+                    CreatedAt = DateTime.Now,
+                    birthDate = "",
+                    sex = "",
+                    countryOfBirthCode = "",
+                    stateOfBirthAbbreviation = "",
+                    cityOfBirth = "",
+                    publicSchoolResidenceStatus = ""
+                });
+            }
+        }
+        #endregion
         #region "Enrollments"
         /// <summary>
         /// Adds an enumeration of students to given class, course, and org
