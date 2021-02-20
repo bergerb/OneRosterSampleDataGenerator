@@ -15,7 +15,7 @@ namespace OneRosterSampleDataGenerator
     /// </todo>
     public class OneRoster
     {
-        int NUM_SCHOOLS = 20;
+        int NUM_SCHOOLS = 22;
         int NUM_STUDENTS_PER_GRADE = 200;
 
         int NUM_CLASS_SIZE = 20;
@@ -35,13 +35,14 @@ namespace OneRosterSampleDataGenerator
         public List<Class> classes = new List<Class>();
         public List<Enrollment> enrollments = new List<Enrollment>();
         public List<Demographic> demographics = new List<Demographic>();
-
+        public List<Manifest> manifest = new List<Manifest>();
         Org parentOrg = new Org
         {
             sourcedId = Guid.NewGuid(),
-            name = "Test District",
+            name = "Solar School District",
             identifier = "9999",
-            orgType = OrgType.district
+            orgType = OrgType.district,
+            parentSourcedId = null
         };
 
         const string GRADES_FILE = @"../../../../Templates/planets/grades.csv";
@@ -74,12 +75,105 @@ namespace OneRosterSampleDataGenerator
             GenerateClasses();
             // Build Demographic List
             GenerateDemographics();
+            // Build Manifest List
+            GenerateManifest();
         }
+        /// <summary>
+        /// Generate All CSV Files Present
+        /// </summary>
+        public void outputCSVFiles()
+        {
+            //write academic sessions
+            string academicSessionsHeader = "sourcedId,status,dateLastModified,title,type,startDate,endDate,parentSourcedId,schoolYear";
+            StringBuilder academicSessionsOutput = new StringBuilder();
+            academicSessionsOutput.Append(academicSessionsHeader);
+            foreach (AcademicSession a in academicSessions)
+                academicSessionsOutput.Append($"{Environment.NewLine}{a.sourcedId},,,{a.title},{a.type},{string.Format("{0:yyyy-MM-dd}", a.startDate)},{string.Format("{0:yyyy-MM-dd}", a.endDate)},,{a.schoolYear}");
+            File.WriteAllText("academicSessions.csv", academicSessionsOutput.ToString());
+
+            //write orgs
+            string orgsHeader = "sourcedId,status,dateLastModified,name,type,identifier,parentSourcedId";
+            StringBuilder orgsOutput = new StringBuilder();
+            orgsOutput.Append(orgsHeader);
+            foreach (Org o in orgs)
+                orgsOutput.Append($"{Environment.NewLine}{o.sourcedId},,,{o.name},{o.type},{o.identifier},{o.parentSourcedId}");
+            File.WriteAllText("orgs.csv", orgsOutput.ToString());
+
+            //write courses
+            string coursesHeader = "sourcedId,status,dateLastModified,metadata,title,classCode,classType,location,grades,subjects,course,school,term,subjectCodes,period,resources";
+            StringBuilder coursesOutput = new StringBuilder();
+            coursesOutput.Append(coursesHeader);
+            foreach (Course c in courses)
+                coursesOutput.Append($"{Environment.NewLine}{c.sourcedId},,,{c.title},{c.courseCode},,{c.grade.name},,{c.courseCode},,{c.orgSourcedId},,,");
+            File.WriteAllText("courses.csv", coursesOutput.ToString());
+
+            //write users
+            string usersHeader = "sourcedId,status,dateLastModified,enabledUser,orgSourcedIds,role,username,userIds,givenName,familyName,middleName,identifier,email,sms,phone,agentSourcedIds,grades,password";
+            StringBuilder usersOutput = new StringBuilder();
+            usersOutput.Append(usersHeader);
+            foreach (Student s in students)
+                usersOutput.Append($"{Environment.NewLine}{s.sourcedId},,,true,{s.org.sourcedId},student,{s.userName},{s.identifier},{s.givenName},{s.familyName},,{s.identifier},{s.email},,,,{s.currentGrade},");
+            foreach (Teacher t in teachers)
+                usersOutput.Append($"{Environment.NewLine}{t.sourcedId},,,true,{t.org.sourcedId},teacher,{t.userName},{t.identifier},{t.givenName},{t.familyName},,{t.identifier},{t.email},,,,,");
+            File.WriteAllText("users.csv", usersOutput.ToString());
+
+            //write classes
+            string classesHeader = "sourcedId,dateLastModified,title,grades,courseSourcedId,classCode,classType,location,schoolSourcedId,termSourcedId,subjects,subjectCodes,periods" + Environment.NewLine;
+            StringBuilder classesOutput = new StringBuilder();
+            classesOutput.Append(classesHeader);
+            foreach (Class c in classes)
+                classesOutput.Append($"{c.sourcedId},,,{c.grades},{c.courseSourcedId},{c.classCode},{c.classType},,{c.schoolSourcedId},{c.termSourcedid},,,{Environment.NewLine}");
+            File.WriteAllText("classes.csv", classesOutput.ToString());
+
+            //write demograhics
+            string demographicsHeader = "sourcedId,status,dateLastModified,birthDate,sex,americanIndianOrAlaskaNative,asian,blackOrAfricanAmerican,nativeAmericanOrOtherPacificIslander,countryOfBirthCode,stateofBirthAbbreviation,cityOfBirth,publicSchoolResidenceStatus";
+            StringBuilder demograhicsOutput = new StringBuilder();
+            demograhicsOutput.Append(demographicsHeader);
+            foreach (Demographic d in demographics)
+                demograhicsOutput.Append($"{Environment.NewLine}{d.sourcedId},,,,,,,,,,,,");
+            File.WriteAllText("demographics.csv", demograhicsOutput.ToString());
+
+            //write manifest
+            string manifestHeader = "\"propertyName\",\"value\"";
+            StringBuilder manifestOutput = new StringBuilder();
+            manifestOutput.Append(manifestHeader);
+            foreach (Manifest manifest in manifest)
+                manifestOutput.Append($"{Environment.NewLine}\"{manifest.propertyName}\",\"{manifest.value}\"");
+            File.WriteAllText("manifest.csv", demograhicsOutput.ToString());
+        }
+
+        #region "Manifest"
+        /// <summary>
+        /// Generate Manifest File
+        /// </summary>
+        public void GenerateManifest()
+        {
+            manifest.Add(new Manifest() { propertyName = "propertyName", value = "value" });
+            manifest.Add(new Manifest() { propertyName = "manifest.version", value = "1.0" });
+            manifest.Add(new Manifest() { propertyName = "oneroster.version", value = "1.1" });
+            manifest.Add(new Manifest() { propertyName = "source.systemName", value = parentOrg.name + " OneRoster" });
+            manifest.Add(new Manifest() { propertyName = "source.systemCode", value = parentOrg.identifier });
+            manifest.Add(new Manifest() { propertyName = "file.academicSessions", value = "bulk" });
+            manifest.Add(new Manifest() { propertyName = "file.orgs", value = "bulk" });
+            manifest.Add(new Manifest() { propertyName = "file.courses", value = "bulk" });
+            manifest.Add(new Manifest() { propertyName = "file.classes", value = "bulk" });
+            manifest.Add(new Manifest() { propertyName = "file.users", value = "bulk" });
+            manifest.Add(new Manifest() { propertyName = "file.enrollments", value = "bulk" });
+            manifest.Add(new Manifest() { propertyName = "file.demographics", value = "bulk" });
+            manifest.Add(new Manifest() { propertyName = "file.resources", value = "absent" });
+            manifest.Add(new Manifest() { propertyName = "file.classResources", value = "absent" });
+            manifest.Add(new Manifest() { propertyName = "file.courseResources", value = "absent" });
+            manifest.Add(new Manifest() { propertyName = "file.categories", value = "absent" });
+            manifest.Add(new Manifest() { propertyName = "file.lineItems", value = "absent" });
+            manifest.Add(new Manifest() { propertyName = "file.results", value = "absent" });
+
+        }
+        #endregion
 
         #region "Demographics"
         public void GenerateDemographics()
         {
-            foreach(Student student in this.students)
+            foreach (Student student in this.students)
             {
                 this.demographics.Add(new Demographic()
                 {
@@ -96,6 +190,7 @@ namespace OneRosterSampleDataGenerator
             }
         }
         #endregion
+
         #region "Enrollments"
         /// <summary>
         /// Adds an enumeration of students to given class, course, and org
@@ -139,7 +234,7 @@ namespace OneRosterSampleDataGenerator
             }
             teacher.AddClass(@class);
             addTeacherEnrollment(teacher, @class.sourcedId, course.sourcedId, org.sourcedId);
-            
+
         }
 
         /// <summary>
@@ -201,7 +296,7 @@ namespace OneRosterSampleDataGenerator
         /// </summary>
         public void GenerateClasses()
         {
-            foreach (Org org in orgs)
+            foreach (Org org in orgs.Where(e => e.orgType == OrgType.school))
             {
                 foreach (Grade grade in org.gradesOffer)
                 {
@@ -260,9 +355,9 @@ namespace OneRosterSampleDataGenerator
             {
                 sourcedId = Guid.NewGuid(),
                 Status = StatusType.active,
-                title = $"FY {schoolYear} - {nextSchoolYear}",
-                startDate = $"7/1/{schoolYear}",
-                endDate = $"6/30/{nextSchoolYear}",
+                title = $"FY {schoolYear}-{nextSchoolYear}",
+                startDate = DateTime.Parse($"8/30/{schoolYear}"),
+                endDate = DateTime.Parse($"6/30/{nextSchoolYear}"),
                 sessionType = SessionType.schoolYear,
                 schoolYear = schoolYear
             };
@@ -272,9 +367,9 @@ namespace OneRosterSampleDataGenerator
             {
                 sourcedId = Guid.NewGuid(),
                 Status = StatusType.active,
-                title = $"S1 {schoolYear} - {nextSchoolYear}",
-                startDate = $"7/1/{schoolYear}",
-                endDate = $"1/15/{nextSchoolYear}",
+                title = $"S1 {schoolYear}-{nextSchoolYear}",
+                startDate = DateTime.Parse($"8/30/{schoolYear}"),
+                endDate = DateTime.Parse($"1/15/{nextSchoolYear}"),
                 sessionType = SessionType.schoolYear,
                 schoolYear = schoolYear
             };
@@ -284,9 +379,9 @@ namespace OneRosterSampleDataGenerator
             {
                 sourcedId = Guid.NewGuid(),
                 Status = StatusType.active,
-                title = $"S2 {schoolYear} - {nextSchoolYear}",
-                startDate = $"1/16/{nextSchoolYear}",
-                endDate = $"6/30/{nextSchoolYear}",
+                title = $"S2 {schoolYear}-{nextSchoolYear}",
+                startDate = DateTime.Parse($"1/16/{nextSchoolYear}"),
+                endDate = DateTime.Parse($"6/30/{nextSchoolYear}"),
                 sessionType = SessionType.schoolYear,
                 schoolYear = schoolYear
             };
@@ -331,7 +426,7 @@ namespace OneRosterSampleDataGenerator
             var rnd = new Random();
             var maxFirstNames = File.ReadAllLines(STUDENT_FIRSTNAME_FILE).Length - 1;
             var maxLastNames = File.ReadAllLines(STUDENT_LASTNAME_FILE).Length - 1;
-            foreach (Org org in orgs)
+            foreach (Org org in orgs.Where(e => e.orgType == OrgType.school))
             {
                 foreach (var grade in org.gradesOffer)
                 {
@@ -399,7 +494,7 @@ namespace OneRosterSampleDataGenerator
             //TODO: Validate this is possible
 
             var randomSeq = Enumerable.Range(1, maxSchools).OrderBy(r => rnd.NextDouble()).Take(NUM_SCHOOLS).ToList();
-            string[] schoolTypes = { "Elementary School", "Middle School", "High School" };
+            string[] schoolTypes = { "Elementary School", "Elementary School", "Middle School", "Middle School", "High School" };
 
             foreach (var schoolNum in randomSeq)
             {
@@ -427,6 +522,7 @@ namespace OneRosterSampleDataGenerator
                 }
                 orgs.Add(newOrg);
             }
+            orgs.Add(parentOrg);
         }
         #endregion
 
