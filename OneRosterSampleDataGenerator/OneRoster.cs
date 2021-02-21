@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.IO.Compression;
 
 namespace OneRosterSampleDataGenerator
 {
@@ -88,7 +89,7 @@ namespace OneRosterSampleDataGenerator
             StringBuilder academicSessionsOutput = new StringBuilder();
             academicSessionsOutput.Append(academicSessionsHeader);
             foreach (AcademicSession a in academicSessions)
-                academicSessionsOutput.Append($"{Environment.NewLine}{a.sourcedId},,,{a.title},{a.type},{string.Format("{0:yyyy-MM-dd}", a.startDate)},{string.Format("{0:yyyy-MM-dd}", a.endDate)},,{a.schoolYear}");
+                academicSessionsOutput.Append($"{Environment.NewLine}\"{a.sourcedId}\",\"\",\"\",\"{a.title}\",\"{a.type}\",\"{string.Format("{0:yyyy-MM-dd}", a.startDate)}\",\"{string.Format("{0:yyyy-MM-dd}", a.endDate)}\",\"\",\"{a.schoolYear}\"");
             File.WriteAllText("academicSessions.csv", academicSessionsOutput.ToString());
 
             //write orgs
@@ -96,7 +97,7 @@ namespace OneRosterSampleDataGenerator
             StringBuilder orgsOutput = new StringBuilder();
             orgsOutput.Append(orgsHeader);
             foreach (Org o in orgs)
-                orgsOutput.Append($"{Environment.NewLine}{o.sourcedId},,,{o.name},{o.type},{o.identifier},{o.parentSourcedId}");
+                orgsOutput.Append($"{Environment.NewLine}\"{o.sourcedId}\",\"\",\"\",\"{o.name}\",\"{o.type}\",\"{o.identifier}\",\"{o.parentSourcedId}\"");
             File.WriteAllText("orgs.csv", orgsOutput.ToString());
 
             //write courses
@@ -104,7 +105,7 @@ namespace OneRosterSampleDataGenerator
             StringBuilder coursesOutput = new StringBuilder();
             coursesOutput.Append(coursesHeader);
             foreach (Course c in courses)
-                coursesOutput.Append($"{Environment.NewLine}{c.sourcedId},,,{c.title},{c.courseCode},,{c.grade.name},,{c.courseCode},,{c.orgSourcedId},,,");
+                coursesOutput.Append($"{Environment.NewLine}\"{c.sourcedId}\",\"\",\"\",\"{c.title}\",\"{c.courseCode}\",\"\",\"{c.grade.name}\",\"\",\"{c.courseCode}\",\"\",\"{c.orgSourcedId}\",\"\",\"\",\"\"");
             File.WriteAllText("courses.csv", coursesOutput.ToString());
 
             //write users
@@ -112,17 +113,17 @@ namespace OneRosterSampleDataGenerator
             StringBuilder usersOutput = new StringBuilder();
             usersOutput.Append(usersHeader);
             foreach (Student s in students)
-                usersOutput.Append($"{Environment.NewLine}{s.sourcedId},,,true,{s.org.sourcedId},student,{s.userName},{s.identifier},{s.givenName},{s.familyName},,{s.identifier},{s.email},,,,{s.currentGrade},");
+                usersOutput.Append($"{Environment.NewLine}\"{s.sourcedId}\",\"\",\"\",\"true\",\"{s.org.sourcedId}\",\"student\",\"{s.userName}\",\"{s.identifier}\",\"{s.givenName}\",\"{s.familyName}\",\"\",\"{s.identifier}\",\"{s.email}\",\"\",\"\",\"\",\"{s.currentGrade}\",\"\"");
             foreach (Teacher t in teachers)
-                usersOutput.Append($"{Environment.NewLine}{t.sourcedId},,,true,{t.org.sourcedId},teacher,{t.userName},{t.identifier},{t.givenName},{t.familyName},,{t.identifier},{t.email},,,,,");
+                usersOutput.Append($"{Environment.NewLine}\"{t.sourcedId}\",\"\",\"\",\"true\",\"{t.org.sourcedId}\",\"teacher\",\"{t.userName}\",\"{t.identifier}\",\"{t.givenName}\",\"{t.familyName}\",\"\",\"{t.identifier}\",\"{t.email}\",\"\",\"\",\"\",\"\",\"\"");
             File.WriteAllText("users.csv", usersOutput.ToString());
 
             //write classes
-            string classesHeader = "sourcedId,dateLastModified,title,grades,courseSourcedId,classCode,classType,location,schoolSourcedId,termSourcedId,subjects,subjectCodes,periods" + Environment.NewLine;
+            string classesHeader = "sourcedId,dateLastModified,title,grades,courseSourcedId,classCode,classType,location,schoolSourcedId,termSourcedId,subjects,subjectCodes,periods";
             StringBuilder classesOutput = new StringBuilder();
             classesOutput.Append(classesHeader);
             foreach (Class c in classes)
-                classesOutput.Append($"{c.sourcedId},,,{c.grades},{c.courseSourcedId},{c.classCode},{c.classType},,{c.schoolSourcedId},{c.termSourcedid},,,{Environment.NewLine}");
+                classesOutput.Append($"{Environment.NewLine}\"{c.sourcedId}\",\"\",\"\",\"{c.grades}\",\"{c.courseSourcedId}\",\"{c.classCode}\",\"{c.classType}\",\"\",\"{c.schoolSourcedId}\",\"{c.termSourcedid}\",\"\",\"\",\"\"");
             File.WriteAllText("classes.csv", classesOutput.ToString());
 
             //write demograhics
@@ -130,7 +131,7 @@ namespace OneRosterSampleDataGenerator
             StringBuilder demograhicsOutput = new StringBuilder();
             demograhicsOutput.Append(demographicsHeader);
             foreach (Demographic d in demographics)
-                demograhicsOutput.Append($"{Environment.NewLine}{d.sourcedId},,,,,,,,,,,,");
+                demograhicsOutput.Append($"{Environment.NewLine}\"{d.sourcedId}\",\"\",\"\",\"{string.Format("{0:yyyy-MM-dd}", d.birthDate)}\",\"{d.sex}\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"");
             File.WriteAllText("demographics.csv", demograhicsOutput.ToString());
 
             //write manifest
@@ -175,13 +176,15 @@ namespace OneRosterSampleDataGenerator
         {
             foreach (Student student in this.students)
             {
+                var rnd = new Random();
+
                 this.demographics.Add(new Demographic()
                 {
                     sourcedId = student.sourcedId,
                     Status = StatusType.active,
                     CreatedAt = DateTime.Now,
-                    birthDate = "",
-                    sex = "",
+                    birthDate = DateTime.Parse((rnd.Next(1, 12)).ToString() + "/" + (rnd.Next(1, 28)).ToString() + "/" + DateTime.Now.AddYears((6 + student.grade.id) * -1).Year.ToString()),
+                    sex = (rnd.Next(0, 2) == 0 ? "female" : "male"),
                     countryOfBirthCode = "",
                     stateOfBirthAbbreviation = "",
                     cityOfBirth = "",
@@ -363,14 +366,65 @@ namespace OneRosterSampleDataGenerator
             };
             this.academicSessions.Add(academicSession);
 
+            // Marking Periods
+            AcademicSession academicSessionMP1 = new AcademicSession
+            {
+                sourcedId = Guid.NewGuid(),
+                Status = StatusType.active,
+                title = $"MP1 {schoolYear}-{nextSchoolYear}",
+                startDate = DateTime.Parse($"8/30/{schoolYear}"),
+                endDate = DateTime.Parse($"11/09/{schoolYear}"),
+                sessionType = SessionType.gradingPeriod,
+                schoolYear = schoolYear
+            };
+            this.academicSessions.Add(academicSessionMP1);
+
+            AcademicSession academicSessionMP2 = new AcademicSession
+            {
+                sourcedId = Guid.NewGuid(),
+                Status = StatusType.active,
+                title = $"MP2 {schoolYear}-{nextSchoolYear}",
+                startDate = DateTime.Parse($"11/10/{schoolYear}"),
+                endDate = DateTime.Parse($"01/29/{nextSchoolYear}"),
+                sessionType = SessionType.gradingPeriod,
+                schoolYear = schoolYear
+            };
+            this.academicSessions.Add(academicSessionMP2); 
+            
+            AcademicSession academicSessionMP3 = new AcademicSession
+            {
+                sourcedId = Guid.NewGuid(),
+                Status = StatusType.active,
+                title = $"MP3 {schoolYear}-{nextSchoolYear}",
+                startDate = DateTime.Parse($"01/30/{nextSchoolYear}"),
+                endDate = DateTime.Parse($"04/13/{nextSchoolYear}"),
+                sessionType = SessionType.gradingPeriod,
+                schoolYear = schoolYear
+            };
+            this.academicSessions.Add(academicSessionMP3);
+
+            AcademicSession academicSessionMP4 = new AcademicSession
+            {
+                sourcedId = Guid.NewGuid(),
+                Status = StatusType.active,
+                title = $"MP4 {schoolYear}-{nextSchoolYear}",
+                startDate = DateTime.Parse($"4/14/{nextSchoolYear}"),
+                endDate = DateTime.Parse($"6/30/{nextSchoolYear}"),
+                sessionType = SessionType.gradingPeriod,
+                schoolYear = schoolYear
+            };
+            this.academicSessions.Add(academicSessionMP4);
+
+            // Semesters
+
             AcademicSession academicSessionS1 = new AcademicSession
             {
                 sourcedId = Guid.NewGuid(),
                 Status = StatusType.active,
                 title = $"S1 {schoolYear}-{nextSchoolYear}",
                 startDate = DateTime.Parse($"8/30/{schoolYear}"),
-                endDate = DateTime.Parse($"1/15/{nextSchoolYear}"),
-                sessionType = SessionType.schoolYear,
+                endDate = DateTime.Parse($"1/29/{nextSchoolYear}"),
+                sessionType = SessionType.term,
                 schoolYear = schoolYear
             };
             this.academicSessions.Add(academicSessionS1);
@@ -380,9 +434,9 @@ namespace OneRosterSampleDataGenerator
                 sourcedId = Guid.NewGuid(),
                 Status = StatusType.active,
                 title = $"S2 {schoolYear}-{nextSchoolYear}",
-                startDate = DateTime.Parse($"1/16/{nextSchoolYear}"),
+                startDate = DateTime.Parse($"1/30/{nextSchoolYear}"),
                 endDate = DateTime.Parse($"6/30/{nextSchoolYear}"),
-                sessionType = SessionType.schoolYear,
+                sessionType = SessionType.term,
                 schoolYear = schoolYear
             };
             this.academicSessions.Add(academicSessionS2);
@@ -488,6 +542,8 @@ namespace OneRosterSampleDataGenerator
         /// </summary>
         void GenerateOrgs()
         {
+            orgs.Add(parentOrg);
+
             var maxSchools = File.ReadAllLines(ORGS_FILE).Length - 1;
             var rnd = new Random();
 
@@ -522,7 +578,7 @@ namespace OneRosterSampleDataGenerator
                 }
                 orgs.Add(newOrg);
             }
-            orgs.Add(parentOrg);
+
         }
         #endregion
 

@@ -7,7 +7,7 @@ namespace OneRosterSampleDataGenerator.Models
     public class Demographic : BaseModel
     {
         public Guid sourcedId { get; set; }
-        public string birthDate { get; set; }
+        public DateTime birthDate { get; set; }
         public string sex { get; set; }
         public bool americanIndianOrAlaskaNative { get; set; }
         public bool blackOrAfricanAmerican { get; set; }
