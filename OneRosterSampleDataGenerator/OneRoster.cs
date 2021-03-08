@@ -46,13 +46,6 @@ namespace OneRosterSampleDataGenerator
             parentSourcedId = null
         };
 
-        const string GRADES_FILE = @"../../../../Templates/planets/grades.csv";
-        const string ORGS_FILE = @"../../../../Templates/planets/orgs.csv";
-        const string COURSES_FILE = @"../../../../Templates/planets/courses.csv";
-        const string STUDENT_FIRSTNAME_FILE = @"../../../../Templates/planets/firstnames.csv";
-        const string STUDENT_LASTNAME_FILE = @"../../../../Templates/planets/lastnames.csv";
-        const string TEACHERS_FILE = @"../../../../Templates/planets/teachers.csv";
-
         string[] elemGrades = "KG,01,02,03,04,05".Split(',');
         string[] middleGrades = "06,07,08".Split(',');
         string[] highGrades = "09,10,11,12".Split(',');
@@ -389,8 +382,8 @@ namespace OneRosterSampleDataGenerator
                 sessionType = SessionType.gradingPeriod,
                 schoolYear = schoolYear
             };
-            this.academicSessions.Add(academicSessionMP2); 
-            
+            this.academicSessions.Add(academicSessionMP2);
+
             AcademicSession academicSessionMP3 = new AcademicSession
             {
                 sourcedId = Guid.NewGuid(),
@@ -451,11 +444,18 @@ namespace OneRosterSampleDataGenerator
         /// <returns></returns>
         public Teacher CreateTeacher(Org org = null)
         {
-            var maxTeachers = File.ReadAllLines(TEACHERS_FILE).Length - 1;
+            string[] teacherNames = Encoding.
+                  ASCII.
+                  GetString(Utility.StringToMemoryStream(Properties.Resources.teachers).ToArray()).
+                  Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+
+            var maxTeachers = teacherNames.Count();
             var rnd = new Random();
-            var rndLine = rnd.Next(0, maxTeachers);
-            var teacherName = File.ReadLines(TEACHERS_FILE).Skip(rndLine).Take(1).First();
+            var rndLine = rnd.Next(0, maxTeachers - 1);
+
+            var teacherName = teacherNames[rndLine];
             var staffid = "00000000" + NUM_STAFF_ID.ToString();
+
             Teacher teacher = new Teacher
             {
                 sourcedId = Guid.NewGuid(),
@@ -477,9 +477,20 @@ namespace OneRosterSampleDataGenerator
         /// </summary>
         void GenerateStudents()
         {
+            string[] firstNames = Encoding.
+                      ASCII.
+                      GetString(Utility.StringToMemoryStream(Properties.Resources.firstnames).ToArray()).
+                      Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+
+            string[] lastNames = Encoding.
+                      ASCII.
+                      GetString(Utility.StringToMemoryStream(Properties.Resources.lastnames).ToArray()).
+                      Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+
             var rnd = new Random();
-            var maxFirstNames = File.ReadAllLines(STUDENT_FIRSTNAME_FILE).Length - 1;
-            var maxLastNames = File.ReadAllLines(STUDENT_LASTNAME_FILE).Length - 1;
+            var maxFirstNames = firstNames.Count();
+            var maxLastNames = lastNames.Count();
+
             foreach (Org org in orgs.Where(e => e.orgType == OrgType.school))
             {
                 foreach (var grade in org.gradesOffer)
@@ -494,8 +505,8 @@ namespace OneRosterSampleDataGenerator
                             sourcedId = Guid.NewGuid(),
                             identifier = NUM_STUDENT_ID.ToString(),
                             enabledUser = true,
-                            givenName = File.ReadLines(STUDENT_FIRSTNAME_FILE).Skip(FName).Take(1).First(),
-                            familyName = File.ReadLines(STUDENT_LASTNAME_FILE).Skip(LName).Take(1).First(),
+                            givenName = firstNames[FName].ToString(),
+                            familyName = lastNames[LName].ToString(),
                             grade = grade,
                             org = org,
                             // Assign each student all courses of their current grade
@@ -516,7 +527,7 @@ namespace OneRosterSampleDataGenerator
         {
             if (GRADES == "ALL")
             {
-                using (var reader = new StreamReader(GRADES_FILE))
+                using (var reader = new StreamReader(Utility.StringToMemoryStream(Properties.Resources.grades)))
                 {
                     int gradeId = 1;
                     while (!reader.EndOfStream)
@@ -544,7 +555,12 @@ namespace OneRosterSampleDataGenerator
         {
             orgs.Add(parentOrg);
 
-            var maxSchools = File.ReadAllLines(ORGS_FILE).Length - 1;
+            string[] schools = Encoding.
+                      ASCII.
+                      GetString(Utility.StringToMemoryStream(Properties.Resources.orgs).ToArray()).
+                      Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+
+            var maxSchools = schools.Count() - 1;
             var rnd = new Random();
 
             //TODO: Validate this is possible
@@ -554,7 +570,7 @@ namespace OneRosterSampleDataGenerator
 
             foreach (var schoolNum in randomSeq)
             {
-                string line = File.ReadLines(ORGS_FILE).Skip(schoolNum).Take(1).First();
+                string line = schools[schoolNum];
                 var paddedOrgNum = ("0000" + schoolNum.ToString());
                 Org newOrg = new Org
                 {
@@ -588,7 +604,7 @@ namespace OneRosterSampleDataGenerator
         /// </summary>
         void GenerateCourses()
         {
-            using (var reader = new StreamReader(COURSES_FILE))
+            using (var reader = new StreamReader(Utility.StringToMemoryStream(Properties.Resources.courses)))
             {
 
                 while (!reader.EndOfStream)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace OneRosterSampleDataGenerator
@@ -19,7 +20,7 @@ namespace OneRosterSampleDataGenerator
             if (givenDateTime.Month > 6)
                 result = givenDateTime.Year.ToString();
             else
-                result = (givenDateTime.Year -1).ToString();
+                result = (givenDateTime.Year - 1).ToString();
             return result;
         }
         /// <summary>
@@ -31,6 +32,18 @@ namespace OneRosterSampleDataGenerator
         {
             DateTime givenDateTime = dateTime ?? DateTime.Now;
             return (int.Parse(GetCurrentSchoolYear(givenDateTime)) + 1).ToString();
+        }
+
+        /// <summary>
+        /// String to Memory Stream
+        /// </summary>
+        /// <param name="contents"></param>
+        /// <returns></returns>
+        public static MemoryStream StringToMemoryStream(string contents)
+        {
+            byte[] byteArray = Encoding.UTF8.GetBytes(contents);
+            MemoryStream stream = new MemoryStream(byteArray);
+            return stream;
         }
 
     }
