@@ -495,7 +495,9 @@ namespace OneRosterSampleDataGenerator
             {
                 foreach (var grade in org.gradesOffer)
                 {
-                    for (var i = 1; i < NUM_STUDENTS_PER_GRADE; i++)
+                    Random r = new Random();
+                    var CALC_NUM_STUDENTS_PER_GRADE = NUM_STUDENTS_PER_GRADE + (r.Next(-30, 30));
+                    for (var i = 1; i < CALC_NUM_STUDENTS_PER_GRADE; i++)
                     {
                         NUM_STUDENT_ID++;
                         var FName = rnd.Next(0, maxFirstNames);
