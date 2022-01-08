@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 namespace OneRosterSampleDataGenerator
 {
@@ -16,7 +17,7 @@ namespace OneRosterSampleDataGenerator
         {
             DateTime givenDateTime = dateTime ?? DateTime.Now;
 
-            string result = "";
+            string result = string.Empty;
             if (givenDateTime.Month > 6)
                 result = givenDateTime.Year.ToString();
             else
@@ -44,6 +45,28 @@ namespace OneRosterSampleDataGenerator
             byte[] byteArray = Encoding.UTF8.GetBytes(contents);
             MemoryStream stream = new MemoryStream(byteArray);
             return stream;
+        }
+
+        /// <summary>
+        /// Create unique username for a teacher
+        /// </summary>
+        /// <param name="teachers"></param>
+        /// <param name="firstName"></param>
+        /// <param name="lastName"></param>
+        /// <returns></returns>
+        public static string CreateTeacherUserName(List<Models.Teacher> teachers, string firstName, string lastName)
+        {
+            var userName = firstName.Substring(0, 1) + lastName;
+
+            var userNameCount = 0;
+            // If user name exists create a new one by adding 1
+            while (teachers.Any(x => x.userName == userName))
+            {
+                userNameCount++;
+                userName = $"{userName}{userNameCount}";
+            }
+
+            return userName;
         }
 
     }
