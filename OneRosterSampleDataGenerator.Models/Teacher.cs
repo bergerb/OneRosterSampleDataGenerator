@@ -12,7 +12,7 @@ namespace OneRosterSampleDataGenerator.Models
         public string givenName { get; set; }
         public string familyName { get; set; }
 
-        public string userName => givenName.Substring(0, 1) + familyName;
+        public string userName { get; set; }
 
         public string email => this.userName + "@domain.local";
 

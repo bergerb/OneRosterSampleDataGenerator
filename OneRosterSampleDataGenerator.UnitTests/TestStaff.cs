@@ -31,5 +31,16 @@ namespace OneRosterSampleDataGenerator.UnitTests
             Assert.IsNotNull(newTeacher);
             Assert.IsNotNull(newTeacher?.org);
         }
+
+        [TestMethod]
+        public void TestTeachersOneEmailPerIdentifier()
+        {
+            // check for teacher email uniqueness in enrollments
+            var OneRosterEmailCount = OneRoster.teachers.GroupBy(x => x.email)
+                .Where(x => x.Count() > 1)
+                .Count();
+
+            Assert.IsTrue(OneRosterEmailCount == 0);
+        }
     }
 }

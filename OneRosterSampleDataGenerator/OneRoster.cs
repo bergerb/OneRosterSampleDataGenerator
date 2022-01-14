@@ -465,6 +465,7 @@ namespace OneRosterSampleDataGenerator
                 familyName = teacherName.Split(" ")[1],
                 org = org
             };
+            teacher.userName = Utility.CreateTeacherUserName(teachers, teacher.givenName, teacher.familyName);
             NUM_STAFF_ID++;
             teachers.Add(teacher);
             return teacher;
