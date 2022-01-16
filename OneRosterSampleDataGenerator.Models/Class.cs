@@ -6,15 +6,14 @@ namespace OneRosterSampleDataGenerator.Models
 {
     public class @Class : BaseModel
     {
-        public Guid sourcedId { get; set; }
-        public string status => this.Status.ToString();
-        public DateTime dateLastModified => CreatedAt;
-        public string title { get; set; }
-        public string grades { get; set; }
-        public Guid courseSourcedId { get; set; }
-        public string classCode { get; set; }
-        public string classType { get; set; }
-        public Guid schoolSourcedId { get; set; }
-        public Guid termSourcedid { get; set; }
+        public Guid SourcedId { get; set; }
+        public DateTime DateLastModified => CreatedAt;
+        public string Title { get; set; }
+        public string Grades { get; set; }
+        public Guid CourseSourcedId { get; set; }
+        public string ClassCode { get; set; }
+        public string ClassType { get; set; }
+        public Guid SchoolSourcedId { get; set; }
+        public Guid TermSourcedid { get; set; }
     }
 }

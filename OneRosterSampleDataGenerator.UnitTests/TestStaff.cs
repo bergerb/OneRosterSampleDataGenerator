@@ -18,29 +18,57 @@ namespace OneRosterSampleDataGenerator.UnitTests
         [TestMethod]
         public void TestNewTeacher()
         {
-            Teacher newTeacher = OneRoster.CreateTeacher();
+            Staff newTeacher = OneRoster.CreateStaff();
 
             Assert.IsNotNull(newTeacher);
-            Assert.IsNull(newTeacher?.org);
+            Assert.AreEqual(RoleType.teacher, newTeacher.RoleType);
+            Assert.IsNull(newTeacher?.Org);
         }
         [TestMethod]
         public void TestNewTeacherWithOrg()
         {
-            Teacher newTeacher = OneRoster.CreateTeacher(OneRoster.orgs.First());
+            Staff newTeacher = OneRoster.CreateStaff(OneRoster.Orgs.First());
 
             Assert.IsNotNull(newTeacher);
-            Assert.IsNotNull(newTeacher?.org);
+            Assert.AreEqual(RoleType.teacher, newTeacher.RoleType);
+            Assert.IsNotNull(newTeacher?.Org);
         }
 
         [TestMethod]
         public void TestTeachersOneEmailPerIdentifier()
         {
             // check for teacher email uniqueness in enrollments
-            var OneRosterEmailCount = OneRoster.teachers.GroupBy(x => x.email)
+            var OneRosterEmailCount = OneRoster.Staff.GroupBy(x => x.Email)
                 .Where(x => x.Count() > 1)
                 .Count();
 
             Assert.IsTrue(OneRosterEmailCount == 0);
+        }
+
+        [TestMethod]
+        public void TestAtLeastOneAdminPerBuilding()
+        {
+            foreach (Org org in OneRoster.Orgs.Where(x => x.OrgType == OrgType.school))
+            {
+                var staffAdminCount = OneRoster.Staff
+                      .Where(x => x.Org.Id == org.Id && x.RoleType == RoleType.administrator).Count();
+                Assert.IsTrue(staffAdminCount > 0);
+                // High
+                if (org.isHigh)
+                {
+                    Assert.AreEqual(3, staffAdminCount);
+                }
+                // Middle
+                if (org.isMiddle)
+                {
+                    Assert.AreEqual(2, staffAdminCount);
+                }
+                // Elementary
+                if (org.isElementary)
+                {
+                    Assert.AreEqual(1, staffAdminCount);
+                }
+            }
         }
     }
 }

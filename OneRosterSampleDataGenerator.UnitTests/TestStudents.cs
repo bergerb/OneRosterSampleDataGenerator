@@ -27,7 +27,7 @@ namespace OneRosterSampleDataGenerator.UnitTests
         public void TestStudentsAvailable()
         {
             // check for students
-            Assert.IsTrue(OneRoster.students.Count() > 0);
+            Assert.IsTrue(OneRoster.Students.Count() > 0);
         }
         /// <summary>
         /// Every student e-mail must have an @ symbol
@@ -39,7 +39,7 @@ namespace OneRosterSampleDataGenerator.UnitTests
         public void TestEnsureEmail()
         {
             // pick a random student -> test
-            Assert.IsTrue(OneRoster.students[rnd.Next(0,OneRoster.students.Count()-1)].email.Contains("@"));
+            Assert.IsTrue(OneRoster.Students[rnd.Next(0,OneRoster.Students.Count()-1)].Email.Contains("@"));
         }
         /// <summary>
         /// There are no duplicates allowed based on identifier
@@ -47,8 +47,8 @@ namespace OneRosterSampleDataGenerator.UnitTests
         [TestMethod]
         public void TestEnsureNoDupes()
         {
-            var students = from s in OneRoster.students
-                           group s.identifier by s.identifier into dupes
+            var students = from s in OneRoster.Students
+                           group s.Identifier by s.Identifier into dupes
                            where dupes.Count() > 1
                            select new { identifier = dupes.Key, count = dupes.Count() };
 
@@ -61,7 +61,7 @@ namespace OneRosterSampleDataGenerator.UnitTests
         [TestMethod]
         public void TestEnsureOrgs()
         {
-            Assert.IsTrue(OneRoster.students.Where(e => e.org == null).Count() == 0);
+            Assert.IsTrue(OneRoster.Students.Where(e => e.Org == null).Count() == 0);
         }
     }
 }
