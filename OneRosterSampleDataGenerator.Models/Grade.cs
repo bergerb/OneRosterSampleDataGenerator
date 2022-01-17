@@ -6,7 +6,7 @@ namespace OneRosterSampleDataGenerator.Models
 {
     public class Grade : BaseModel
     {
-        public int id { get; set; }
-        public string name { get; set; }
+        public new int Id { get; set; }
+        public string Name { get; set; }
     }
 }

@@ -17,13 +17,13 @@ namespace OneRosterSampleDataGenerator.UnitTests
         public void TestTeachersAvailable()
         {
             // check for teacher enrollments
-            Assert.IsTrue(OneRoster.enrollments.Where(e => e.role == "teacher").Count() > 0);
+            Assert.IsTrue(OneRoster.Enrollments.Where(e => e.RoleType == Models.RoleType.teacher).Count() > 0);
         }
         [TestMethod]
         public void TestStudentsAvailable()
         {
             // check for teacher enrollments
-            Assert.IsTrue(OneRoster.enrollments.Where(e => e.role == "student").Count() > 0);
+            Assert.IsTrue(OneRoster.Enrollments.Where(e => e.RoleType == Models.RoleType.student).Count() > 0);
         }
     }
 }

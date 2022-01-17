@@ -54,13 +54,13 @@ namespace OneRosterSampleDataGenerator
         /// <param name="firstName"></param>
         /// <param name="lastName"></param>
         /// <returns></returns>
-        public static string CreateTeacherUserName(List<Models.Teacher> teachers, string firstName, string lastName)
+        public static string CreateTeacherUserName(List<Models.Staff> teachers, string firstName, string lastName)
         {
             var userName = firstName.Substring(0, 1) + lastName;
 
             var userNameCount = 0;
             // If user name exists create a new one by adding 1
-            while (teachers.Any(x => x.userName == userName))
+            while (teachers.Any(x => x.UserName == userName))
             {
                 userNameCount++;
                 userName = $"{userName}{userNameCount}";

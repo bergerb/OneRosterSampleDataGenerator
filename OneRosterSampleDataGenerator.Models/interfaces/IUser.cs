@@ -6,16 +6,19 @@ namespace OneRosterSampleDataGenerator.Models
 {
     public interface IUser
     {
-        Guid sourcedId { get; set; }
-        bool enabledUser { get; set; }
-        string identifier { get; set; }
+        Guid SourcedId { get; set; }
+        bool EnabledUser { get; set; }
+        string Identifier { get; set; }
         //FirstName
-        string givenName { get; set; }
-        string familyName { get; set; }
-        string userName { get; }
-        string email { get; }
+        string GivenName { get; set; }
+        string FamilyName { get; set; }
+        string UserName { get; }
+        string Email { get; }
 
-        string currentOrgName { get; }
-        Org org { get; set; }
+        string CurrentOrgName { get; }
+        Org Org { get; set; }
+
+        RoleType RoleType { get; set; }
+        public string Role => this.RoleType.ToString();
     }
 }

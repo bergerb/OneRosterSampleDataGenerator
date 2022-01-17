@@ -27,7 +27,7 @@ namespace OneRosterSampleDataGenerator.UnitTests
         public void TestAcademicSessionsAvailable()
         {
             // check for students
-            Assert.IsTrue(OneRoster.academicSessions.Count() > 0);
+            Assert.IsTrue(OneRoster.AcademicSessions.Count() > 0);
         }
 
         /// <summary>

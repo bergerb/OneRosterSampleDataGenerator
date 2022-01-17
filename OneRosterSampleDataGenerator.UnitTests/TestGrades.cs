@@ -11,7 +11,7 @@ namespace OneRosterSampleDataGenerator.UnitTests
         {
             var OneRoster = new OneRoster();
             // check for valid grades
-            Assert.IsTrue(OneRoster.grades.Count() > 0);
+            Assert.IsTrue(OneRoster.Grades.Count() > 0);
         }
     }
 }

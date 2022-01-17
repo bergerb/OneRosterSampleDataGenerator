@@ -6,7 +6,7 @@ namespace OneRosterSampleDataGenerator.Models
 {
     public class Manifest
     {
-        public string propertyName { get; set; }
-        public string value { get; set; }
+        public string PropertyName { get; set; }
+        public string Value { get; set; }
     }
 }
