@@ -18,15 +18,13 @@ namespace OneRosterSampleDataGenerator
     {
         int NUM_SCHOOLS = 22;
         int NUM_STUDENTS_PER_GRADE = 200;
-
         int NUM_CLASS_SIZE = 20;
         int NUM_MAX_TEACHER_CLASS_COUNT = 8;
-
         int NUM_STUDENT_ID = 910000000;
-
         int NUM_STAFF_ID = 1;
 
         string GRADES = "ALL";
+
         public List<AcademicSession> AcademicSessions = new List<AcademicSession>();
         public List<Grade> Grades = new List<Grade>();
         public List<Org> Orgs = new List<Org>();
@@ -37,6 +35,7 @@ namespace OneRosterSampleDataGenerator
         public List<Enrollment> Enrollments = new List<Enrollment>();
         public List<Demographic> Demographics = new List<Demographic>();
         public List<Manifest> Manifest = new List<Manifest>();
+
         Org parentOrg = new Org
         {
             SourcedId = Guid.NewGuid(),
@@ -75,15 +74,20 @@ namespace OneRosterSampleDataGenerator
         /// <summary>
         /// Generate All CSV Files Present
         /// </summary>
-        public void outputCSVFiles()
+        public void OutputCSVFiles()
         {
+            if (!Directory.Exists("OneRoster"))
+            {
+                Directory.CreateDirectory("OneRoster");
+            }
+
             //write academic sessions
             string academicSessionsHeader = "sourcedId,status,dateLastModified,title,type,startDate,endDate,parentSourcedId,schoolYear";
             StringBuilder academicSessionsOutput = new StringBuilder();
             academicSessionsOutput.Append(academicSessionsHeader);
             foreach (AcademicSession a in AcademicSessions)
                 academicSessionsOutput.Append($"{Environment.NewLine}\"{a.SourcedId}\",\"\",\"\",\"{a.Title}\",\"{a.Type}\",\"{string.Format("{0:yyyy-MM-dd}", a.StartDate)}\",\"{string.Format("{0:yyyy-MM-dd}", a.EndDate)}\",\"\",\"{a.SchoolYear}\"");
-            File.WriteAllText("academicSessions.csv", academicSessionsOutput.ToString());
+            File.WriteAllText("OneRoster\\academicSessions.csv", academicSessionsOutput.ToString());
 
             //write orgs
             string orgsHeader = "sourcedId,status,dateLastModified,name,type,identifier,parentSourcedId";
@@ -91,7 +95,7 @@ namespace OneRosterSampleDataGenerator
             orgsOutput.Append(orgsHeader);
             foreach (Org o in Orgs)
                 orgsOutput.Append($"{Environment.NewLine}\"{o.SourcedId}\",\"\",\"\",\"{o.Name}\",\"{o.Type}\",\"{o.Identifier}\",\"{o.ParentSourcedId}\"");
-            File.WriteAllText("orgs.csv", orgsOutput.ToString());
+            File.WriteAllText("OneRoster\\orgs.csv", orgsOutput.ToString());
 
             //write courses
             string coursesHeader = "sourcedId,status,dateLastModified,metadata,title,classCode,classType,location,grades,subjects,course,school,term,subjectCodes,period,resources";
@@ -99,7 +103,7 @@ namespace OneRosterSampleDataGenerator
             coursesOutput.Append(coursesHeader);
             foreach (Course c in Courses)
                 coursesOutput.Append($"{Environment.NewLine}\"{c.SourcedId}\",\"\",\"\",\"{c.Title}\",\"{c.CourseCode}\",\"\",\"{c.Grade.Name}\",\"\",\"{c.CourseCode}\",\"\",\"{c.OrgSourcedId}\",\"\",\"\",\"\"");
-            File.WriteAllText("courses.csv", coursesOutput.ToString());
+            File.WriteAllText("OneRoster\\courses.csv", coursesOutput.ToString());
 
             //write users
             string usersHeader = "sourcedId,status,dateLastModified,enabledUser,orgSourcedIds,role,username,userIds,givenName,familyName,middleName,identifier,email,sms,phone,agentSourcedIds,grades,password";
@@ -109,7 +113,7 @@ namespace OneRosterSampleDataGenerator
                 usersOutput.Append($"{Environment.NewLine}\"{s.SourcedId}\",\"\",\"\",\"true\",\"{s.Org.SourcedId}\",\"student\",\"{s.UserName}\",\"{s.Identifier}\",\"{s.GivenName}\",\"{s.FamilyName}\",\"\",\"{s.Identifier}\",\"{s.Email}\",\"\",\"\",\"\",\"{s.CurrentGrade}\",\"\"");
             foreach (Staff t in Staff)
                 usersOutput.Append($"{Environment.NewLine}\"{t.SourcedId}\",\"\",\"\",\"true\",\"{t.Org.SourcedId}\",\"{t.RoleType}\",\"{t.UserName}\",\"{t.Identifier}\",\"{t.GivenName}\",\"{t.FamilyName}\",\"\",\"{t.Identifier}\",\"{t.Email}\",\"\",\"\",\"\",\"\",\"\"");
-            File.WriteAllText("users.csv", usersOutput.ToString());
+            File.WriteAllText("OneRoster\\users.csv", usersOutput.ToString());
 
             //write classes
             string classesHeader = "sourcedId,dateLastModified,title,grades,courseSourcedId,classCode,classType,location,schoolSourcedId,termSourcedId,subjects,subjectCodes,periods";
@@ -117,7 +121,7 @@ namespace OneRosterSampleDataGenerator
             classesOutput.Append(classesHeader);
             foreach (Class c in Classes)
                 classesOutput.Append($"{Environment.NewLine}\"{c.SourcedId}\",\"\",\"\",\"{c.Grades}\",\"{c.CourseSourcedId}\",\"{c.ClassCode}\",\"{c.ClassType}\",\"\",\"{c.SchoolSourcedId}\",\"{c.TermSourcedid}\",\"\",\"\",\"\"");
-            File.WriteAllText("classes.csv", classesOutput.ToString());
+            File.WriteAllText("OneRoster\\classes.csv", classesOutput.ToString());
 
             //write demograhics
             string demographicsHeader = "sourcedId,status,dateLastModified,birthDate,sex,americanIndianOrAlaskaNative,asian,blackOrAfricanAmerican,nativeAmericanOrOtherPacificIslander,countryOfBirthCode,stateofBirthAbbreviation,cityOfBirth,publicSchoolResidenceStatus";
@@ -125,7 +129,7 @@ namespace OneRosterSampleDataGenerator
             demograhicsOutput.Append(demographicsHeader);
             foreach (Demographic d in Demographics)
                 demograhicsOutput.Append($"{Environment.NewLine}\"{d.SourcedId}\",\"\",\"\",\"{string.Format("{0:yyyy-MM-dd}", d.BirthDate)}\",\"{d.Sex}\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"");
-            File.WriteAllText("demographics.csv", demograhicsOutput.ToString());
+            File.WriteAllText("OneRoster\\demographics.csv", demograhicsOutput.ToString());
 
             //write manifest
             string manifestHeader = "\"propertyName\",\"value\"";
@@ -133,8 +137,26 @@ namespace OneRosterSampleDataGenerator
             manifestOutput.Append(manifestHeader);
             foreach (Manifest manifest in Manifest)
                 manifestOutput.Append($"{Environment.NewLine}\"{manifest.PropertyName}\",\"{manifest.Value}\"");
-            File.WriteAllText("manifest.csv", demograhicsOutput.ToString());
+            File.WriteAllText("OneRoster\\manifest.csv", manifestOutput.ToString());
         }
+
+        public void OutputOneRosterZipFile()
+        {
+            if (!Directory.Exists("OneRoster") || File.Exists("OneRoster\\manifest.csv"))
+            {
+                OutputCSVFiles();
+            }
+            string startPath = @".\OneRoster";
+            string zipPath = @".\OneRoster.zip";
+
+            if (File.Exists(zipPath))
+            {
+                File.Delete(zipPath);
+            }
+
+            ZipFile.CreateFromDirectory(startPath, zipPath);
+        }
+
 
         #region "Manifest"
         /// <summary>
