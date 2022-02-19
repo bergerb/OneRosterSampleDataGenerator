@@ -9,7 +9,14 @@ namespace OneRosterSampleDataGenerator.UnitTests
         public void TestCSVGeneration()
         {
             var OneRoster = new OneRoster();
-            OneRoster.outputCSVFiles();
+            OneRoster.OutputCSVFiles();
+        }
+
+        [TestMethod]
+        public void TestOneRosterZipGeneration()
+        {
+            var OneRoster = new OneRoster();
+            OneRoster.OutputOneRosterZipFile();
         }
     }
 }
