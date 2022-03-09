@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.IO.Compression;
+using Bogus;
 
 namespace OneRosterSampleDataGenerator
 {
@@ -48,6 +49,8 @@ namespace OneRosterSampleDataGenerator
         string[] elemGrades = "KG,01,02,03,04,05".Split(',');
         string[] middleGrades = "06,07,08".Split(',');
         string[] highGrades = "09,10,11,12".Split(',');
+
+        Faker faker = new Faker("en");
 
         /// <summary>
         /// Generates in memory a randomly generated OneRoster construct
@@ -275,7 +278,7 @@ namespace OneRosterSampleDataGenerator
             {
                 teacher = CreateStaff(org);
             }
-            else // Find available teacher
+            else
             {
                 // Find an available teacher
                 teacher = Staff.Where(e => e.Org == org && e.RoleType == RoleType.teacher && e.Classes.Count() < NUM_MAX_TEACHER_CLASS_COUNT).FirstOrDefault();
@@ -514,7 +517,6 @@ namespace OneRosterSampleDataGenerator
             var rnd = new Random();
             var rndLine = rnd.Next(0, maxTeachers - 1);
 
-            var teacherName = teacherNames[rndLine];
             var staffid = "00000000" + NUM_STAFF_ID.ToString();
 
             Staff newStaff = new Staff
@@ -522,8 +524,8 @@ namespace OneRosterSampleDataGenerator
                 SourcedId = Guid.NewGuid(),
                 Identifier = staffid.Substring(staffid.Length - 8, 8),
                 EnabledUser = true,
-                GivenName = teacherName.Split(" ")[0],
-                FamilyName = teacherName.Split(" ")[1],
+                GivenName = faker.Name.FirstName(),
+                FamilyName = faker.Name.LastName(),
                 RoleType = roleType,
                 Org = org
             };
