@@ -50,10 +50,24 @@ namespace OneRosterSampleDataGenerator
         string[] highGrades = "09,10,11,12".Split(',');
 
         /// <summary>
-        /// Instantiate OneRoster 
+        /// Generates in memory a randomly generated OneRoster construct
         /// </summary>
-        public OneRoster()
+        /// <param name="schoolCount"></param>
+        /// <param name="studentsPerGrade"></param>
+        /// <param name="classSize"></param>
+        /// <param name="maxTeacherClassCount"></param>
+        /// <param name="studentIdStart"></param>
+        /// <param name="staffIdStart"></param>
+        public OneRoster(
+                int schoolCount = 22, 
+                int studentsPerGrade = 200, 
+                int classSize = 20, 
+                int maxTeacherClassCount = 8, 
+                int studentIdStart = 910000000,
+                int staffIdStart = 1)
         {
+            SetParameters(schoolCount, studentsPerGrade, classSize, maxTeacherClassCount, studentIdStart, staffIdStart);
+            // Generate Academic Sessions
             GenerateAcademicSessions();
             // Build Grades
             GenerateGrades();
@@ -71,6 +85,26 @@ namespace OneRosterSampleDataGenerator
             // Build Manifest List
             GenerateManifest();
         }
+
+        /// <summary>
+        /// Set the default seeding parameters for the generated roster
+        /// </summary>
+        /// <param name="schoolCount"></param>
+        /// <param name="studentsPerGrade"></param>
+        /// <param name="classSize"></param>
+        /// <param name="maxTeacherClassCount"></param>
+        /// <param name="studentIdStart"></param>
+        /// <param name="staffIdStart"></param>
+        private void SetParameters(int schoolCount, int studentsPerGrade, int classSize, int maxTeacherClassCount, int studentIdStart, int staffIdStart)
+        {
+            NUM_SCHOOLS = schoolCount;
+            NUM_STUDENTS_PER_GRADE = studentsPerGrade;
+            NUM_CLASS_SIZE = classSize;
+            NUM_MAX_TEACHER_CLASS_COUNT = maxTeacherClassCount;
+            NUM_STUDENT_ID = studentIdStart;
+            NUM_STAFF_ID = staffIdStart;
+        }
+
         /// <summary>
         /// Generate All CSV Files Present
         /// </summary>
@@ -529,7 +563,6 @@ namespace OneRosterSampleDataGenerator
                     var CALC_NUM_STUDENTS_PER_GRADE = NUM_STUDENTS_PER_GRADE + (r.Next(-30, 30));
                     for (var i = 1; i < CALC_NUM_STUDENTS_PER_GRADE; i++)
                     {
-                        NUM_STUDENT_ID++;
                         var FName = rnd.Next(0, maxFirstNames);
                         var LName = rnd.Next(0, maxLastNames);
                         var stu = new Student
@@ -545,6 +578,7 @@ namespace OneRosterSampleDataGenerator
                             Courses = Courses.Where(e => e.Title.Contains(grade.Name)).ToList()
                         };
                         Students.Add(stu);
+                        NUM_STUDENT_ID++;
                     }
                 }
             }
