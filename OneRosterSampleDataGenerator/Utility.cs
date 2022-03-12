@@ -24,6 +24,7 @@ namespace OneRosterSampleDataGenerator
                 result = (givenDateTime.Year - 1).ToString();
             return result;
         }
+
         /// <summary>
         /// Returns the next school year of given date
         /// </summary>

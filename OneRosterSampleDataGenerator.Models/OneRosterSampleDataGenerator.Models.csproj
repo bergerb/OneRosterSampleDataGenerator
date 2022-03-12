@@ -4,4 +4,9 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <nullable>enable</nullable> 
+    <WarningsAsErrors>;NU1605;CS8600;CS8602;CS8603</WarningsAsErrors> 
+  </PropertyGroup>
+
 </Project>
