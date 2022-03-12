@@ -9,10 +9,10 @@ namespace OneRosterSampleDataGenerator.Models
         public new string Id => this.SourcedId.ToString();
         public Guid SourcedId { get; set; }
         public DateTime DateLastModified => CreatedAt;
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
         public OrgType OrgType { get; set; }
         public string Type => OrgType.ToString();
-        public string Identifier { get; set; }
+        public string Identifier { get; set; } = null!;
         public Guid? ParentSourcedId { get; set; }
         public List<Grade> GradesOffer { get; set; } = new List<Grade>();
         public bool isHigh => this.Name.Contains("High");

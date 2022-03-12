@@ -50,7 +50,7 @@ namespace OneRosterSampleDataGenerator
         string[] middleGrades = "06,07,08".Split(',');
         string[] highGrades = "09,10,11,12".Split(',');
 
-        Faker faker = new Faker("en");
+        Faker faker = new Faker();
 
         /// <summary>
         /// Generates in memory a randomly generated OneRoster construct

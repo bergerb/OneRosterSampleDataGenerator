@@ -8,11 +8,11 @@ namespace OneRosterSampleDataGenerator.Models
     {
         public Guid SourcedId { get; set; }
         public DateTime DateLastModified => CreatedAt;
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public SessionType SessionType { get; set; }
         public string Type => SessionType.ToString();
-        public string SchoolYear { get; set; }
+        public string SchoolYear { get; set; } = null!;
     }
 }
