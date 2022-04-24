@@ -18,14 +18,19 @@ namespace OneRosterSampleDataGenerator
     /// </todo>
     public class OneRoster
     {
-        int NUM_SCHOOLS = 22;
-        int NUM_STUDENTS_PER_GRADE = 200;
-        int NUM_CLASS_SIZE = 20;
-        int NUM_MAX_TEACHER_CLASS_COUNT = 8;
-        int NUM_STUDENT_ID = 910000000;
-        int NUM_STAFF_ID = 1;
+        public const int DEFAULT_NUM_SCHOOLS = 22;
+        public const int DEFAULT_NUM_STUDENTS_PER_GRADE = 200;
+        public const int DEFAULT_NUM_CLASS_SIZE = 20;
+        public const int DEFAULT_NUM_MAX_TEACHER_CLASS_COUNT = 8;
+        public const int DEFAULT_NUM_STUDENT_ID = 910000000;
+        public const int DEFAULT_NUM_STAFF_ID = 1;
 
-        string GRADES = "ALL";
+        private int schoolCount = DEFAULT_NUM_SCHOOLS;
+        private int studentsPerGrade = DEFAULT_NUM_STUDENTS_PER_GRADE;
+        private int classSize = DEFAULT_NUM_CLASS_SIZE;
+        private int maxTeacherClassSize = DEFAULT_NUM_MAX_TEACHER_CLASS_COUNT;
+        private int studentIdStart = DEFAULT_NUM_STUDENT_ID;
+        private int staffIdStart = DEFAULT_NUM_STAFF_ID;
 
         public List<AcademicSession> AcademicSessions = new List<AcademicSession>();
         public List<Grade> Grades = new List<Grade>();
@@ -59,18 +64,25 @@ namespace OneRosterSampleDataGenerator
         /// <param name="studentIdStart"></param>
         /// <param name="staffIdStart"></param>
         public OneRoster(
-                int schoolCount = 22,
-                int studentsPerGrade = 200,
-                int classSize = 20,
-                int maxTeacherClassCount = 8,
-                int studentIdStart = 910000000,
-                int staffIdStart = 1)
+                int? schoolCount = null,
+                int? studentsPerGrade = null,
+                int? classSize = null,
+                int? maxTeacherClassCount = null,
+                int? studentIdStart = null,
+                int? staffIdStart = null)
         {
             if (schoolCount <= 2)
             {
                 throw new ArgumentException("`School Count` cannot be 2 or less.");
             }
-            SetParameters(schoolCount, studentsPerGrade, classSize, maxTeacherClassCount, studentIdStart, staffIdStart);
+            SetParameters(
+                schoolCount ?? DEFAULT_NUM_SCHOOLS,
+                studentsPerGrade ?? DEFAULT_NUM_STUDENTS_PER_GRADE,
+                classSize ?? DEFAULT_NUM_CLASS_SIZE,
+                maxTeacherClassCount ?? DEFAULT_NUM_MAX_TEACHER_CLASS_COUNT,
+                studentIdStart ?? DEFAULT_NUM_STUDENT_ID,
+                staffIdStart ?? DEFAULT_NUM_STAFF_ID
+                );
             // Generate Academic Sessions
             GenerateAcademicSessions();
             // Build Grades
@@ -96,17 +108,17 @@ namespace OneRosterSampleDataGenerator
         /// <param name="schoolCount"></param>
         /// <param name="studentsPerGrade"></param>
         /// <param name="classSize"></param>
-        /// <param name="maxTeacherClassCount"></param>
+        /// <param name="maxTeacherClassSize"></param>
         /// <param name="studentIdStart"></param>
         /// <param name="staffIdStart"></param>
-        private void SetParameters(int schoolCount, int studentsPerGrade, int classSize, int maxTeacherClassCount, int studentIdStart, int staffIdStart)
+        private void SetParameters(int schoolCount, int studentsPerGrade, int classSize, int maxTeacherClassSize, int studentIdStart, int staffIdStart)
         {
-            NUM_SCHOOLS = schoolCount;
-            NUM_STUDENTS_PER_GRADE = studentsPerGrade;
-            NUM_CLASS_SIZE = classSize;
-            NUM_MAX_TEACHER_CLASS_COUNT = maxTeacherClassCount;
-            NUM_STUDENT_ID = studentIdStart;
-            NUM_STAFF_ID = staffIdStart;
+            this.schoolCount = schoolCount;
+            this.studentsPerGrade = studentsPerGrade;
+            this.classSize = classSize;
+            this.maxTeacherClassSize = maxTeacherClassSize;
+            this.studentIdStart = studentIdStart;
+            this.staffIdStart = staffIdStart;
         }
 
         /// <summary>
@@ -258,7 +270,7 @@ namespace OneRosterSampleDataGenerator
         /// <param name="org"></param>
         public void AddStudentsToClass(int i, IEnumerable<Student> students, Class @class, Course course, Org org)
         {
-            foreach (Student student in students.Skip((i - 1) * NUM_CLASS_SIZE).Take(NUM_CLASS_SIZE))
+            foreach (Student student in students.Skip((i - 1) * classSize).Take(classSize))
             {
                 addStudentEnrollment(student, @class.SourcedId, course.SourcedId, org.SourcedId);
             }
@@ -282,7 +294,7 @@ namespace OneRosterSampleDataGenerator
             else
             {
                 // Find an available teacher
-                teacher = Staff.Where(e => e.Org == org && e.RoleType == RoleType.teacher && e.Classes.Count() < NUM_MAX_TEACHER_CLASS_COUNT).FirstOrDefault();
+                teacher = Staff.Where(e => e.Org == org && e.RoleType == RoleType.teacher && e.Classes.Count() < maxTeacherClassSize).FirstOrDefault();
                 // if no teachers are available
                 //   make a new teacher
                 if (teacher == null)
@@ -370,7 +382,7 @@ namespace OneRosterSampleDataGenerator
                                         select s);
 
                         // Determine how many class sections are needed
-                        var classCount = (students.Count() / NUM_CLASS_SIZE) + 1;
+                        var classCount = (students.Count() / classSize) + 1;
 
                         for (int i = 1; i <= classCount; i++)
                         {
@@ -518,7 +530,7 @@ namespace OneRosterSampleDataGenerator
             var rnd = new Random();
             var rndLine = rnd.Next(0, maxTeachers - 1);
 
-            var staffid = "00000000" + NUM_STAFF_ID.ToString();
+            var staffid = "00000000" + staffIdStart.ToString();
 
             Staff newStaff = new Staff
             {
@@ -531,7 +543,7 @@ namespace OneRosterSampleDataGenerator
                 Org = org
             };
             newStaff.UserName = Utility.CreateTeacherUserName(Staff, newStaff.GivenName, newStaff.FamilyName);
-            NUM_STAFF_ID++;
+            staffIdStart++;
             Staff.Add(newStaff);
             return newStaff;
         }
@@ -563,7 +575,7 @@ namespace OneRosterSampleDataGenerator
                 foreach (var grade in org.GradesOffer)
                 {
                     Random r = new Random();
-                    var CALC_NUM_STUDENTS_PER_GRADE = NUM_STUDENTS_PER_GRADE + (r.Next(-30, 30));
+                    var CALC_NUM_STUDENTS_PER_GRADE = studentsPerGrade + (r.Next(-30, 30));
                     for (var i = 1; i < CALC_NUM_STUDENTS_PER_GRADE; i++)
                     {
                         var FName = rnd.Next(0, maxFirstNames);
@@ -571,7 +583,7 @@ namespace OneRosterSampleDataGenerator
                         var stu = new Student
                         {
                             SourcedId = Guid.NewGuid(),
-                            Identifier = NUM_STUDENT_ID.ToString(),
+                            Identifier = studentIdStart.ToString(),
                             EnabledUser = true,
                             GivenName = firstNames[FName].ToString(),
                             FamilyName = lastNames[LName].ToString(),
@@ -581,7 +593,7 @@ namespace OneRosterSampleDataGenerator
                             Courses = Courses.Where(e => e.Title.Contains(grade.Name)).ToList()
                         };
                         Students.Add(stu);
-                        NUM_STUDENT_ID++;
+                        studentIdStart++;
                     }
                 }
             }
@@ -594,23 +606,20 @@ namespace OneRosterSampleDataGenerator
         /// </summary>
         void GenerateGrades()
         {
-            if (GRADES == "ALL")
+            using (var reader = new StreamReader(Utility.StringToMemoryStream(Properties.Resources.grades)))
             {
-                using (var reader = new StreamReader(Utility.StringToMemoryStream(Properties.Resources.grades)))
+                int gradeId = 1;
+                while (!reader.EndOfStream)
                 {
-                    int gradeId = 1;
-                    while (!reader.EndOfStream)
+                    var line = reader.ReadLine();
+                    var values = line.Split(',');
+                    Grade newGrade = new Grade
                     {
-                        var line = reader.ReadLine();
-                        var values = line.Split(',');
-                        Grade newGrade = new Grade
-                        {
-                            Id = gradeId,
-                            Name = values[0]
-                        };
-                        gradeId++;
-                        Grades.Add(newGrade);
-                    }
+                        Id = gradeId,
+                        Name = values[0]
+                    };
+                    gradeId++;
+                    Grades.Add(newGrade);
                 }
             }
         }
@@ -632,7 +641,7 @@ namespace OneRosterSampleDataGenerator
             var maxSchools = schools.Count() - 1;
             var rnd = new Random();
 
-            var randomSeq = Enumerable.Range(1, maxSchools).OrderBy(r => rnd.NextDouble()).Take(NUM_SCHOOLS).ToList();
+            var randomSeq = Enumerable.Range(1, maxSchools).OrderBy(r => rnd.NextDouble()).Take(schoolCount).ToList();
             string[] schoolTypes = { "Elementary School", "Elementary School", "Middle School", "Middle School", "High School" };
 
             for (int count = 0; count < randomSeq.Count(); count++)
@@ -640,7 +649,7 @@ namespace OneRosterSampleDataGenerator
                 string line = schools[randomSeq[count]];
                 var paddedOrgNum = ("0000" + randomSeq[count].ToString());
                 var identifier = paddedOrgNum.Substring(paddedOrgNum.Length - 4, 4);
-                var schoolName = NUM_SCHOOLS != 3 ?
+                var schoolName = schoolCount != 3 ?
                     $"{line} {schoolTypes[rnd.Next(schoolTypes.Length)]}" :
                     $"{line} {GradeHelper.SchoolLevels[count]}";
 
