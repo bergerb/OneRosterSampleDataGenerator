@@ -68,7 +68,7 @@ namespace OneRosterSampleDataGenerator
         {
             if (schoolCount <= 2)
             {
-                throw new ArgumentException("School Count cannot be less than 2.");
+                throw new ArgumentException("`School Count` cannot be 2 or less.");
             }
             SetParameters(schoolCount, studentsPerGrade, classSize, maxTeacherClassCount, studentIdStart, staffIdStart);
             // Generate Academic Sessions
