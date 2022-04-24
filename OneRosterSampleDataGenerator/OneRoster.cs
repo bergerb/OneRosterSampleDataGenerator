@@ -1,11 +1,12 @@
-﻿using OneRosterSampleDataGenerator.Models;
+﻿using Bogus;
+using OneRosterSampleDataGenerator.Helpers;
+using OneRosterSampleDataGenerator.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
-using System.IO.Compression;
-using Bogus;
 
 namespace OneRosterSampleDataGenerator
 {
@@ -46,10 +47,6 @@ namespace OneRosterSampleDataGenerator
             ParentSourcedId = null
         };
 
-        string[] elemGrades = "KG,01,02,03,04,05".Split(',');
-        string[] middleGrades = "06,07,08".Split(',');
-        string[] highGrades = "09,10,11,12".Split(',');
-
         Faker faker = new Faker();
 
         /// <summary>
@@ -62,13 +59,17 @@ namespace OneRosterSampleDataGenerator
         /// <param name="studentIdStart"></param>
         /// <param name="staffIdStart"></param>
         public OneRoster(
-                int schoolCount = 22, 
-                int studentsPerGrade = 200, 
-                int classSize = 20, 
-                int maxTeacherClassCount = 8, 
+                int schoolCount = 22,
+                int studentsPerGrade = 200,
+                int classSize = 20,
+                int maxTeacherClassCount = 8,
                 int studentIdStart = 910000000,
                 int staffIdStart = 1)
         {
+            if (schoolCount <= 2)
+            {
+                throw new ArgumentException("School Count cannot be less than 2.");
+            }
             SetParameters(schoolCount, studentsPerGrade, classSize, maxTeacherClassCount, studentIdStart, staffIdStart);
             // Generate Academic Sessions
             GenerateAcademicSessions();
@@ -357,7 +358,7 @@ namespace OneRosterSampleDataGenerator
                 {
                     CreateStaff(org, RoleType.administrator);
                 }
-                
+
                 foreach (Grade grade in org.GradesOffer)
                 {
                     foreach (Course course in Courses.Where(e => e.Grade == grade))
@@ -631,39 +632,30 @@ namespace OneRosterSampleDataGenerator
             var maxSchools = schools.Count() - 1;
             var rnd = new Random();
 
-            //TODO: Validate this is possible
-
             var randomSeq = Enumerable.Range(1, maxSchools).OrderBy(r => rnd.NextDouble()).Take(NUM_SCHOOLS).ToList();
             string[] schoolTypes = { "Elementary School", "Elementary School", "Middle School", "Middle School", "High School" };
 
-            foreach (var schoolNum in randomSeq)
+            for (int count = 0; count < randomSeq.Count(); count++)
             {
-                string line = schools[schoolNum];
-                var paddedOrgNum = ("0000" + schoolNum.ToString());
-                Org newOrg = new Org
-                {
-                    SourcedId = Guid.NewGuid(),
-                    Identifier = paddedOrgNum.Substring(paddedOrgNum.Length - 4, 4),
-                    Name = $"{line} {schoolTypes[rnd.Next(schoolTypes.Length)]}",
-                    ParentSourcedId = parentOrg.SourcedId,
-                    OrgType = OrgType.school
-                };
-                if (newOrg.Name.Contains("Elementary"))
-                {
-                    newOrg.GradesOffer = Grades.Where(e => elemGrades.Contains(e.Name)).ToList();
-                }
-                if (newOrg.Name.Contains("Middle"))
-                {
-                    newOrg.GradesOffer = Grades.Where(e => middleGrades.Contains(e.Name)).ToList();
-                }
-                if (newOrg.Name.Contains("High"))
-                {
-                    newOrg.GradesOffer = Grades.Where(e => highGrades.Contains(e.Name)).ToList();
-                }
-                Orgs.Add(newOrg);
+                string line = schools[randomSeq[count]];
+                var paddedOrgNum = ("0000" + randomSeq[count].ToString());
+                var identifier = paddedOrgNum.Substring(paddedOrgNum.Length - 4, 4);
+                var schoolName = NUM_SCHOOLS != 3 ?
+                    $"{line} {schoolTypes[rnd.Next(schoolTypes.Length)]}" :
+                    $"{line} {GradeHelper.SchoolLevels[count]}";
+
+                Orgs.Add(
+                    OrgHelper.CreateSchool(
+                        identifier,
+                        schoolName,
+                        parentOrg.SourcedId,
+                        Grades
+                        )
+                    );
             }
 
         }
+
         #endregion
 
         #region "Courses"
