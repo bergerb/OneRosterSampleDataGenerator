@@ -45,11 +45,15 @@ namespace Tests
         }
 
         [Test]
-        public void TestLessThan2SchoolsThrowsException()
+        [TestCase(-1)]
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        public void TestLessThan3SchoolsThrowsException(int schoolCount)
         {
             Should.Throw<ArgumentException>(() =>
             {
-                var oneRoster = new OneRoster(schoolCount: 2);
+                var oneRoster = new OneRoster(schoolCount: schoolCount);
             });
         }
 
