@@ -2,6 +2,7 @@
 using OneRosterSampleDataGenerator;
 using OneRosterSampleDataGenerator.Models;
 using Shouldly;
+using System;
 using System.Linq;
 
 namespace Tests
@@ -41,6 +42,31 @@ namespace Tests
             var oneRoster = new OneRoster(staffIdStart: 1000);
 
             oneRoster.Staff.Min(x => int.Parse(x.Identifier)).ShouldBe(1000);
+        }
+
+        [Test]
+        [TestCase(-1)]
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        public void TestLessThan3SchoolsThrowsException(int schoolCount)
+        {
+            Should.Throw<ArgumentException>(() =>
+            {
+                var oneRoster = new OneRoster(schoolCount: schoolCount);
+            });
+        }
+
+        [Test]
+        public void Test3SchoolsShouldReturnOneOfEachSchoolType()
+        {
+            var oneRoster = new OneRoster(schoolCount: 3);
+
+            var schools = oneRoster.Orgs.Where(x => x.OrgType == OrgType.school);
+
+            schools.Where(x => x.isElementary).Count().ShouldBe(1);
+            schools.Where(x => x.isMiddle).Count().ShouldBe(1);
+            schools.Where(x => x.isHigh).Count().ShouldBe(1);
         }
     }
 }
