@@ -25,7 +25,7 @@ namespace OneRosterSampleDataGenerator
         public const int DEFAULT_NUM_STUDENT_ID = 910000000;
         public const int DEFAULT_NUM_STAFF_ID = 1;
 
-        private int schoolsToCreate = DEFAULT_NUM_SCHOOLS;
+        private int schoolCount = DEFAULT_NUM_SCHOOLS;
         private int studentsPerGrade = DEFAULT_NUM_STUDENTS_PER_GRADE;
         private int classSize = DEFAULT_NUM_CLASS_SIZE;
         private int maxTeacherClassSize = DEFAULT_NUM_MAX_TEACHER_CLASS_COUNT;
@@ -108,15 +108,15 @@ namespace OneRosterSampleDataGenerator
         /// <param name="schoolCount"></param>
         /// <param name="studentsPerGrade"></param>
         /// <param name="classSize"></param>
-        /// <param name="maxTeacherClassCount"></param>
+        /// <param name="maxTeacherClassSize"></param>
         /// <param name="studentIdStart"></param>
         /// <param name="staffIdStart"></param>
-        private void SetParameters(int schoolCount, int studentsPerGrade, int classSize, int maxTeacherClassCount, int studentIdStart, int staffIdStart)
+        private void SetParameters(int schoolCount, int studentsPerGrade, int classSize, int maxTeacherClassSize, int studentIdStart, int staffIdStart)
         {
-            schoolsToCreate = schoolCount;
+            this.schoolCount = schoolCount;
             this.studentsPerGrade = studentsPerGrade;
             this.classSize = classSize;
-            maxTeacherClassSize = maxTeacherClassCount;
+            this.maxTeacherClassSize = maxTeacherClassSize;
             this.studentIdStart = studentIdStart;
             this.staffIdStart = staffIdStart;
         }
@@ -641,7 +641,7 @@ namespace OneRosterSampleDataGenerator
             var maxSchools = schools.Count() - 1;
             var rnd = new Random();
 
-            var randomSeq = Enumerable.Range(1, maxSchools).OrderBy(r => rnd.NextDouble()).Take(schoolsToCreate).ToList();
+            var randomSeq = Enumerable.Range(1, maxSchools).OrderBy(r => rnd.NextDouble()).Take(schoolCount).ToList();
             string[] schoolTypes = { "Elementary School", "Elementary School", "Middle School", "Middle School", "High School" };
 
             for (int count = 0; count < randomSeq.Count(); count++)
@@ -649,7 +649,7 @@ namespace OneRosterSampleDataGenerator
                 string line = schools[randomSeq[count]];
                 var paddedOrgNum = ("0000" + randomSeq[count].ToString());
                 var identifier = paddedOrgNum.Substring(paddedOrgNum.Length - 4, 4);
-                var schoolName = schoolsToCreate != 3 ?
+                var schoolName = schoolCount != 3 ?
                     $"{line} {schoolTypes[rnd.Next(schoolTypes.Length)]}" :
                     $"{line} {GradeHelper.SchoolLevels[count]}";
 
