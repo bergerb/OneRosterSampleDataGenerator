@@ -388,7 +388,7 @@ namespace OneRosterSampleDataGenerator
         {
             foreach (Org org in Orgs.Where(e => e.OrgType == OrgType.school))
             {
-                for (int i = 0; i < (org.isHigh ? 3 : org.isMiddle ? 2 : org.isElementary ? 1 : 1); i++)
+                for (int i = 0; i < (org.IsHigh ? 3 : org.IsMiddle ? 2 : org.IsElementary ? 1 : 1); i++)
                 {
                     CreateStaff(org, RoleType.administrator);
                 }

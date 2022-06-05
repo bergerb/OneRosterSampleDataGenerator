@@ -21,6 +21,15 @@ namespace Tests
             var OneRoster = new OneRoster();
             OneRoster.OutputOneRosterZipFile();
         }
+
+        [Test]
+        public void TestOneRosterZipGeneration3Schools()
+        {
+            var OneRoster = new OneRoster(
+                schoolCount: 3);
+            OneRoster.OutputOneRosterZipFile();
+        }
+
         [Test]
         public void TestOneRosterZipToEnsureAllZipFiles()
         {
@@ -30,6 +39,7 @@ namespace Tests
             using ZipArchive archive = ZipFile.OpenRead(zipFile);
             archive.Entries.Count().ShouldBe(8);
         }
+
 
     }
 }
