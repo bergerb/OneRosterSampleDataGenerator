@@ -56,17 +56,17 @@ namespace Tests
                       .Where(x => x.Org.Id == org.Id && x.RoleType == RoleType.administrator).Count();
                 Assert.IsTrue(staffAdminCount > 0);
                 // High
-                if (org.isHigh)
+                if (org.IsHigh)
                 {
                     staffAdminCount.ShouldBe(3);
                 }
                 // Middle
-                if (org.isMiddle)
+                if (org.IsMiddle)
                 {
                     staffAdminCount.ShouldBe(2);
                 }
                 // Elementary
-                if (org.isElementary)
+                if (org.IsElementary)
                 {
                     staffAdminCount.ShouldBe(1);
                 }

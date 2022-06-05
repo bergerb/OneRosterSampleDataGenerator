@@ -4,9 +4,9 @@ using System.Text;
 
 namespace OneRosterSampleDataGenerator.Models
 {
-    public enum IMSClassType { homeroom, scheduled }
     public enum Gender { male, female }
     public enum Importance { primary, secondary }
+    public enum IMSClassType { homeroom, scheduled }
     public enum OrgType { department, school, district, local, state, national }
     public enum RoleType { administrator, aide, guardian, parent, proctor, relative, student, teacher }
     public enum ScoreStatus { exempt, fully_graded, not_submitted, partially_graded, submitted }

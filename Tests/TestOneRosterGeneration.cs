@@ -64,9 +64,9 @@ namespace Tests
 
             var schools = oneRoster.Orgs.Where(x => x.OrgType == OrgType.school);
 
-            schools.Where(x => x.isElementary).Count().ShouldBe(1);
-            schools.Where(x => x.isMiddle).Count().ShouldBe(1);
-            schools.Where(x => x.isHigh).Count().ShouldBe(1);
+            schools.Where(x => x.IsElementary).Count().ShouldBe(1);
+            schools.Where(x => x.IsMiddle).Count().ShouldBe(1);
+            schools.Where(x => x.IsHigh).Count().ShouldBe(1);
         }
     }
 }
