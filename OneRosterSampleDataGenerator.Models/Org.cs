@@ -6,17 +6,17 @@ namespace OneRosterSampleDataGenerator.Models
 {
     public class Org : BaseModel
     {
-        public new string Id => this.SourcedId.ToString();
-        public Guid SourcedId { get; set; }
+        public bool isElementary => Name.Contains("Elementary");
+        public bool isHigh => Name.Contains("High");
+        public bool isMiddle => Name.Contains("Middle");
         public DateTime DateLastModified => CreatedAt;
-        public string Name { get; set; } = null!;
-        public OrgType OrgType { get; set; }
-        public string Type => OrgType.ToString();
-        public string Identifier { get; set; } = null!;
+        public Guid SourcedId { get; set; }
         public Guid? ParentSourcedId { get; set; }
         public List<Grade> GradesOffer { get; set; } = new List<Grade>();
-        public bool isHigh => this.Name.Contains("High");
-        public bool isMiddle => this.Name.Contains("Middle");
-        public bool isElementary => this.Name.Contains("Elementary");
+        public new string Id => this.SourcedId.ToString();
+        public OrgType OrgType { get; set; }
+        public string Name { get; set; } = null!;
+        public string Type => OrgType.ToString();
+        public string Identifier { get; set; } = null!;
     }
 }

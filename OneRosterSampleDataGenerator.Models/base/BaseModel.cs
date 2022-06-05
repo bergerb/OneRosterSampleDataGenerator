@@ -6,11 +6,8 @@ namespace OneRosterSampleDataGenerator.Models
 {
     public abstract class BaseModel
     {
-
-        public string Id { get; set; } = null!;
-
+        public DateTime CreatedAt => DateTime.Now;
         public StatusType Status { get; set; }
-
-        public DateTime CreatedAt { get; set; }
+        public string Id { get; set; } = null!;
     }
 }

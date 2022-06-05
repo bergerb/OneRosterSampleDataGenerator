@@ -6,13 +6,13 @@ namespace OneRosterSampleDataGenerator.Models
 {
     public class AcademicSession : BaseModel
     {
-        public Guid SourcedId { get; set; }
         public DateTime DateLastModified => CreatedAt;
-        public string Title { get; set; } = null!;
-        public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public SessionType SessionType { get; set; }
-        public string Type => SessionType.ToString();
+        public DateTime StartDate { get; set; }
+        public Guid SourcedId { get; set; }
         public string SchoolYear { get; set; } = null!;
+        public string Title { get; set; } = null!;
+        public string Type => SessionType.ToString();
+        public SessionType SessionType { get; set; }
     }
 }
