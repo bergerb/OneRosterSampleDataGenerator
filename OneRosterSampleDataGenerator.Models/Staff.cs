@@ -11,11 +11,11 @@ namespace OneRosterSampleDataGenerator.Models
         public Guid SourcedId { get; set; }
         public List<Class> Classes = new List<Class>();
         public string CurrentOrgName => this.Org.Name;
-        public string GivenName { get; set; } = null!;
+        public string Email => UserName + "@domain.local";
         public string FamilyName { get; set; } = null!;
+        public string GivenName { get; set; } = null!;
         public string Identifier { get; set; } = null!;
         public string UserName { get; set; } = null!;
-        public string Email => UserName + "@domain.local";
         public Org Org { get; set; } = null!;
         public RoleType RoleType { get; set; }
 

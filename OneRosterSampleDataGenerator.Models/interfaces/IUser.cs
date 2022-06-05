@@ -9,11 +9,11 @@ namespace OneRosterSampleDataGenerator.Models
         bool EnabledUser { get; set; }
         Guid SourcedId { get; set; }
         string CurrentOrgName { get; }
+        string Email { get; }
         /// <summary>
         /// Last Name
         /// </summary>
         string FamilyName { get; set; }
-        string Email { get; }
         /// <summary>
         /// First Name
         /// </summary>

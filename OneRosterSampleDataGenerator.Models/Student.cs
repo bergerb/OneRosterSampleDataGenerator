@@ -14,8 +14,14 @@ namespace OneRosterSampleDataGenerator.Models
         public string CurrentGrade => this.Grade.Name;
         public string CurrentOrgName => this.Org.Name;
         public string Email => this.UserName + "@domain.local";
-        public string GivenName { get; set; } = null!;
+        /// <summary>
+        /// Last Name
+        /// </summary>
         public string FamilyName { get; set; } = null!;
+        /// <summary>
+        /// First Name
+        /// </summary>
+        public string GivenName { get; set; } = null!;
         public string Identifier { get; set; } = null!;
         public string UserName => GivenName[..1] + FamilyName + Identifier.Substring(6, 3);
         public Org Org { get; set; } = null!;

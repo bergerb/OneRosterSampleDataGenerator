@@ -195,6 +195,8 @@ namespace OneRosterSampleDataGenerator
                 manifestOutput.Append($"{Environment.NewLine}\"{manifest.PropertyName}\",\"{manifest.Value}\"");
             File.WriteAllText("OneRoster\\manifest.csv", manifestOutput.ToString());
 
+            #region Local Functions
+
             void SetupDirectory()
             {
                 if (Directory.Exists(OutputDirectory))
@@ -206,13 +208,14 @@ namespace OneRosterSampleDataGenerator
                 }
                 Directory.CreateDirectory(OutputDirectory);
             }
+
             string FormatDateLastModified(DateTime dateTime)
             {
-                //YYYY-06-DDT09:06:SS.35Z
                 var formattedDateTime = dateTime.ToString("yyyy-MM-ddTHH:MM:ss.sssZ");
                 return formattedDateTime;
-                //return dateTime.ToString("YYYY-MM-DDTHH:MM:SS.sssZ");
             }
+
+            #endregion
         }
 
         public void OutputOneRosterZipFile()
