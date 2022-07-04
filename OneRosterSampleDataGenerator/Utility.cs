@@ -17,8 +17,9 @@ namespace OneRosterSampleDataGenerator
         {
             DateTime givenDateTime = dateTime ?? DateTime.Now;
 
-            string result = string.Empty;
-            if (givenDateTime.Month > 6)
+            string result;
+            if (givenDateTime.Month > 8 ||
+                    (givenDateTime.Month == 8 && givenDateTime.Day > 15))
                 result = givenDateTime.Year.ToString();
             else
                 result = (givenDateTime.Year - 1).ToString();
@@ -44,7 +45,7 @@ namespace OneRosterSampleDataGenerator
         public static MemoryStream StringToMemoryStream(string contents)
         {
             byte[] byteArray = Encoding.UTF8.GetBytes(contents);
-            MemoryStream stream = new MemoryStream(byteArray);
+            MemoryStream stream = new(byteArray);
             return stream;
         }
 
@@ -57,7 +58,7 @@ namespace OneRosterSampleDataGenerator
         /// <returns></returns>
         public static string CreateTeacherUserName(List<Models.Staff> teachers, string firstName, string lastName)
         {
-            var userName = firstName.Substring(0, 1) + lastName;
+            var userName = string.Concat(firstName.AsSpan(0, 1), lastName);
 
             var userNameCount = 0;
             // If user name exists create a new one by adding 1
