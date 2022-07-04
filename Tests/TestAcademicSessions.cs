@@ -2,6 +2,7 @@
 using OneRosterSampleDataGenerator;
 using Shouldly;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Tests
@@ -30,36 +31,40 @@ namespace Tests
             OneRoster.AcademicSessions.Count.ShouldBeGreaterThan(0);
         }
 
+        private static readonly object[] currentYearTests =
+        {
+            new object[] { "12/1/2019", "2019" },
+            new object[] { "1/1/2020", "2019" },
+            new object[] { "1/1/2020", "2019" },
+            new object[] { "12/1/2020", "2020" },
+            new object[] { "7/1/2021", "2020" },
+            new object[] { "12/1/2021", "2021" },
+        };
         /// <summary>
         /// Test Business Logic for Current School Year Generation
         /// </summary>
-        [Test]
-        public void TestCurrentYear()
+        [TestCaseSource(nameof(currentYearTests))]
+        public void TestCurrentYear(string dateToCheck, string year)
         {
-            Utility.GetCurrentSchoolYear(DateTime.Parse("12/1/2019")).ShouldBe("2019");
-            Utility.GetCurrentSchoolYear(DateTime.Parse("1/1/2020")).ShouldBe("2019");
-
-            Utility.GetCurrentSchoolYear(DateTime.Parse("1/1/2020")).ShouldBe("2019");
-            Utility.GetCurrentSchoolYear(DateTime.Parse("12/1/2020")).ShouldBe("2020");
-
-            Utility.GetCurrentSchoolYear(DateTime.Parse("7/1/2021")).ShouldBe("2021");
-            Utility.GetCurrentSchoolYear(DateTime.Parse("12/1/2021")).ShouldBe("2021");
+            Utility.GetCurrentSchoolYear(DateTime.Parse(dateToCheck)).ShouldBe(year);
         }
 
+        private static readonly object[] nextYearTests = 
+        {
+            new object[] { "12/1/2019", "2020" },
+            new object[] { "1/1/2020", "2020" },
+            new object[] { "1/1/2020", "2020" },
+            new object[] { "12/1/2020", "2021" },
+            new object[] { "7/1/2021", "2021" },
+            new object[] { "12/1/2021", "2022" },
+        };
         /// <summary>
         /// Test Business Logic for Next School Year Generation
         /// </summary>
-        [Test]
-        public void TestNextYear()
+        [TestCaseSource(nameof(nextYearTests))]
+        public void TestNextYear(string dateToCheck, string year)
         {
-            Utility.GetNextSchoolYear(DateTime.Parse("12/1/2019")).ShouldBe("2020");
-            Utility.GetNextSchoolYear(DateTime.Parse("1/1/2020")).ShouldBe("2020");
-
-            Utility.GetNextSchoolYear(DateTime.Parse("1/1/2020")).ShouldBe("2020");
-            Utility.GetNextSchoolYear(DateTime.Parse("12/1/2020")).ShouldBe("2021");
-
-            Utility.GetNextSchoolYear(DateTime.Parse("7/1/2021")).ShouldBe("2022");
-            Utility.GetNextSchoolYear(DateTime.Parse("12/1/2021")).ShouldBe("2022");
+            Utility.GetNextSchoolYear(DateTime.Parse(dateToCheck)).ShouldBe(year);
         }
     }
 }
