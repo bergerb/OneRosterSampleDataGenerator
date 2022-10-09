@@ -146,11 +146,11 @@ namespace OneRosterSampleDataGenerator
             File.WriteAllText("OneRoster\\orgs.csv", orgsOutput.ToString());
 
             //write courses
-            string coursesHeader = "sourcedId,status,dateLastModified,metadata,title,classCode,classType,location,grades,subjects,course,school,term,subjectCodes,period,resources";
+            string coursesHeader = "sourcedId,status,dateLastModified,schoolYearSourcedId,title,courseCode,grades,orgSourcedId,subjects,subjectCodes";
             StringBuilder coursesOutput = new();
             coursesOutput.Append(coursesHeader);
             foreach (Course c in Courses)
-                coursesOutput.Append($"{Environment.NewLine}\"{c.SourcedId}\",\"{c.Status}\",\"{FormatDateLastModified(c.DateLastModified)}\",\"{c.Title}\",\"{c.CourseCode}\",\"\",\"{c.Grade.Name}\",\"\",\"{c.CourseCode}\",\"\",\"{c.OrgSourcedId}\",\"\",\"\",\"\"");
+                coursesOutput.Append($"{Environment.NewLine}\"{c.SourcedId}\",\"{c.Status}\",\"{FormatDateLastModified(c.DateLastModified)}\",\"{c.SchoolYearSourcedId}\",\"{c.Title}\",\"{c.CourseCode}\",\"{c.Grade.Name}\",\"{c.OrgSourcedId}\",\"\",\"\"");
             File.WriteAllText("OneRoster\\courses.csv", coursesOutput.ToString());
 
             //write users
@@ -164,11 +164,11 @@ namespace OneRosterSampleDataGenerator
             File.WriteAllText("OneRoster\\users.csv", usersOutput.ToString());
 
             //write classes
-            string classesHeader = "sourcedId,dateLastModified,title,grades,courseSourcedId,classCode,classType,location,schoolSourcedId,termSourcedId,subjects,subjectCodes,periods";
+            string classesHeader = "sourcedId,status,dateLastModified,title,grades,courseSourcedId,classCode,classType,location,schoolSourcedId,termSourcedId,subjects,subjectCodes,periods";
             StringBuilder classesOutput = new();
             classesOutput.Append(classesHeader);
             foreach (Class c in Classes)
-                classesOutput.Append($"{Environment.NewLine}\"{c.SourcedId}\",\"{FormatDateLastModified(c.DateLastModified)}\",\"\",\"{c.Grades}\",\"{c.CourseSourcedId}\",\"{c.ClassCode}\",\"{c.ClassType}\",\"\",\"{c.SchoolSourcedId}\",\"{c.TermSourcedid}\",\"\",\"\",\"\"");
+                classesOutput.Append($"{Environment.NewLine}\"{c.SourcedId}\",\"{c.Status}\",\"{FormatDateLastModified(c.DateLastModified)}\",\"{c.Title}\",\"{c.Grades}\",\"{c.CourseSourcedId}\",\"{c.ClassCode}\",\"{c.ClassType}\",\"\",\"{c.SchoolSourcedId}\",\"{c.TermSourcedid}\",\"\",\"\",\"\"");
             File.WriteAllText("OneRoster\\classes.csv", classesOutput.ToString());
 
             //write enrollments
@@ -176,7 +176,7 @@ namespace OneRosterSampleDataGenerator
             StringBuilder enrollmentsOutput = new();
             enrollmentsOutput.Append(enrollmentsHeader);
             foreach (Enrollment e in Enrollments)
-                enrollmentsOutput.Append($"{Environment.NewLine}\"{e.SourcedId}\",\"{e.Status}\",\"{FormatDateLastModified(e.DateLastModified)},\"{e.ClassSourcedId}\",\"{e.SchoolSourcedId}\",\"{e.UserSourcedId}\",\"{e.RoleType}\",\"\",\"\",\"\"");
+                enrollmentsOutput.Append($"{Environment.NewLine}\"{e.SourcedId}\",\"{e.Status}\",\"{FormatDateLastModified(e.DateLastModified)}\",\"{e.ClassSourcedId}\",\"{e.SchoolSourcedId}\",\"{e.UserSourcedId}\",\"{e.RoleType}\",\"\",\"\",\"\"");
             File.WriteAllText("OneRoster\\enrollments.csv", enrollmentsOutput.ToString());
 
             //write demograhics
@@ -402,9 +402,9 @@ namespace OneRosterSampleDataGenerator
                     {
                         // Create new class after meeting class size
                         var students = from s in this.Students
-                                        where s.Org.SourcedId == org.SourcedId &&
-                                        s.Courses.Contains(course)
-                                        select s;
+                                       where s.Org.SourcedId == org.SourcedId &&
+                                       s.Courses.Contains(course)
+                                       select s;
 
                         // Determine how many class sections are needed
                         var classCount = (students.Count() / classSize) + 1;
