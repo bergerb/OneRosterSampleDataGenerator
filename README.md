@@ -4,7 +4,33 @@ This class library can be utilized to generate randomly generated data or in-mem
 
 ## Description
 
-An in-depth paragraph about your project and overview of use.
+The objects generated in this class can be used for a number of things.  They can be outputted to to `Csv` and `OneRoster` file types.  They are generated and well-formed OneRoster files that match the `1.1` spec of OneRoster.  The in-memory construct can also be used to import into various systems, test-systems, and other EdTech applications.
+
+Creates
+--
+* Academic Sessions
+* Classes
+* Courses
+* Demographics
+* Enrollments
+* Grades
+* Manifest
+* Org
+* Staff
+* Students
+
+> School Year generated runs from 8/16/{currentYear} to  8/15/{nextSchoolYear}
+
+Semesters (Terms)
+--
+* Full Year
+* MP1
+* MP2
+* MP3
+* MP4
+* Semester 1
+* Semester 2
+* Summer Semester
 
 ## Getting Started
 
@@ -19,10 +45,29 @@ Copy generated dll into your bin
 
 ### Executing program
 
-* Simpliest Execution
-```
+#### Simpliest Execution
+
+```csharp
 	var oneRoster = new OneRoster();
 ```
+
+#### Generating Files
+
+```csharp
+	OneRoster oneRoster = new();
+	oneRoster.OutputCSVFiles();
+	oneRoster.OutputOneRosterZipFile();
+```
+
+> This generates the needed OneRoster files to current application (AppDomain.CurrentDomain.BaseDirectory) path `OneRoster` folder.
+> Then compiles the files into a `OneRoster.zip` file
+
+```csharp
+    OneRoster oneRoster = new(schoolCount: 3);
+```
+> The ability to set the number of generated school.  The default is `22`.
+
+More documentation to come.
 
 ## Help
 
@@ -37,7 +82,7 @@ Brent Berger
 
 ## Version History
 
-* 0.1
+* TBD
     * Current Release
 
 ## License
