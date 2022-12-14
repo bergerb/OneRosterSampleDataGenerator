@@ -11,8 +11,21 @@ namespace Tests
         public void TestDemographicsAvailable()
         {
             var OneRoster = new OneRoster();
-            // check for valid grades
+
             OneRoster.Demographics.Count.ShouldBeGreaterThan(0);
+        }
+
+        [Test]
+        public void TestDemographicsShouldHaveABirthDateInEachMonth()
+        {
+            OneRoster oneRoster = new();
+
+            foreach (var month in Enumerable.Range(1, 12))
+            {
+                oneRoster.Demographics
+                    .Any(x => x.BirthDate.Month == month)
+                    .ShouldBeTrue();
+            }
         }
     }
 }
