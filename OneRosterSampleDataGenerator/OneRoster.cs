@@ -273,7 +273,7 @@ namespace OneRosterSampleDataGenerator
                 {
                     SourcedId = student.SourcedId,
                     Status = StatusType.active,
-                    BirthDate = DateTime.Parse($"7/1/{int.Parse(Utility.GetCurrentSchoolYear()) - (6 + student.Grade.Id)}")
+                    BirthDate = DateTime.Parse($"7/1/{int.Parse(Utility.GetCurrentSchoolYear()) - (4 + student.Grade.Id)}")
                                     .AddDays(rnd.Next(0, 365)),
                     Sex = (rnd.Next(0, 1) == 0 ? "female" : "male"),
                     CountryOfBirthCode = "",
