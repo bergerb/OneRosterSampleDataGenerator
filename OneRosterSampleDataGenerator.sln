@@ -1,15 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30804.86
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OneRosterSampleDataGenerator", "OneRosterSampleDataGenerator\OneRosterSampleDataGenerator.csproj", "{5D8A4192-E114-4334-9732-82CAA938CB25}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OneRosterSampleDataGenerator.Models", "OneRosterSampleDataGenerator.Models\OneRosterSampleDataGenerator.Models.csproj", "{7BF19E67-0298-435A-BA74-872C845E277D}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7733D8BF-BCBB-4F7E-A00C-7E10894A3574}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{1D37C35D-672E-42CA-A44D-CD9CDBBA4B77}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{1D37C35D-672E-42CA-A44D-CD9CDBBA4B77}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,10 +19,6 @@ Global
 		{5D8A4192-E114-4334-9732-82CAA938CB25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D8A4192-E114-4334-9732-82CAA938CB25}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D8A4192-E114-4334-9732-82CAA938CB25}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7BF19E67-0298-435A-BA74-872C845E277D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7BF19E67-0298-435A-BA74-872C845E277D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7BF19E67-0298-435A-BA74-872C845E277D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7BF19E67-0298-435A-BA74-872C845E277D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1D37C35D-672E-42CA-A44D-CD9CDBBA4B77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1D37C35D-672E-42CA-A44D-CD9CDBBA4B77}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1D37C35D-672E-42CA-A44D-CD9CDBBA4B77}.Release|Any CPU.ActiveCfg = Release|Any CPU
