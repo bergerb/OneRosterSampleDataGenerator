@@ -44,7 +44,7 @@ public class OneRoster
     public List<Demographic> Demographics = new();
     public List<Manifest> Manifest = new();
 
-    Org parentOrg = new Org
+    public readonly Org ParentOrg = new()
     {
         SourcedId = Guid.NewGuid(),
         Name = "Solar School District",
@@ -53,7 +53,7 @@ public class OneRoster
         ParentSourcedId = null
     };
 
-    Faker faker = new Faker();
+    readonly Faker faker = new();
 
     /// <summary>
     /// Generates in memory a randomly generated OneRoster construct
@@ -218,12 +218,12 @@ public class OneRoster
         #endregion
     }
 
-    public void OutputOneRosterZipFile()
+    public void OutputOneRosterZipFile(string version = null)
     {
         OutputCSVFiles();
 
         string startPath = @".\OneRoster";
-        string zipPath = @".\OneRoster.zip";
+        string zipPath = $".\\OneRoster{version}.zip";
 
         if (File.Exists(zipPath))
         {
@@ -243,8 +243,8 @@ public class OneRoster
         Manifest.Add(new Manifest() { PropertyName = "propertyName", Value = "value" });
         Manifest.Add(new Manifest() { PropertyName = "manifest.version", Value = "1.0" });
         Manifest.Add(new Manifest() { PropertyName = "oneroster.version", Value = "1.1" });
-        Manifest.Add(new Manifest() { PropertyName = "source.systemName", Value = parentOrg.Name + " OneRoster" });
-        Manifest.Add(new Manifest() { PropertyName = "source.systemCode", Value = parentOrg.Identifier });
+        Manifest.Add(new Manifest() { PropertyName = "source.systemName", Value = ParentOrg.Name + " OneRoster" });
+        Manifest.Add(new Manifest() { PropertyName = "source.systemCode", Value = ParentOrg.Identifier });
         Manifest.Add(new Manifest() { PropertyName = "file.academicSessions", Value = "bulk" });
         Manifest.Add(new Manifest() { PropertyName = "file.orgs", Value = "bulk" });
         Manifest.Add(new Manifest() { PropertyName = "file.courses", Value = "bulk" });
@@ -275,7 +275,7 @@ public class OneRoster
                 Status = StatusType.active,
                 BirthDate = DateTime.Parse($"7/1/{int.Parse(Utility.GetCurrentSchoolYear()) - (4 + student.Grade.Id)}")
                                 .AddDays(rnd.Next(0, 365)),
-                Sex = (rnd.Next(0, 1) == 0 ? "female" : "male"),
+                Sex = rnd.Next(0, 1) == 0 ? "female" : "male",
                 CountryOfBirthCode = "",
                 StateOfBirthAbbreviation = "",
                 CityOfBirth = "",
@@ -298,7 +298,7 @@ public class OneRoster
     {
         foreach (Student student in students.Skip((i - 1) * classSize).Take(classSize))
         {
-            addStudentEnrollment(student, @class.SourcedId, course.SourcedId, org.SourcedId);
+            AddStudentEnrollment(student, @class.SourcedId, course.SourcedId, org.SourcedId);
         }
     }
 
@@ -323,11 +323,10 @@ public class OneRoster
             teacher = Staff.Where(e => e.Org == org && e.RoleType == RoleType.teacher && e.Classes.Count() < maxTeacherClassSize).FirstOrDefault();
             // if no teachers are available
             //   make a new teacher
-            if (teacher == null)
-                teacher = CreateStaff(org);
+            teacher ??= CreateStaff(org);
         }
         teacher.AddClass(@class);
-        addTeacherEnrollment(teacher, @class.SourcedId, course.SourcedId, org.SourcedId);
+        AddTeacherEnrollment(teacher, @class.SourcedId, course.SourcedId, org.SourcedId);
 
     }
 
@@ -340,9 +339,9 @@ public class OneRoster
     /// <param name="schoolSourcedId"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    public Enrollment addEnrollment(IUser user, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId, RoleType role)
+    public Enrollment AddEnrollment(IUser user, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId, RoleType role)
     {
-        Enrollment enrollment = new Enrollment
+        Enrollment enrollment = new()
         {
             ClassSourcedId = classSourcedId,
             CourseSourcedId = courseSourcedId,
@@ -365,9 +364,9 @@ public class OneRoster
     /// <param name="courseSourcedId"></param>
     /// <param name="schoolSourcedId"></param>
     /// <returns></returns>
-    public Enrollment addTeacherEnrollment(Staff teacher, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
+    public Enrollment AddTeacherEnrollment(Staff teacher, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
     {
-        return addEnrollment(teacher, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.teacher);
+        return AddEnrollment(teacher, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.teacher);
     }
 
     /// <summary>
@@ -378,9 +377,9 @@ public class OneRoster
     /// <param name="courseSourcedId"></param>
     /// <param name="schoolSourcedId"></param>
     /// <returns></returns>
-    public Enrollment addStudentEnrollment(Student student, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
+    public Enrollment AddStudentEnrollment(Student student, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
     {
-        return addEnrollment(student, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.student);
+        return AddEnrollment(student, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.student);
     }
     #endregion
 
@@ -558,14 +557,6 @@ public class OneRoster
     /// <returns></returns>
     public Staff CreateStaff(Org org = null, RoleType roleType = RoleType.teacher)
     {
-        string[] teacherNames = Encoding.
-              ASCII.
-              GetString(Utility.StringToMemoryStream(Properties.Resources.teachers).ToArray()).
-              Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-
-        var maxTeachers = teacherNames.Count();
-        var rnd = new Random();
-
         var staffid = "00000000" + staffIdStart.ToString();
 
         Staff newStaff = new()
@@ -592,19 +583,19 @@ public class OneRoster
     /// </summary>
     void GenerateStudents()
     {
-        string[] firstNames = Encoding.
-                  ASCII.
-                  GetString(Utility.StringToMemoryStream(Properties.Resources.firstnames).ToArray()).
-                  Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+        //string[] firstNames = Encoding.
+        //          ASCII.
+        //          GetString(Utility.StringToMemoryStream(Properties.Resources.firstnames).ToArray()).
+        //          Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 
-        string[] lastNames = Encoding.
-                  ASCII.
-                  GetString(Utility.StringToMemoryStream(Properties.Resources.lastnames).ToArray()).
-                  Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
+        //string[] lastNames = Encoding.
+        //          ASCII.
+        //          GetString(Utility.StringToMemoryStream(Properties.Resources.lastnames).ToArray()).
+        //          Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 
         var rnd = new Random();
-        var maxFirstNames = firstNames.Length;
-        var maxLastNames = lastNames.Length;
+        //var maxFirstNames = firstNames.Length;
+        //var maxLastNames = lastNames.Length;
 
         foreach (Org org in Orgs.Where(e => e.OrgType == OrgType.school))
         {
@@ -614,15 +605,15 @@ public class OneRoster
                 var CALC_NUM_STUDENTS_PER_GRADE = studentsPerGrade + (r.Next(-30, 30));
                 for (var i = 1; i < CALC_NUM_STUDENTS_PER_GRADE; i++)
                 {
-                    var FName = rnd.Next(0, maxFirstNames);
-                    var LName = rnd.Next(0, maxLastNames);
+                    //var FName = rnd.Next(0, faker.Name.FirstName();
+                    //var LName = rnd.Next(0, maxLastNames);
                     var stu = new Student
                     {
                         SourcedId = Guid.NewGuid(),
                         Identifier = studentIdStart.ToString(),
                         EnabledUser = true,
-                        GivenName = firstNames[FName].ToString(),
-                        FamilyName = lastNames[LName].ToString(),
+                        GivenName = faker.Name.FirstName(),
+                        FamilyName = faker.Name.LastName(),
                         Grade = grade,
                         Org = org,
                         // Assign each student all courses of their current grade
@@ -649,7 +640,7 @@ public class OneRoster
         {
             var line = reader.ReadLine();
             var values = line.Split(',');
-            Grade newGrade = new Grade
+            Grade newGrade = new()
             {
                 Id = gradeId,
                 Name = values[0]
@@ -666,20 +657,20 @@ public class OneRoster
     /// </summary>
     void GenerateOrgs()
     {
-        Orgs.Add(parentOrg);
+        Orgs.Add(ParentOrg);
 
         string[] schools = Encoding.
                   ASCII.
                   GetString(Utility.StringToMemoryStream(Properties.Resources.orgs).ToArray()).
                   Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
 
-        var maxSchools = schools.Count() - 1;
+        var maxSchools = schools.Length - 1;
         var rnd = new Random();
 
         var randomSeq = Enumerable.Range(1, maxSchools).OrderBy(r => rnd.NextDouble()).Take(schoolCount).ToList();
         string[] schoolTypes = { "Elementary School", "Elementary School", "Middle School", "Middle School", "High School" };
 
-        for (int count = 0; count < randomSeq.Count(); count++)
+        for (int count = 0; count < randomSeq.Count; count++)
         {
             string line = schools[randomSeq[count]];
             var paddedOrgNum = ("0000" + randomSeq[count].ToString());
@@ -692,7 +683,7 @@ public class OneRoster
                 OrgHelper.CreateSchool(
                     identifier,
                     schoolName,
-                    parentOrg.SourcedId,
+                    ParentOrg.SourcedId,
                     Grades
                     )
                 );
@@ -721,7 +712,7 @@ public class OneRoster
                 SourcedId = Guid.NewGuid(),
                 Title = values[1],
                 CourseCode = values[0],
-                OrgSourcedId = parentOrg.SourcedId,
+                OrgSourcedId = ParentOrg.SourcedId,
                 SchoolYearSourcedId = this.AcademicSessions.Where(e => e.Title.Contains(values[2].ToString())).FirstOrDefault().SourcedId,
                 Grade = Grades.Where(e => e.Name.Contains(grade)).First()
             };
