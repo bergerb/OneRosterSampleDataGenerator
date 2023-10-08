@@ -58,7 +58,7 @@ public class Utility
     /// <returns></returns>
     public static string CreateTeacherUserName(List<Models.Staff> teachers, string firstName, string lastName)
     {
-        var userName = string.Concat(firstName.AsSpan(0, 1), lastName);
+        var userName = string.Concat(firstName[0..1], lastName);
 
         var userNameCount = 0;
         // If user name exists create a new one by adding 1
@@ -71,4 +71,8 @@ public class Utility
         return userName;
     }
 
+    public static T GetRandomItem<T>(List<T> list)
+    {
+        return list[new Random().Next(0, list.Count - 1)];
+    }
 }
