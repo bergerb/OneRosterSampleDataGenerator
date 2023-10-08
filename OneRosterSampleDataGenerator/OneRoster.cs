@@ -25,13 +25,10 @@ public class OneRoster
     public const int DEFAULT_NUM_STUDENT_ID = 910000000;
     public const int DEFAULT_NUM_STAFF_ID = 1;
     private const string OutputDirectory = "OneRoster";
-
-    private int schoolCount = DEFAULT_NUM_SCHOOLS;
-    private int studentsPerGrade = DEFAULT_NUM_STUDENTS_PER_GRADE;
-    private int classSize = DEFAULT_NUM_CLASS_SIZE;
-    private int maxTeacherClassSize = DEFAULT_NUM_MAX_TEACHER_CLASS_COUNT;
-    private int studentIdStart = DEFAULT_NUM_STUDENT_ID;
-    private int staffIdStart = DEFAULT_NUM_STAFF_ID;
+    private const string OutStatusChangeFileName = "OneRosterChanges.txt";
+    private int RunningStaffId;
+    private int RunningStudentId;
+    private StatusChangeBuilder StatusChangeBuilder = new(OutStatusChangeFileName);
 
     public List<AcademicSession> AcademicSessions = new();
     public List<Grade> Grades = new();
@@ -54,36 +51,41 @@ public class OneRoster
     };
 
     readonly Faker faker = new();
+    private readonly Args _args;
+
+    public record Args()
+    {
+        public int ClassSize { get; init; } = DEFAULT_NUM_CLASS_SIZE;
+        /// <summary>
+        /// Creates a number of OneRoster from today to previous days.
+        /// This will create given number of OneRoster files with updated date between each.
+        /// </summary>
+        public int? IncrementalDaysToCreate { get; init; } = null;
+        public int SchoolCount { get; init; } = DEFAULT_NUM_SCHOOLS;
+        public int StaffIdStart { get; init; } = DEFAULT_NUM_STAFF_ID;
+        public int StudentIdStart { get; init; } = DEFAULT_NUM_STUDENT_ID;
+        public int StudentsPerGrade { get; init; } = DEFAULT_NUM_STUDENTS_PER_GRADE;
+        public int MaxTeacherClassCount { get; init; } = DEFAULT_NUM_MAX_TEACHER_CLASS_COUNT;
+
+    }
 
     /// <summary>
     /// Generates in memory a randomly generated OneRoster construct
     /// </summary>
-    /// <param name="schoolCount"></param>
-    /// <param name="studentsPerGrade"></param>
-    /// <param name="classSize"></param>
-    /// <param name="maxTeacherClassCount"></param>
-    /// <param name="studentIdStart"></param>
-    /// <param name="staffIdStart"></param>
-    public OneRoster(
-            int? schoolCount = null,
-            int? studentsPerGrade = null,
-            int? classSize = null,
-            int? maxTeacherClassCount = null,
-            int? studentIdStart = null,
-            int? staffIdStart = null)
+    /// <param name="args">Arguments Record</param>
+    /// <exception cref="ArgumentException"></exception>
+    public OneRoster(Args args = null)
     {
-        if (schoolCount <= 2)
+        _args = args ?? new Args();
+
+        if (_args.SchoolCount <= 2)
         {
             throw new ArgumentException("`School Count` cannot be 2 or less.");
         }
-        SetParameters(
-            schoolCount ?? DEFAULT_NUM_SCHOOLS,
-            studentsPerGrade ?? DEFAULT_NUM_STUDENTS_PER_GRADE,
-            classSize ?? DEFAULT_NUM_CLASS_SIZE,
-            maxTeacherClassCount ?? DEFAULT_NUM_MAX_TEACHER_CLASS_COUNT,
-            studentIdStart ?? DEFAULT_NUM_STUDENT_ID,
-            staffIdStart ?? DEFAULT_NUM_STAFF_ID
-            );
+
+        RunningStaffId = _args.StaffIdStart;
+        RunningStudentId = _args.StudentIdStart;
+
         // Generate Academic Sessions
         GenerateAcademicSessions();
         // Build Grades
@@ -101,25 +103,109 @@ public class OneRoster
         GenerateDemographics();
         // Build Manifest List
         GenerateManifest();
+
+        if (_args.IncrementalDaysToCreate.HasValue)
+        {
+            CreateIncrementalFiles();
+        }
     }
 
-    /// <summary>
-    /// Set the default seeding parameters for the generated roster
-    /// </summary>
-    /// <param name="schoolCount"></param>
-    /// <param name="studentsPerGrade"></param>
-    /// <param name="classSize"></param>
-    /// <param name="maxTeacherClassSize"></param>
-    /// <param name="studentIdStart"></param>
-    /// <param name="staffIdStart"></param>
-    private void SetParameters(int schoolCount, int studentsPerGrade, int classSize, int maxTeacherClassSize, int studentIdStart, int staffIdStart)
+    private void CreateIncrementalFiles()
     {
-        this.schoolCount = schoolCount;
-        this.studentsPerGrade = studentsPerGrade;
-        this.classSize = classSize;
-        this.maxTeacherClassSize = maxTeacherClassSize;
-        this.studentIdStart = studentIdStart;
-        this.staffIdStart = staffIdStart;
+        OutputOneRosterZipFile();
+
+        for (int i = 1; i < _args.IncrementalDaysToCreate.Value; i++)
+        {
+            for (int j = 0; j <= new Random().Next(0, 3); j++)
+            {
+                DeactivateRandomStudent();
+            }
+            for (int k = 0; k <= new Random().Next(0, 3); k++)
+            {
+                AddRandomStudent();
+            }
+
+            OutputOneRosterZipFile(i.ToString());
+
+            StatusChangeBuilder.OutputChangeLog();
+        }
+
+        #region Local Functions
+
+        void AddRandomStudent()
+        {
+            var org = Utility.GetRandomItem(Orgs.Where(x => x.OrgType == OrgType.school).ToList());
+            var grade = Utility.GetRandomItem(org.GradesOffer);
+
+            var existingStudent = Students
+                .Where(x => x.Org.Id == org.Id)
+                .Where(x => x.Grade.Id == grade.Id)
+                .FirstOrDefault();
+
+            var student = AddStudent(org, grade);
+            StatusChangeBuilder.AddEvent(
+                StatusChangeBuilder.EventAction.Created,
+                StatusChangeBuilder.Type.Student,
+                $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) created at {org.Name}.");
+
+            // Add enrollments
+            if (existingStudent is not null)
+            {
+                var enrollments = Enrollments
+                    .Where(x => x.UserSourcedId == existingStudent.SourcedId)
+                    .ToList();
+                foreach (var enrollment in enrollments)
+                {
+                    EnrollStudent(student, enrollment);
+                }
+            }
+
+            #region Local Functions
+
+            void EnrollStudent(Student student, Enrollment enrollment)
+            {
+                AddStudentEnrollment(student, enrollment.ClassSourcedId, enrollment.CourseSourcedId, enrollment.SchoolSourcedId);
+
+                var courseTitle = GetCourseTitle(enrollment.CourseSourcedId);
+                StatusChangeBuilder.AddEvent(
+                    StatusChangeBuilder.EventAction.Created,
+                    StatusChangeBuilder.Type.Enrollment,
+                    $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) enrolled into {courseTitle}.");
+            }
+
+            #endregion
+        }
+
+        void DeactivateRandomStudent()
+        {
+            var randomStudent = new Random().Next(0, Students.Count - 1);
+            var student = Students[randomStudent];
+            Students[randomStudent] = StudentHelper.DeactivateStudent(student);
+            StatusChangeBuilder.AddEvent(
+                StatusChangeBuilder.EventAction.Deactivated,
+                StatusChangeBuilder.Type.Student,
+                $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) modified at {student.Org.Name}.");
+
+            DeactivateEnrollmentsForUser(student);
+        }
+
+        void DeactivateEnrollmentsForUser(IUser user)
+        {
+            var enrollments = Enrollments.Where(x => x.UserSourcedId == user.SourcedId)
+            .ToList();
+            foreach (var enrollment in enrollments)
+            {
+                EnrollmentHelper.InactivateEnrollment(enrollment);
+                var courseTitle = GetCourseTitle(enrollment.CourseSourcedId);
+                StatusChangeBuilder.AddEvent(
+                    StatusChangeBuilder.EventAction.Deactivated,
+                    StatusChangeBuilder.Type.Enrollment,
+                    $"{user.FamilyName}, {user.GivenName} enrollment has been deactivated for {courseTitle}.");
+            }
+        }
+
+        #endregion
+
     }
 
     /// <summary>
@@ -136,6 +222,7 @@ public class OneRoster
         foreach (AcademicSession a in AcademicSessions)
             academicSessionsOutput.Append($"{Environment.NewLine}\"{a.SourcedId}\",\"{a.Status}\",\"{FormatDateLastModified(a.DateLastModified)}\",\"{a.Title}\",\"{a.Type}\",\"{string.Format("{0:yyyy-MM-dd}", a.StartDate)}\",\"{string.Format("{0:yyyy-MM-dd}", a.EndDate)}\",\"\",\"{a.SchoolYear}\"");
         File.WriteAllText("OneRoster\\academicSessions.csv", academicSessionsOutput.ToString());
+        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Academic Sessions");
 
         //write orgs
         string orgsHeader = "sourcedId,status,dateLastModified,name,type,identifier,parentSourcedId";
@@ -144,6 +231,7 @@ public class OneRoster
         foreach (Org o in Orgs)
             orgsOutput.Append($"{Environment.NewLine}\"{o.SourcedId}\",\"{o.Status}\",\"{FormatDateLastModified(o.DateLastModified)}\",\"{o.Name}\",\"{o.Type}\",\"{o.Identifier}\",\"{o.ParentSourcedId}\"");
         File.WriteAllText("OneRoster\\orgs.csv", orgsOutput.ToString());
+        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Orgs");
 
         //write courses
         string coursesHeader = "sourcedId,status,dateLastModified,schoolYearSourcedId,title,courseCode,grades,orgSourcedId,subjects,subjectCodes";
@@ -152,6 +240,7 @@ public class OneRoster
         foreach (Course c in Courses)
             coursesOutput.Append($"{Environment.NewLine}\"{c.SourcedId}\",\"{c.Status}\",\"{FormatDateLastModified(c.DateLastModified)}\",\"{c.SchoolYearSourcedId}\",\"{c.Title}\",\"{c.CourseCode}\",\"{c.Grade.Name}\",\"{c.OrgSourcedId}\",\"\",\"\"");
         File.WriteAllText("OneRoster\\courses.csv", coursesOutput.ToString());
+        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Courses");
 
         //write users
         string usersHeader = "sourcedId,status,dateLastModified,enabledUser,orgSourcedIds,role,username,userIds,givenName,familyName,middleName,identifier,email,sms,phone,agentSourcedIds,grades,password";
@@ -162,6 +251,7 @@ public class OneRoster
         foreach (Staff t in Staff)
             usersOutput.Append($"{Environment.NewLine}\"{t.SourcedId}\",\"{t.Status}\",\"{FormatDateLastModified(t.DateLastModified)}\",\"true\",\"{t.Org.SourcedId}\",\"{t.RoleType}\",\"{t.UserName}\",\"{t.Identifier}\",\"{t.GivenName}\",\"{t.FamilyName}\",\"\",\"{t.Identifier}\",\"{t.Email}\",\"\",\"\",\"\",\"\",\"\"");
         File.WriteAllText("OneRoster\\users.csv", usersOutput.ToString());
+        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Users");
 
         //write classes
         string classesHeader = "sourcedId,status,dateLastModified,title,grades,courseSourcedId,classCode,classType,location,schoolSourcedId,termSourcedId,subjects,subjectCodes,periods";
@@ -170,6 +260,7 @@ public class OneRoster
         foreach (Class c in Classes)
             classesOutput.Append($"{Environment.NewLine}\"{c.SourcedId}\",\"{c.Status}\",\"{FormatDateLastModified(c.DateLastModified)}\",\"{c.Title}\",\"{c.Grades}\",\"{c.CourseSourcedId}\",\"{c.ClassCode}\",\"{c.ClassType}\",\"\",\"{c.SchoolSourcedId}\",\"{c.TermSourcedid}\",\"\",\"\",\"\"");
         File.WriteAllText("OneRoster\\classes.csv", classesOutput.ToString());
+        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Classes");
 
         //write enrollments
         string enrollmentsHeader = "sourcedId,status,dateLastModified,classSourcedId,schoolSourcedId,userSourcedId,role,primary,beginDate,endDate";
@@ -178,6 +269,7 @@ public class OneRoster
         foreach (Enrollment e in Enrollments)
             enrollmentsOutput.Append($"{Environment.NewLine}\"{e.SourcedId}\",\"{e.Status}\",\"{FormatDateLastModified(e.DateLastModified)}\",\"{e.ClassSourcedId}\",\"{e.SchoolSourcedId}\",\"{e.UserSourcedId}\",\"{e.RoleType}\",\"\",\"\",\"\"");
         File.WriteAllText("OneRoster\\enrollments.csv", enrollmentsOutput.ToString());
+        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Enrollments");
 
         //write demograhics
         string demographicsHeader = "sourcedId,status,dateLastModified,birthDate,sex,americanIndianOrAlaskaNative,asian,blackOrAfricanAmerican,nativeAmericanOrOtherPacificIslander,countryOfBirthCode,stateofBirthAbbreviation,cityOfBirth,publicSchoolResidenceStatus";
@@ -186,6 +278,7 @@ public class OneRoster
         foreach (Demographic d in Demographics)
             demograhicsOutput.Append($"{Environment.NewLine}\"{d.SourcedId}\",\"{d.Status}\",\"{FormatDateLastModified(d.DateLastModified)}\",\"{string.Format("{0:yyyy-MM-dd}", d.BirthDate)}\",\"{d.Sex}\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"");
         File.WriteAllText("OneRoster\\demographics.csv", demograhicsOutput.ToString());
+        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Demographics");
 
         //write manifest
         string manifestHeader = "\"propertyName\",\"value\"";
@@ -194,6 +287,7 @@ public class OneRoster
         foreach (Manifest manifest in Manifest)
             manifestOutput.Append($"{Environment.NewLine}\"{manifest.PropertyName}\",\"{manifest.Value}\"");
         File.WriteAllText("OneRoster\\manifest.csv", manifestOutput.ToString());
+        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Manifest");
 
         #region Local Functions
 
@@ -223,14 +317,16 @@ public class OneRoster
         OutputCSVFiles();
 
         string startPath = @".\OneRoster";
-        string zipPath = $".\\OneRoster{version}.zip";
+        string zipFile = $".\\OneRoster{version}.zip";
 
-        if (File.Exists(zipPath))
+        if (File.Exists(zipFile))
         {
-            File.Delete(zipPath);
+            File.Delete(zipFile);
         }
 
-        ZipFile.CreateFromDirectory(startPath, zipPath);
+        ZipFile.CreateFromDirectory(startPath, zipFile);
+
+        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, zipFile);
     }
 
 
@@ -296,7 +392,7 @@ public class OneRoster
     /// <param name="org"></param>
     public void AddStudentsToClass(int i, IEnumerable<Student> students, Class @class, Course course, Org org)
     {
-        foreach (Student student in students.Skip((i - 1) * classSize).Take(classSize))
+        foreach (Student student in students.Skip((i - 1) * _args.ClassSize).Take(_args.ClassSize))
         {
             AddStudentEnrollment(student, @class.SourcedId, course.SourcedId, org.SourcedId);
         }
@@ -320,7 +416,7 @@ public class OneRoster
         else
         {
             // Find an available teacher
-            teacher = Staff.Where(e => e.Org == org && e.RoleType == RoleType.teacher && e.Classes.Count() < maxTeacherClassSize).FirstOrDefault();
+            teacher = Staff.Where(e => e.Org == org && e.RoleType == RoleType.teacher && e.Classes.Count() < _args.MaxTeacherClassCount).FirstOrDefault();
             // if no teachers are available
             //   make a new teacher
             teacher ??= CreateStaff(org);
@@ -407,7 +503,7 @@ public class OneRoster
                                    select s;
 
                     // Determine how many class sections are needed
-                    var classCount = (students.Count() / classSize) + 1;
+                    var classCount = (students.Count() / _args.ClassSize) + 1;
 
                     for (int i = 1; i <= classCount; i++)
                     {
@@ -429,7 +525,7 @@ public class OneRoster
 
                         // Add Teacher
                         AddStaffToClass(@class, course, org);
-                        // Add students
+                        // Add Students
                         AddStudentsToClass(i, students, @class, course, org);
 
                     }
@@ -557,7 +653,7 @@ public class OneRoster
     /// <returns></returns>
     public Staff CreateStaff(Org org = null, RoleType roleType = RoleType.teacher)
     {
-        var staffid = "00000000" + staffIdStart.ToString();
+        var staffid = "00000000" + RunningStaffId.ToString();
 
         Staff newStaff = new()
         {
@@ -570,7 +666,7 @@ public class OneRoster
             Org = org
         };
         newStaff.UserName = Utility.CreateTeacherUserName(Staff, newStaff.GivenName, newStaff.FamilyName);
-        staffIdStart++;
+        RunningStaffId++;
         Staff.Add(newStaff);
         return newStaff;
     }
@@ -583,47 +679,39 @@ public class OneRoster
     /// </summary>
     void GenerateStudents()
     {
-        //string[] firstNames = Encoding.
-        //          ASCII.
-        //          GetString(Utility.StringToMemoryStream(Properties.Resources.firstnames).ToArray()).
-        //          Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-
-        //string[] lastNames = Encoding.
-        //          ASCII.
-        //          GetString(Utility.StringToMemoryStream(Properties.Resources.lastnames).ToArray()).
-        //          Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-
         var rnd = new Random();
-        //var maxFirstNames = firstNames.Length;
-        //var maxLastNames = lastNames.Length;
 
         foreach (Org org in Orgs.Where(e => e.OrgType == OrgType.school))
         {
             foreach (var grade in org.GradesOffer)
             {
                 Random r = new();
-                var CALC_NUM_STUDENTS_PER_GRADE = studentsPerGrade + (r.Next(-30, 30));
+                var CALC_NUM_STUDENTS_PER_GRADE = _args.StudentsPerGrade + (r.Next(-30, 30));
                 for (var i = 1; i < CALC_NUM_STUDENTS_PER_GRADE; i++)
                 {
-                    //var FName = rnd.Next(0, faker.Name.FirstName();
-                    //var LName = rnd.Next(0, maxLastNames);
-                    var stu = new Student
-                    {
-                        SourcedId = Guid.NewGuid(),
-                        Identifier = studentIdStart.ToString(),
-                        EnabledUser = true,
-                        GivenName = faker.Name.FirstName(),
-                        FamilyName = faker.Name.LastName(),
-                        Grade = grade,
-                        Org = org,
-                        // Assign each student all courses of their current grade
-                        Courses = Courses.Where(e => e.Title.Contains(grade.Name)).ToList()
-                    };
-                    Students.Add(stu);
-                    studentIdStart++;
+                    AddStudent(org, grade);
                 }
             }
         }
+    }
+
+    private Student AddStudent(Org org, Grade grade)
+    {
+        var student = new Student
+        {
+            SourcedId = Guid.NewGuid(),
+            Identifier = RunningStudentId.ToString(),
+            EnabledUser = true,
+            GivenName = faker.Name.FirstName(),
+            FamilyName = faker.Name.LastName(),
+            Grade = grade,
+            Org = org,
+            // Assign each student all courses of their current grade
+            Courses = Courses.Where(e => e.Title.Contains(grade.Name)).ToList()
+        };
+        Students.Add(student);
+        RunningStudentId++;
+        return student;
     }
     #endregion
 
@@ -667,7 +755,7 @@ public class OneRoster
         var maxSchools = schools.Length - 1;
         var rnd = new Random();
 
-        var randomSeq = Enumerable.Range(1, maxSchools).OrderBy(r => rnd.NextDouble()).Take(schoolCount).ToList();
+        var randomSeq = Enumerable.Range(1, maxSchools).OrderBy(r => rnd.NextDouble()).Take(_args.SchoolCount).ToList();
         string[] schoolTypes = { "Elementary School", "Elementary School", "Middle School", "Middle School", "High School" };
 
         for (int count = 0; count < randomSeq.Count; count++)
@@ -675,7 +763,7 @@ public class OneRoster
             string line = schools[randomSeq[count]];
             var paddedOrgNum = ("0000" + randomSeq[count].ToString());
             var identifier = paddedOrgNum.Substring(paddedOrgNum.Length - 4, 4);
-            var schoolName = schoolCount != 3 ?
+            var schoolName = _args.SchoolCount != 3 ?
                 $"{line} {schoolTypes[rnd.Next(schoolTypes.Length)]}" :
                 $"{line} {GradeHelper.SchoolLevels[count]}";
 
@@ -719,6 +807,14 @@ public class OneRoster
             Courses.Add(newCourse);
         }
 
+    }
+
+    private string GetCourseTitle(Guid courseSourcedId)
+    {
+        return Courses
+            .Where(x => x.SourcedId == courseSourcedId)
+            .FirstOrDefault()?
+            .Title;
     }
     #endregion
 }
