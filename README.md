@@ -36,7 +36,7 @@ Semesters (Terms)
 
 ### Dependencies
 
-* NET 6
+* NET 7
 * Bogus 34.0.1
 
 ### Installing
@@ -63,9 +63,22 @@ Copy generated dll into your bin
 > Then compiles the files into a `OneRoster.zip` file
 
 ```csharp
-    OneRoster oneRoster = new(schoolCount: 3);
+    OneRoster oneRoster = new(new() { schoolCount = 3 });
 ```
 > The ability to set the number of generated school.  The default is `22`.
+
+#### Configurable Settings
+
+The argument for the constructor is a configurable record with optional fields that default to the following:
+
+|    Setting   |   Default   |
+| --- | --- |
+| IncrementalDaysToCreate | null |
+| SchoolCount | 22 |
+| StaffIdStart | 1 |
+| StudentIdStart |  910000000 |
+| StudentsPerGrade | 200 |
+| MaxTeacherClassCount | 8 |
 
 More documentation to come.
 

@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-  </PropertyGroup>
+  <PropertyGroup />
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningsAsErrors>;NU1605;CS8600;CS8602;CS8603</WarningsAsErrors>
@@ -35,7 +33,7 @@
 
   <PropertyGroup>
     <OutputType>library</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <PackageId>OneRosterSampleDataGenerator</PackageId>
     <Version>1.0.2-beta</Version>
     <Authors>bergerb</Authors>
