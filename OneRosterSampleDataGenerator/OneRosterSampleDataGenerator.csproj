@@ -14,6 +14,10 @@
 
   <ItemGroup>
     <PackageReference Include="Bogus" Version="34.0.1" />
+    <PackageReference Include="NuGet.CommandLine" Version="6.7.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -35,7 +39,7 @@
     <OutputType>library</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <PackageId>OneRosterSampleDataGenerator</PackageId>
-    <Version>1.0.2-beta</Version>
+    <Version>1.0.3-beta</Version>
     <Authors>bergerb</Authors>
     <Company></Company>
     <PackageDescription>OneRoster Sample Data Generator Class Library</PackageDescription>
