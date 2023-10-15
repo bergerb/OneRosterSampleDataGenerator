@@ -6,7 +6,7 @@ namespace OneRosterSampleDataGenerator.Models;
 public class Staff : BaseModel, IUser
 {
     public bool EnabledUser { get; set; }
-    public DateTime DateLastModified => CreatedAt;
+    public DateTime DateLastModified { get; set; }
     public Guid SourcedId { get; set; }
     public List<Class> Classes = new List<Class>();
     public string CurrentOrgName => this.Org.Name;

@@ -4,7 +4,7 @@ namespace OneRosterSampleDataGenerator.Models;
 
 public class Enrollment : BaseModel
 {
-    public DateTime DateLastModified { get; set; } = DateTime.Now;
+    public DateTime DateLastModified { get; set; }
     public Guid SourcedId { get; set; }
     public Guid ClassSourcedId { get; set; }
     public Guid CourseSourcedId { get; set; }

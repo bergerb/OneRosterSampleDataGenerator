@@ -52,6 +52,7 @@ public class OneRoster
 
     readonly Faker faker = new();
     private readonly Args _args;
+    private DateTime DateLastModified;
 
     public record Args()
     {
@@ -86,6 +87,9 @@ public class OneRoster
         RunningStaffId = _args.StaffIdStart;
         RunningStudentId = _args.StudentIdStart;
 
+        var daysToOffset = _args.IncrementalDaysToCreate ?? 0;
+        DateLastModified = DateTime.Now.AddDays(daysToOffset * -1);
+
         // Generate Academic Sessions
         GenerateAcademicSessions();
         // Build Grades
@@ -116,6 +120,8 @@ public class OneRoster
 
         for (int i = 1; i < _args.IncrementalDaysToCreate.Value; i++)
         {
+            DateLastModified = DateLastModified.AddDays(1);
+
             for (int j = 0; j <= new Random().Next(0, 3); j++)
             {
                 DeactivateRandomStudent();
@@ -180,7 +186,7 @@ public class OneRoster
         {
             var randomStudent = new Random().Next(0, Students.Count - 1);
             var student = Students[randomStudent];
-            Students[randomStudent] = StudentHelper.DeactivateStudent(student);
+            Students[randomStudent] = StudentHelper.DeactivateStudent(student, DateLastModified);
             StatusChangeBuilder.AddEvent(
                 StatusChangeBuilder.EventAction.Deactivated,
                 StatusChangeBuilder.Type.Student,
@@ -195,7 +201,7 @@ public class OneRoster
             .ToList();
             foreach (var enrollment in enrollments)
             {
-                EnrollmentHelper.InactivateEnrollment(enrollment);
+                EnrollmentHelper.InactivateEnrollment(enrollment, DateLastModified);
                 var courseTitle = GetCourseTitle(enrollment.CourseSourcedId);
                 StatusChangeBuilder.AddEvent(
                     StatusChangeBuilder.EventAction.Deactivated,
@@ -367,6 +373,7 @@ public class OneRoster
 
             this.Demographics.Add(new Demographic()
             {
+                DateLastModified = DateLastModified,
                 SourcedId = student.SourcedId,
                 Status = StatusType.active,
                 BirthDate = DateTime.Parse($"7/1/{int.Parse(Utility.GetCurrentSchoolYear()) - (4 + student.Grade.Id)}")
@@ -439,6 +446,7 @@ public class OneRoster
     {
         Enrollment enrollment = new()
         {
+            DateLastModified = DateLastModified,
             ClassSourcedId = classSourcedId,
             CourseSourcedId = courseSourcedId,
             SchoolSourcedId = schoolSourcedId,
@@ -511,6 +519,7 @@ public class OneRoster
 
                         Class @class = new()
                         {
+                            DateLastModified = DateLastModified,
                             SourcedId = Guid.NewGuid(),
                             Status = StatusType.active,
                             Grades = grade.Name,
@@ -548,6 +557,7 @@ public class OneRoster
         AcademicSession academicSession = new()
         {
             SourcedId = Guid.NewGuid(),
+            DateLastModified = DateLastModified,
             Status = StatusType.active,
             Title = $"FY {schoolYear}-{nextSchoolYear}",
             StartDate = DateTime.Parse($"8/16/{schoolYear}"),
@@ -561,6 +571,7 @@ public class OneRoster
         AcademicSession academicSessionMP1 = new()
         {
             SourcedId = Guid.NewGuid(),
+            DateLastModified = DateLastModified,
             Status = StatusType.active,
             Title = $"MP1 {schoolYear}-{nextSchoolYear}",
             StartDate = DateTime.Parse($"8/30/{schoolYear}"),
@@ -573,6 +584,7 @@ public class OneRoster
         AcademicSession academicSessionMP2 = new()
         {
             SourcedId = Guid.NewGuid(),
+            DateLastModified = DateLastModified,
             Status = StatusType.active,
             Title = $"MP2 {schoolYear}-{nextSchoolYear}",
             StartDate = DateTime.Parse($"11/10/{schoolYear}"),
@@ -585,6 +597,7 @@ public class OneRoster
         AcademicSession academicSessionMP3 = new()
         {
             SourcedId = Guid.NewGuid(),
+            DateLastModified = DateLastModified,
             Status = StatusType.active,
             Title = $"MP3 {schoolYear}-{nextSchoolYear}",
             StartDate = DateTime.Parse($"01/30/{nextSchoolYear}"),
@@ -597,6 +610,7 @@ public class OneRoster
         AcademicSession academicSessionMP4 = new()
         {
             SourcedId = Guid.NewGuid(),
+            DateLastModified = DateLastModified,
             Status = StatusType.active,
             Title = $"MP4 {schoolYear}-{nextSchoolYear}",
             StartDate = DateTime.Parse($"4/14/{nextSchoolYear}"),
@@ -611,6 +625,7 @@ public class OneRoster
         AcademicSession academicSessionS1 = new()
         {
             SourcedId = Guid.NewGuid(),
+            DateLastModified = DateLastModified,
             Status = StatusType.active,
             Title = $"S1 {schoolYear}-{nextSchoolYear}",
             StartDate = DateTime.Parse($"8/30/{schoolYear}"),
@@ -623,6 +638,7 @@ public class OneRoster
         AcademicSession academicSessionS2 = new()
         {
             SourcedId = Guid.NewGuid(),
+            DateLastModified = DateLastModified,
             Status = StatusType.active,
             Title = $"S2 {schoolYear}-{nextSchoolYear}",
             StartDate = DateTime.Parse($"1/30/{nextSchoolYear}"),
@@ -635,6 +651,7 @@ public class OneRoster
         AcademicSession academicSessionSummer = new()
         {
             SourcedId = Guid.NewGuid(),
+            DateLastModified = DateLastModified,
             Status = StatusType.active,
             Title = $"Summer {schoolYear}-{nextSchoolYear}",
             StartDate = DateTime.Parse($"6/30/{nextSchoolYear}"),
@@ -658,6 +675,7 @@ public class OneRoster
         Staff newStaff = new()
         {
             SourcedId = Guid.NewGuid(),
+            DateLastModified = DateLastModified,
             Identifier = staffid.Substring(staffid.Length - 8, 8),
             EnabledUser = true,
             GivenName = faker.Name.FirstName(),
@@ -700,6 +718,7 @@ public class OneRoster
         var student = new Student
         {
             SourcedId = Guid.NewGuid(),
+            DateLastModified = DateLastModified,
             Identifier = RunningStudentId.ToString(),
             EnabledUser = true,
             GivenName = faker.Name.FirstName(),
@@ -745,7 +764,11 @@ public class OneRoster
     /// </summary>
     void GenerateOrgs()
     {
-        Orgs.Add(ParentOrg);
+        // TODO: Clean this up
+        var parent = ParentOrg;
+        parent.DateLastModified = DateLastModified;
+
+        Orgs.Add(parent);
 
         string[] schools = Encoding.
                   ASCII.
@@ -771,6 +794,7 @@ public class OneRoster
                 OrgHelper.CreateSchool(
                     identifier,
                     schoolName,
+                    DateLastModified,
                     ParentOrg.SourcedId,
                     Grades
                     )

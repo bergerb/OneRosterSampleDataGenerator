@@ -4,7 +4,7 @@ namespace OneRosterSampleDataGenerator.Models;
 
 public class @Class : BaseModel
 {
-    public DateTime DateLastModified => CreatedAt;
+    public DateTime DateLastModified { get; set; }
     public Guid CourseSourcedId { get; set; }
     public Guid SchoolSourcedId { get; set; }
     public Guid SourcedId { get; set; }

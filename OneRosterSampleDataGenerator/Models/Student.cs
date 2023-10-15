@@ -6,7 +6,7 @@ namespace OneRosterSampleDataGenerator.Models;
 public class Student : BaseModel, IUser
 {
     public bool EnabledUser { get; set; }
-    public DateTime DateLastModified { get; set; } = DateTime.Now;
+    public DateTime DateLastModified { get; set; }
     public Guid SourcedId { get; set; }
     public Grade Grade { get; set; } = null!;
     public List<Course> Courses { get; set; } = new List<Course>();
