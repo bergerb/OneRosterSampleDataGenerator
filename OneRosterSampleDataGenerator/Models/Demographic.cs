@@ -11,7 +11,7 @@ public class Demographic : BaseModel
     public bool HispanicOrLationEthnicity { get; set; }
     public bool White { get; set; }
     public DateTime BirthDate { get; set; }
-    public DateTime DateLastModified => CreatedAt;
+    public DateTime DateLastModified { get; set; }
     public Guid SourcedId { get; set; }
     public string CityOfBirth { get; set; } = null!;
     public string CountryOfBirthCode { get; set; } = null!;

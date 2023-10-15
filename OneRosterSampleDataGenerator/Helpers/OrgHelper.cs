@@ -7,11 +7,12 @@ namespace OneRosterSampleDataGenerator.Helpers;
 
 public static class OrgHelper
 {
-    public static Org CreateSchool(string identifier, string name, Guid parentOrgId, List<Grade> grades)
+    public static Org CreateSchool(string identifier, string name, DateTime dateLastModified, Guid parentOrgId, List<Grade> grades)
     {
         Org newOrg = new()
         {
             SourcedId = Guid.NewGuid(),
+            DateLastModified = dateLastModified,
             Identifier = identifier,
             Name = name,
             ParentSourcedId = parentOrgId,

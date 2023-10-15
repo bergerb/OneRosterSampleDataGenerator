@@ -5,10 +5,10 @@ namespace OneRosterSampleDataGenerator.Helpers;
 
 public class StudentHelper
 {
-    public static Student DeactivateStudent(Student student)
+    public static Student DeactivateStudent(Student student, DateTime dateLastModified)
     {
         student.Status = StatusType.inactive;
-        student.DateLastModified = DateTime.Now;
+        student.DateLastModified = dateLastModified;
 
         return student;
     }

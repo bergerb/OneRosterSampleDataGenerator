@@ -5,10 +5,10 @@ namespace OneRosterSampleDataGenerator.Helpers;
 
 public class EnrollmentHelper
 {
-    public static Enrollment InactivateEnrollment(Enrollment enrollment)
+    public static Enrollment InactivateEnrollment(Enrollment enrollment, DateTime dateLastModified)
     {
         enrollment.Status = StatusType.inactive;
-        enrollment.DateLastModified = DateTime.Now;
+        enrollment.DateLastModified = dateLastModified;
 
         return enrollment;
     }
