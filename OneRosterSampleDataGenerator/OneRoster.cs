@@ -26,8 +26,6 @@ public class OneRoster
     public const int DEFAULT_NUM_STAFF_ID = 1;
     private const string OutputDirectory = "OneRoster";
     private const string OutStatusChangeFileName = "OneRosterChanges.txt";
-    private int RunningStaffId;
-    private int RunningStudentId;
     private StatusChangeBuilder StatusChangeBuilder = new(OutStatusChangeFileName);
 
     public List<AcademicSession> AcademicSessions = new();
@@ -84,37 +82,70 @@ public class OneRoster
             throw new ArgumentException("`School Count` cannot be 2 or less.");
         }
 
-        RunningStaffId = _args.StaffIdStart;
-        RunningStudentId = _args.StudentIdStart;
-
         var daysToOffset = _args.IncrementalDaysToCreate ?? 0;
         DateLastModified = DateTime.Now.AddDays(daysToOffset * -1);
 
         // Generate Academic Sessions
-        GenerateAcademicSessions();
+        this.AcademicSessions = new AcademicSessions(DateLastModified)
+            .Generate();
+
         // Build Grades
-        GenerateGrades();
+        this.Grades = new Grades()
+            .Generate();
+
         // Build Orgs
         // -----> Orgs Rely on Grades
-        GenerateOrgs();
+        this.Orgs = new Orgs(DateLastModified,
+            _args.SchoolCount,
+            ParentOrg,
+            Grades)
+            .Generate();
+
         // Build Course List
-        GenerateCourses();
+        this.Courses = new Courses(DateLastModified,
+            ParentOrg,
+            Grades,
+            AcademicSessions)
+            .Generate();
+
         // Build Students List
-        GenerateStudents();
+        var students = new Students(DateLastModified, _args.StudentsPerGrade, Courses, Orgs)
+        {
+            RunningId = _args.StudentIdStart
+        };
+        this.Students = students
+            .Generate();
+
+        var staff = new Staffs(DateLastModified, Orgs)
+        {
+            RunningId = _args.StaffIdStart
+        };
+        staff.GenerateAdministration();
+
+        var enrollments = new Enrollments(DateLastModified);
+
         // Build Classes List
-        GenerateClasses();
+        this.Classes = new Classes(DateLastModified, _args.ClassSize, _args.MaxTeacherClassCount, Courses, Students, Orgs, staff, enrollments)
+            .Generate();
+
         // Build Demographic List
-        GenerateDemographics();
+        this.Demographics = new Demographics(DateLastModified, Students)
+            .Generate();
+
         // Build Manifest List
-        GenerateManifest();
+        this.Manifest = new Manifests(ParentOrg)
+            .Generate();
+
+        Staff = staff.Generate();
+        Enrollments = enrollments.Generate();
 
         if (_args.IncrementalDaysToCreate.HasValue)
         {
-            CreateIncrementalFiles();
+            CreateIncrementalFiles(students);
         }
     }
 
-    private void CreateIncrementalFiles()
+    private void CreateIncrementalFiles(Students students)
     {
         OutputOneRosterZipFile();
 
@@ -148,7 +179,7 @@ public class OneRoster
                 .Where(x => x.Grade.Id == grade.Id)
                 .FirstOrDefault();
 
-            var student = AddStudent(org, grade);
+            var student = students.AddStudent(org, grade);
             StatusChangeBuilder.AddEvent(
                 StatusChangeBuilder.EventAction.Created,
                 StatusChangeBuilder.Type.Student,
@@ -335,104 +366,6 @@ public class OneRoster
         StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, zipFile);
     }
 
-
-    #region "Manifest"
-    /// <summary>
-    /// Generate Manifest File
-    /// </summary>
-    public void GenerateManifest()
-    {
-        Manifest.Add(new Manifest() { PropertyName = "propertyName", Value = "value" });
-        Manifest.Add(new Manifest() { PropertyName = "manifest.version", Value = "1.0" });
-        Manifest.Add(new Manifest() { PropertyName = "oneroster.version", Value = "1.1" });
-        Manifest.Add(new Manifest() { PropertyName = "source.systemName", Value = ParentOrg.Name + " OneRoster" });
-        Manifest.Add(new Manifest() { PropertyName = "source.systemCode", Value = ParentOrg.Identifier });
-        Manifest.Add(new Manifest() { PropertyName = "file.academicSessions", Value = "bulk" });
-        Manifest.Add(new Manifest() { PropertyName = "file.orgs", Value = "bulk" });
-        Manifest.Add(new Manifest() { PropertyName = "file.courses", Value = "bulk" });
-        Manifest.Add(new Manifest() { PropertyName = "file.classes", Value = "bulk" });
-        Manifest.Add(new Manifest() { PropertyName = "file.users", Value = "bulk" });
-        Manifest.Add(new Manifest() { PropertyName = "file.enrollments", Value = "bulk" });
-        Manifest.Add(new Manifest() { PropertyName = "file.demographics", Value = "bulk" });
-        Manifest.Add(new Manifest() { PropertyName = "file.resources", Value = "absent" });
-        Manifest.Add(new Manifest() { PropertyName = "file.classResources", Value = "absent" });
-        Manifest.Add(new Manifest() { PropertyName = "file.courseResources", Value = "absent" });
-        Manifest.Add(new Manifest() { PropertyName = "file.categories", Value = "absent" });
-        Manifest.Add(new Manifest() { PropertyName = "file.lineItems", Value = "absent" });
-        Manifest.Add(new Manifest() { PropertyName = "file.results", Value = "absent" });
-
-    }
-    #endregion
-
-    #region "Demographics"
-    public void GenerateDemographics()
-    {
-        foreach (Student student in this.Students)
-        {
-            var rnd = new Random();
-
-            this.Demographics.Add(new Demographic()
-            {
-                DateLastModified = DateLastModified,
-                SourcedId = student.SourcedId,
-                Status = StatusType.active,
-                BirthDate = DateTime.Parse($"7/1/{int.Parse(Utility.GetCurrentSchoolYear()) - (4 + student.Grade.Id)}")
-                                .AddDays(rnd.Next(0, 365)),
-                Sex = rnd.Next(0, 1) == 0 ? "female" : "male",
-                CountryOfBirthCode = "",
-                StateOfBirthAbbreviation = "",
-                CityOfBirth = "",
-                PublicSchoolResidenceStatus = ""
-            });
-        }
-    }
-    #endregion
-
-    #region "Enrollments"
-    /// <summary>
-    /// Adds an enumeration of students to given class, course, and org
-    /// </summary>
-    /// <param name="i"></param>
-    /// <param name="students"></param>
-    /// <param name="class"></param>
-    /// <param name="course"></param>
-    /// <param name="org"></param>
-    public void AddStudentsToClass(int i, IEnumerable<Student> students, Class @class, Course course, Org org)
-    {
-        foreach (Student student in students.Skip((i - 1) * _args.ClassSize).Take(_args.ClassSize))
-        {
-            AddStudentEnrollment(student, @class.SourcedId, course.SourcedId, org.SourcedId);
-        }
-    }
-
-    /// <summary>
-    /// Add teacher to given class, course, and org
-    /// </summary>
-    /// <param name="class"></param>
-    /// <param name="course"></param>
-    /// <param name="org"></param>
-    public void AddStaffToClass(Class @class, Course course, Org org)
-    {
-        Staff teacher = null;
-        // if class is homeroom add a new teacher
-        //   every homeroom will have only one teacher
-        if (course.Title.ToLower().Contains("homeroom"))
-        {
-            teacher = CreateStaff(org);
-        }
-        else
-        {
-            // Find an available teacher
-            teacher = Staff.Where(e => e.Org == org && e.RoleType == RoleType.teacher && e.Classes.Count() < _args.MaxTeacherClassCount).FirstOrDefault();
-            // if no teachers are available
-            //   make a new teacher
-            teacher ??= CreateStaff(org);
-        }
-        teacher.AddClass(@class);
-        AddTeacherEnrollment(teacher, @class.SourcedId, course.SourcedId, org.SourcedId);
-
-    }
-
     /// <summary>
     /// Add Enrollment for IUser for given class, course, and org
     /// </summary>
@@ -461,19 +394,6 @@ public class OneRoster
     }
 
     /// <summary>
-    /// Add Teacher Enrollment
-    /// </summary>
-    /// <param name="teacher"></param>
-    /// <param name="classSourcedId"></param>
-    /// <param name="courseSourcedId"></param>
-    /// <param name="schoolSourcedId"></param>
-    /// <returns></returns>
-    public Enrollment AddTeacherEnrollment(Staff teacher, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
-    {
-        return AddEnrollment(teacher, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.teacher);
-    }
-
-    /// <summary>
     /// Add Student Enrollment
     /// </summary>
     /// <param name="student"></param>
@@ -485,353 +405,8 @@ public class OneRoster
     {
         return AddEnrollment(student, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.student);
     }
-    #endregion
-
-    #region "Classes"
-    /// <summary>
-    /// Start Class Generation Process
-    /// </summary>
-    public void GenerateClasses()
-    {
-        foreach (Org org in Orgs.Where(e => e.OrgType == OrgType.school))
-        {
-            for (int i = 0; i < (org.IsHigh ? 3 : org.IsMiddle ? 2 : org.IsElementary ? 1 : 1); i++)
-            {
-                CreateStaff(org, RoleType.administrator);
-            }
-
-            foreach (Grade grade in org.GradesOffer)
-            {
-                foreach (Course course in Courses.Where(e => e.Grade == grade))
-                {
-                    // Create new class after meeting class size
-                    var students = from s in this.Students
-                                   where s.Org.SourcedId == org.SourcedId &&
-                                   s.Courses.Contains(course)
-                                   select s;
-
-                    // Determine how many class sections are needed
-                    var classCount = (students.Count() / _args.ClassSize) + 1;
-
-                    for (int i = 1; i <= classCount; i++)
-                    {
-                        string sectionNumber = i.ToString().PadLeft(3, '0');
-
-                        Class @class = new()
-                        {
-                            DateLastModified = DateLastModified,
-                            SourcedId = Guid.NewGuid(),
-                            Status = StatusType.active,
-                            Grades = grade.Name,
-                            CourseSourcedId = course.SourcedId,
-                            Title = $"{course.Title} SEC {sectionNumber}",
-                            ClassCode = org.Identifier + course.CourseCode + sectionNumber,
-                            SchoolSourcedId = org.SourcedId,
-                            TermSourcedid = course.SchoolYearSourcedId,
-                            ClassType = (course.Title.Contains("HOMEROOM") ? IMSClassType.homeroom.ToString() : IMSClassType.scheduled.ToString())
-                        };
-                        Classes.Add(@class);
-
-                        // Add Teacher
-                        AddStaffToClass(@class, course, org);
-                        // Add Students
-                        AddStudentsToClass(i, students, @class, course, org);
-
-                    }
-                }
-            }
-        }
-    }
-    #endregion
-
-    #region "Academic Sessions"
-    /// <summary>
-    /// Star Academic Sessions Generation
-    /// </summary>
-    private void GenerateAcademicSessions()
-    {
-        // Get Current School Year
-        var schoolYear = Utility.GetCurrentSchoolYear();
-        var nextSchoolYear = Utility.GetNextSchoolYear();
-        // Create SchoolYear Term
-        AcademicSession academicSession = new()
-        {
-            SourcedId = Guid.NewGuid(),
-            DateLastModified = DateLastModified,
-            Status = StatusType.active,
-            Title = $"FY {schoolYear}-{nextSchoolYear}",
-            StartDate = DateTime.Parse($"8/16/{schoolYear}"),
-            EndDate = DateTime.Parse($"8/15/{nextSchoolYear}"),
-            SessionType = SessionType.schoolYear,
-            SchoolYear = schoolYear
-        };
-        this.AcademicSessions.Add(academicSession);
-
-        // Marking Periods
-        AcademicSession academicSessionMP1 = new()
-        {
-            SourcedId = Guid.NewGuid(),
-            DateLastModified = DateLastModified,
-            Status = StatusType.active,
-            Title = $"MP1 {schoolYear}-{nextSchoolYear}",
-            StartDate = DateTime.Parse($"8/30/{schoolYear}"),
-            EndDate = DateTime.Parse($"11/09/{schoolYear}"),
-            SessionType = SessionType.gradingPeriod,
-            SchoolYear = schoolYear
-        };
-        this.AcademicSessions.Add(academicSessionMP1);
-
-        AcademicSession academicSessionMP2 = new()
-        {
-            SourcedId = Guid.NewGuid(),
-            DateLastModified = DateLastModified,
-            Status = StatusType.active,
-            Title = $"MP2 {schoolYear}-{nextSchoolYear}",
-            StartDate = DateTime.Parse($"11/10/{schoolYear}"),
-            EndDate = DateTime.Parse($"01/29/{nextSchoolYear}"),
-            SessionType = SessionType.gradingPeriod,
-            SchoolYear = schoolYear
-        };
-        this.AcademicSessions.Add(academicSessionMP2);
-
-        AcademicSession academicSessionMP3 = new()
-        {
-            SourcedId = Guid.NewGuid(),
-            DateLastModified = DateLastModified,
-            Status = StatusType.active,
-            Title = $"MP3 {schoolYear}-{nextSchoolYear}",
-            StartDate = DateTime.Parse($"01/30/{nextSchoolYear}"),
-            EndDate = DateTime.Parse($"04/13/{nextSchoolYear}"),
-            SessionType = SessionType.gradingPeriod,
-            SchoolYear = schoolYear
-        };
-        this.AcademicSessions.Add(academicSessionMP3);
-
-        AcademicSession academicSessionMP4 = new()
-        {
-            SourcedId = Guid.NewGuid(),
-            DateLastModified = DateLastModified,
-            Status = StatusType.active,
-            Title = $"MP4 {schoolYear}-{nextSchoolYear}",
-            StartDate = DateTime.Parse($"4/14/{nextSchoolYear}"),
-            EndDate = DateTime.Parse($"6/30/{nextSchoolYear}"),
-            SessionType = SessionType.gradingPeriod,
-            SchoolYear = schoolYear
-        };
-        this.AcademicSessions.Add(academicSessionMP4);
-
-        // Semesters
-
-        AcademicSession academicSessionS1 = new()
-        {
-            SourcedId = Guid.NewGuid(),
-            DateLastModified = DateLastModified,
-            Status = StatusType.active,
-            Title = $"S1 {schoolYear}-{nextSchoolYear}",
-            StartDate = DateTime.Parse($"8/30/{schoolYear}"),
-            EndDate = DateTime.Parse($"1/29/{nextSchoolYear}"),
-            SessionType = SessionType.term,
-            SchoolYear = schoolYear
-        };
-        this.AcademicSessions.Add(academicSessionS1);
-
-        AcademicSession academicSessionS2 = new()
-        {
-            SourcedId = Guid.NewGuid(),
-            DateLastModified = DateLastModified,
-            Status = StatusType.active,
-            Title = $"S2 {schoolYear}-{nextSchoolYear}",
-            StartDate = DateTime.Parse($"1/30/{nextSchoolYear}"),
-            EndDate = DateTime.Parse($"6/30/{nextSchoolYear}"),
-            SessionType = SessionType.term,
-            SchoolYear = schoolYear
-        };
-        this.AcademicSessions.Add(academicSessionS2);
-
-        AcademicSession academicSessionSummer = new()
-        {
-            SourcedId = Guid.NewGuid(),
-            DateLastModified = DateLastModified,
-            Status = StatusType.active,
-            Title = $"Summer {schoolYear}-{nextSchoolYear}",
-            StartDate = DateTime.Parse($"6/30/{nextSchoolYear}"),
-            EndDate = DateTime.Parse($"8/15/{nextSchoolYear}"),
-            SessionType = SessionType.semester,
-            SchoolYear = schoolYear
-        };
-        this.AcademicSessions.Add(academicSessionSummer);
-    }
-    #endregion
-
-    #region "Teacher"
-    /// <summary>
-    /// Creates a Teacher Record
-    /// </summary>
-    /// <returns></returns>
-    public Staff CreateStaff(Org org = null, RoleType roleType = RoleType.teacher)
-    {
-        var staffid = "00000000" + RunningStaffId.ToString();
-
-        Staff newStaff = new()
-        {
-            SourcedId = Guid.NewGuid(),
-            DateLastModified = DateLastModified,
-            Identifier = staffid.Substring(staffid.Length - 8, 8),
-            EnabledUser = true,
-            GivenName = faker.Name.FirstName(),
-            FamilyName = faker.Name.LastName(),
-            RoleType = roleType,
-            Org = org
-        };
-        newStaff.UserName = Utility.CreateTeacherUserName(Staff, newStaff.GivenName, newStaff.FamilyName);
-        RunningStaffId++;
-        Staff.Add(newStaff);
-        return newStaff;
-    }
-
-    #endregion
-
-    #region "Students"
-    /// <summary>
-    /// Start Student Generation
-    /// </summary>
-    void GenerateStudents()
-    {
-        var rnd = new Random();
-
-        foreach (Org org in Orgs.Where(e => e.OrgType == OrgType.school))
-        {
-            foreach (var grade in org.GradesOffer)
-            {
-                Random r = new();
-                var CALC_NUM_STUDENTS_PER_GRADE = _args.StudentsPerGrade + (r.Next(-30, 30));
-                for (var i = 1; i < CALC_NUM_STUDENTS_PER_GRADE; i++)
-                {
-                    AddStudent(org, grade);
-                }
-            }
-        }
-    }
-
-    private Student AddStudent(Org org, Grade grade)
-    {
-        var student = new Student
-        {
-            SourcedId = Guid.NewGuid(),
-            DateLastModified = DateLastModified,
-            Identifier = RunningStudentId.ToString(),
-            EnabledUser = true,
-            GivenName = faker.Name.FirstName(),
-            FamilyName = faker.Name.LastName(),
-            Grade = grade,
-            Org = org,
-            // Assign each student all courses of their current grade
-            Courses = Courses.Where(e => e.Title.Contains(grade.Name)).ToList()
-        };
-        Students.Add(student);
-        RunningStudentId++;
-        return student;
-    }
-    #endregion
-
-    #region "Grades"
-    /// <summary>
-    /// Start Grade Generation
-    /// </summary>
-    void GenerateGrades()
-    {
-        using var reader = new StreamReader(Utility.StringToMemoryStream(Properties.Resources.grades));
-
-        int gradeId = 1;
-        while (!reader.EndOfStream)
-        {
-            var line = reader.ReadLine();
-            var values = line.Split(',');
-            Grade newGrade = new()
-            {
-                Id = gradeId,
-                Name = values[0]
-            };
-            gradeId++;
-            Grades.Add(newGrade);
-        }
-    }
-    #endregion
-
-    #region "Orgs"
-    /// <summary>
-    /// Generate Orgs
-    /// </summary>
-    void GenerateOrgs()
-    {
-        // TODO: Clean this up
-        var parent = ParentOrg;
-        parent.DateLastModified = DateLastModified;
-
-        Orgs.Add(parent);
-
-        string[] schools = Encoding.
-                  ASCII.
-                  GetString(Utility.StringToMemoryStream(Properties.Resources.orgs).ToArray()).
-                  Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-
-        var maxSchools = schools.Length - 1;
-        var rnd = new Random();
-
-        var randomSeq = Enumerable.Range(1, maxSchools).OrderBy(r => rnd.NextDouble()).Take(_args.SchoolCount).ToList();
-        string[] schoolTypes = { "Elementary School", "Elementary School", "Middle School", "Middle School", "High School" };
-
-        for (int count = 0; count < randomSeq.Count; count++)
-        {
-            string line = schools[randomSeq[count]];
-            var paddedOrgNum = ("0000" + randomSeq[count].ToString());
-            var identifier = paddedOrgNum.Substring(paddedOrgNum.Length - 4, 4);
-            var schoolName = _args.SchoolCount != 3 ?
-                $"{line} {schoolTypes[rnd.Next(schoolTypes.Length)]}" :
-                $"{line} {GradeHelper.SchoolLevels[count]}";
-
-            Orgs.Add(
-                OrgHelper.CreateSchool(
-                    identifier,
-                    schoolName,
-                    DateLastModified,
-                    ParentOrg.SourcedId,
-                    Grades
-                    )
-                );
-        }
-
-    }
-
-    #endregion
 
     #region "Courses"
-    /// <summary>
-    /// Start Course Generation
-    /// </summary>
-    void GenerateCourses()
-    {
-        using var reader = new StreamReader(Utility.StringToMemoryStream(Properties.Resources.courses));
-
-        while (!reader.EndOfStream)
-        {
-            var line = reader.ReadLine();
-            var values = line.Split(',');
-            var tmpGrade = values[1].ToString();
-            var grade = tmpGrade.Substring(tmpGrade.Length - 2, 2);
-            Course newCourse = new()
-            {
-                SourcedId = Guid.NewGuid(),
-                Title = values[1],
-                CourseCode = values[0],
-                OrgSourcedId = ParentOrg.SourcedId,
-                SchoolYearSourcedId = this.AcademicSessions.Where(e => e.Title.Contains(values[2].ToString())).FirstOrDefault().SourcedId,
-                Grade = Grades.Where(e => e.Name.Contains(grade)).First()
-            };
-            Courses.Add(newCourse);
-        }
-
-    }
 
     private string GetCourseTitle(Guid courseSourcedId)
     {
@@ -840,5 +415,6 @@ public class OneRoster
             .FirstOrDefault()?
             .Title;
     }
+
     #endregion
 }
