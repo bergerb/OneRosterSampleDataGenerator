@@ -44,9 +44,11 @@ public class StatusChangeBuilder
     /// <param name="event"></param>
     /// <param name="type"></param>
     /// <param name="message"></param>
-    public void AddEvent(EventAction @event, @Type @type, string message)
+    public StatusChangeBuilder AddEvent(EventAction @event, @Type @type, string message)
     {
         _events.Add(new(@event, type, message));
+
+        return this;
     }
 
     /// <summary>

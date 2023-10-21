@@ -17,9 +17,9 @@ public record Orgs(
     {
         parentOrg.DateLastModified = createdAt;
 
-        AddItem(parentOrg);
-
         Items = CreateOrgs().ToList();
+
+        AddItem(parentOrg);
 
         return Items.ToList();
     }

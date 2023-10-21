@@ -10,7 +10,7 @@ public record Classes(
     int classSize,
     int maxTeacherClassCount,
     List<Course> courses,
-    List<Student> students,
+    List<User> students,
     List<Org> orgs,
     Staffs staff,
     Enrollments enrollments) : Generator<Class>
@@ -69,9 +69,9 @@ public record Classes(
             }
         }
     }
-    public void AddStudentsToClass(int i, IEnumerable<Student> students, Class @class, Course course, Org org)
+    public void AddStudentsToClass(int i, IEnumerable<User> students, Class @class, Course course, Org org)
     {
-        foreach (Student student in students.Skip((i - 1) * classSize).Take(classSize))
+        foreach (User student in students.Skip((i - 1) * classSize).Take(classSize))
         {
             enrollments.AddEnrollment(student, @class.SourcedId, course.SourcedId, org.SourcedId, RoleType.student);
         }
@@ -79,7 +79,7 @@ public record Classes(
 
     public void AddStaffToClass(Class @class, Course course, Org org)
     {
-        Staff teacher = null;
+        User teacher = null;
         // if class is homeroom add a new teacher
         //   every homeroom will have only one teacher
         if (course.Title.ToLower().Contains("homeroom"))

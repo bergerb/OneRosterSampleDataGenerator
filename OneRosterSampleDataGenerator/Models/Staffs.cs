@@ -6,11 +6,11 @@ using System.Linq;
 
 namespace OneRosterSampleDataGenerator.Models;
 
-public record Staffs(DateTime createdAt, List<Org> orgs) : Generator<Staff>
+public record Staffs(DateTime createdAt, List<Org> orgs) : Generator<User>
 {
     readonly Faker faker = new("en");
 
-    public override List<Staff> Generate()
+    public override List<User> Generate()
     {
         return Items.ToList();
     }
@@ -25,11 +25,11 @@ public record Staffs(DateTime createdAt, List<Org> orgs) : Generator<Staff>
             }
         }
     }
-    public Staff CreateStaff(Org org = null, RoleType roleType = RoleType.teacher)
+    public User CreateStaff(Org org = null, RoleType roleType = RoleType.teacher)
     {
         var staffid = "00000000" + RunningId.ToString();
 
-        Staff newStaff = new()
+        User newStaff = new()
         {
             SourcedId = Guid.NewGuid(),
             DateLastModified = createdAt,

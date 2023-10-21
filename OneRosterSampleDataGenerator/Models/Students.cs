@@ -10,18 +10,18 @@ public record Students(
     DateTime createdAt,
     int studentsPerGrade,
     List<Course> courses,
-    List<Org> orgs) : Generator<Student>
+    List<Org> orgs) : Generator<User>
 {
     private readonly Faker faker = new("en");
 
-    public override List<Student> Generate()
+    public override List<User> Generate()
     {
         Items = CreateStudents().ToList();
 
         return Items;
     }
 
-    private IEnumerable<Student> CreateStudents()
+    private IEnumerable<User> CreateStudents()
     {
         var rnd = new Random();
 
@@ -39,9 +39,9 @@ public record Students(
         }
     }
 
-    public Student AddStudent(Org org, Grade grade)
+    public User AddStudent(Org org, Grade grade)
     {
-        var student = new Student
+        var student = new User
         {
             SourcedId = Guid.NewGuid(),
             DateLastModified = createdAt,

@@ -1,21 +1,19 @@
-﻿using Bogus;
-using OneRosterSampleDataGenerator.Helpers;
+﻿using OneRosterSampleDataGenerator.Helpers;
 using OneRosterSampleDataGenerator.Models;
+using OneRosterSampleDataGenerator.Models.Exports;
+using OneRosterSampleDataGenerator.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
 
 namespace OneRosterSampleDataGenerator;
 
 /// <summary>
-/// Complete Object of OneRoster Data generated from sample CSV files (random)
+/// Creates sample CSV files from data (random)
+///  * Ability to create multiple files with incremental changes
 /// </summary>
-/// <todo>
-///   TODO: Check for file exists in all places
-/// </todo>
 public class OneRoster
 {
     public const int DEFAULT_NUM_SCHOOLS = 22;
@@ -32,8 +30,8 @@ public class OneRoster
     public List<Grade> Grades = new();
     public List<Org> Orgs = new();
     public List<Course> Courses = new();
-    public List<Student> Students = new();
-    public List<Staff> Staff = new();
+    public List<User> Students = new();
+    public List<User> Staff = new();
     public List<Class> Classes = new();
     public List<Enrollment> Enrollments = new();
     public List<Demographic> Demographics = new();
@@ -48,7 +46,6 @@ public class OneRoster
         ParentSourcedId = null
     };
 
-    readonly Faker faker = new();
     private readonly Args _args;
     private DateTime DateLastModified;
 
@@ -199,7 +196,7 @@ public class OneRoster
 
             #region Local Functions
 
-            void EnrollStudent(Student student, Enrollment enrollment)
+            void EnrollStudent(User student, Enrollment enrollment)
             {
                 AddStudentEnrollment(student, enrollment.ClassSourcedId, enrollment.CourseSourcedId, enrollment.SchoolSourcedId);
 
@@ -226,7 +223,7 @@ public class OneRoster
             DeactivateEnrollmentsForUser(student);
         }
 
-        void DeactivateEnrollmentsForUser(IUser user)
+        void DeactivateEnrollmentsForUser(ILeaUser user)
         {
             var enrollments = Enrollments.Where(x => x.UserSourcedId == user.SourcedId)
             .ToList();
@@ -252,83 +249,29 @@ public class OneRoster
     {
         SetupDirectory();
 
-        //write academic sessions
-        string academicSessionsHeader = "sourcedId,status,dateLastModified,title,type,startDate,endDate,parentSourcedId,schoolYear";
-        StringBuilder academicSessionsOutput = new();
-        academicSessionsOutput.Append(academicSessionsHeader);
-        foreach (AcademicSession a in AcademicSessions)
-            academicSessionsOutput.Append($"{Environment.NewLine}\"{a.SourcedId}\",\"{a.Status}\",\"{FormatDateLastModified(a.DateLastModified)}\",\"{a.Title}\",\"{a.Type}\",\"{string.Format("{0:yyyy-MM-dd}", a.StartDate)}\",\"{string.Format("{0:yyyy-MM-dd}", a.EndDate)}\",\"\",\"{a.SchoolYear}\"");
-        File.WriteAllText("OneRoster\\academicSessions.csv", academicSessionsOutput.ToString());
-        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Academic Sessions");
+        FileProcessor processor = new(StatusChangeBuilder);
+        processor.ProcessFile<AcademicSession, AcademicSessionFile>(AcademicSessions, "OneRoster\\academicSessions.csv");
 
-        //write orgs
-        string orgsHeader = "sourcedId,status,dateLastModified,name,type,identifier,parentSourcedId";
-        StringBuilder orgsOutput = new();
-        orgsOutput.Append(orgsHeader);
-        foreach (Org o in Orgs)
-            orgsOutput.Append($"{Environment.NewLine}\"{o.SourcedId}\",\"{o.Status}\",\"{FormatDateLastModified(o.DateLastModified)}\",\"{o.Name}\",\"{o.Type}\",\"{o.Identifier}\",\"{o.ParentSourcedId}\"");
-        File.WriteAllText("OneRoster\\orgs.csv", orgsOutput.ToString());
-        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Orgs");
+        processor.ProcessFile<Org, OrgFile>(Orgs, "OneRoster\\orgs.csv");
 
-        //write courses
-        string coursesHeader = "sourcedId,status,dateLastModified,schoolYearSourcedId,title,courseCode,grades,orgSourcedId,subjects,subjectCodes";
-        StringBuilder coursesOutput = new();
-        coursesOutput.Append(coursesHeader);
-        foreach (Course c in Courses)
-            coursesOutput.Append($"{Environment.NewLine}\"{c.SourcedId}\",\"{c.Status}\",\"{FormatDateLastModified(c.DateLastModified)}\",\"{c.SchoolYearSourcedId}\",\"{c.Title}\",\"{c.CourseCode}\",\"{c.Grade.Name}\",\"{c.OrgSourcedId}\",\"\",\"\"");
-        File.WriteAllText("OneRoster\\courses.csv", coursesOutput.ToString());
-        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Courses");
+        processor.ProcessFile<Course, CourseFile>(Courses, "OneRoster\\courses.csv");
 
-        //write users
-        string usersHeader = "sourcedId,status,dateLastModified,enabledUser,orgSourcedIds,role,username,userIds,givenName,familyName,middleName,identifier,email,sms,phone,agentSourcedIds,grades,password";
-        StringBuilder usersOutput = new();
-        usersOutput.Append(usersHeader);
-        foreach (Student s in Students)
-            usersOutput.Append($"{Environment.NewLine}\"{s.SourcedId}\",\"{s.Status}\",\"{FormatDateLastModified(s.DateLastModified)}\",\"true\",\"{s.Org.SourcedId}\",\"student\",\"{s.UserName}\",\"{s.Identifier}\",\"{s.GivenName}\",\"{s.FamilyName}\",\"\",\"{s.Identifier}\",\"{s.Email}\",\"\",\"\",\"\",\"{s.CurrentGrade}\",\"\"");
-        foreach (Staff t in Staff)
-            usersOutput.Append($"{Environment.NewLine}\"{t.SourcedId}\",\"{t.Status}\",\"{FormatDateLastModified(t.DateLastModified)}\",\"true\",\"{t.Org.SourcedId}\",\"{t.RoleType}\",\"{t.UserName}\",\"{t.Identifier}\",\"{t.GivenName}\",\"{t.FamilyName}\",\"\",\"{t.Identifier}\",\"{t.Email}\",\"\",\"\",\"\",\"\",\"\"");
-        File.WriteAllText("OneRoster\\users.csv", usersOutput.ToString());
-        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Users");
+        var users = Students.Union(Staff);
 
-        //write classes
-        string classesHeader = "sourcedId,status,dateLastModified,title,grades,courseSourcedId,classCode,classType,location,schoolSourcedId,termSourcedId,subjects,subjectCodes,periods";
-        StringBuilder classesOutput = new();
-        classesOutput.Append(classesHeader);
-        foreach (Class c in Classes)
-            classesOutput.Append($"{Environment.NewLine}\"{c.SourcedId}\",\"{c.Status}\",\"{FormatDateLastModified(c.DateLastModified)}\",\"{c.Title}\",\"{c.Grades}\",\"{c.CourseSourcedId}\",\"{c.ClassCode}\",\"{c.ClassType}\",\"\",\"{c.SchoolSourcedId}\",\"{c.TermSourcedid}\",\"\",\"\",\"\"");
-        File.WriteAllText("OneRoster\\classes.csv", classesOutput.ToString());
-        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Classes");
+        processor.ProcessFile<User, UserFile>(users, "OneRoster\\users.csv");
 
-        //write enrollments
-        string enrollmentsHeader = "sourcedId,status,dateLastModified,classSourcedId,schoolSourcedId,userSourcedId,role,primary,beginDate,endDate";
-        StringBuilder enrollmentsOutput = new();
-        enrollmentsOutput.Append(enrollmentsHeader);
-        foreach (Enrollment e in Enrollments)
-            enrollmentsOutput.Append($"{Environment.NewLine}\"{e.SourcedId}\",\"{e.Status}\",\"{FormatDateLastModified(e.DateLastModified)}\",\"{e.ClassSourcedId}\",\"{e.SchoolSourcedId}\",\"{e.UserSourcedId}\",\"{e.RoleType}\",\"\",\"\",\"\"");
-        File.WriteAllText("OneRoster\\enrollments.csv", enrollmentsOutput.ToString());
-        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Enrollments");
+        processor.ProcessFile<Class, ClassFile>(Classes, "OneRoster\\classes.csv");
 
-        //write demograhics
-        string demographicsHeader = "sourcedId,status,dateLastModified,birthDate,sex,americanIndianOrAlaskaNative,asian,blackOrAfricanAmerican,nativeAmericanOrOtherPacificIslander,countryOfBirthCode,stateofBirthAbbreviation,cityOfBirth,publicSchoolResidenceStatus";
-        StringBuilder demograhicsOutput = new();
-        demograhicsOutput.Append(demographicsHeader);
-        foreach (Demographic d in Demographics)
-            demograhicsOutput.Append($"{Environment.NewLine}\"{d.SourcedId}\",\"{d.Status}\",\"{FormatDateLastModified(d.DateLastModified)}\",\"{string.Format("{0:yyyy-MM-dd}", d.BirthDate)}\",\"{d.Sex}\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"");
-        File.WriteAllText("OneRoster\\demographics.csv", demograhicsOutput.ToString());
-        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Demographics");
+        processor.ProcessFile<Enrollment, EnrollmentFile>(Enrollments, "OneRoster\\enrollments.csv");
 
-        //write manifest
-        string manifestHeader = "\"propertyName\",\"value\"";
-        StringBuilder manifestOutput = new();
-        manifestOutput.Append(manifestHeader);
-        foreach (Manifest manifest in Manifest)
-            manifestOutput.Append($"{Environment.NewLine}\"{manifest.PropertyName}\",\"{manifest.Value}\"");
-        File.WriteAllText("OneRoster\\manifest.csv", manifestOutput.ToString());
-        StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, "Manifest");
+        processor.ProcessFile<Demographic, DemographicFile>(Demographics, "OneRoster\\demographics.csv");
 
+        processor.ProcessFile<Manifest, ManifestFile>(Manifest, "OneRoster\\manifest.csv");
+
+        StatusChangeBuilder.OutputChangeLog();
         #region Local Functions
 
-        void SetupDirectory()
+        static void SetupDirectory()
         {
             if (Directory.Exists(OutputDirectory))
             {
@@ -338,12 +281,6 @@ public class OneRoster
                 return;
             }
             Directory.CreateDirectory(OutputDirectory);
-        }
-
-        string FormatDateLastModified(DateTime dateTime)
-        {
-            var formattedDateTime = dateTime.ToString("yyyy-MM-ddTHH:MM:ss.sssZ");
-            return formattedDateTime;
         }
 
         #endregion
@@ -364,6 +301,7 @@ public class OneRoster
         ZipFile.CreateFromDirectory(startPath, zipFile);
 
         StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, zipFile);
+
     }
 
     /// <summary>
@@ -375,7 +313,7 @@ public class OneRoster
     /// <param name="schoolSourcedId"></param>
     /// <param name="role"></param>
     /// <returns></returns>
-    public Enrollment AddEnrollment(IUser user, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId, RoleType role)
+    public Enrollment AddEnrollment(ILeaUser user, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId, RoleType role)
     {
         Enrollment enrollment = new()
         {
@@ -401,7 +339,7 @@ public class OneRoster
     /// <param name="courseSourcedId"></param>
     /// <param name="schoolSourcedId"></param>
     /// <returns></returns>
-    public Enrollment AddStudentEnrollment(Student student, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
+    public Enrollment AddStudentEnrollment(User student, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
     {
         return AddEnrollment(student, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.student);
     }

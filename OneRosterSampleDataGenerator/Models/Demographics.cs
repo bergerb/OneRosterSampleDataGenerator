@@ -7,7 +7,7 @@ namespace OneRosterSampleDataGenerator.Models;
 
 public record Demographics(
     DateTime createdAt,
-    List<Student> students) : Generator<Demographic>
+    List<User> students) : Generator<Demographic>
 {
     public override List<Demographic> Generate()
     {
@@ -18,7 +18,7 @@ public record Demographics(
 
     private IEnumerable<Demographic> CreateDemographics()
     {
-        foreach (Student student in students)
+        foreach (User student in students)
         {
             var rnd = new Random();
 

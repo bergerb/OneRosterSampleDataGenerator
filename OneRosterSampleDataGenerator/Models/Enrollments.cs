@@ -1,4 +1,5 @@
 ﻿using OneRosterSampleDataGenerator.Models.Base;
+using OneRosterSampleDataGenerator.Models.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ public record Enrollments(
     }
 
     public Enrollment AddEnrollment(
-        IUser user,
+        ILeaUser user,
         Guid classSourcedId,
         Guid courseSourcedId,
         Guid schoolSourcedId,
