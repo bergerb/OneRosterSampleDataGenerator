@@ -1,12 +1,18 @@
 ﻿using OneRosterSampleDataGenerator.Models.Base;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace OneRosterSampleDataGenerator.Models;
 
-public record Manifests(
-    Org parentOrg) : Generator<Manifest>
+public class Manifests : Generator<Manifest>
 {
+    public Manifests(DateTime createdAt, Org parentOrg) : base(createdAt)
+    {
+        ParentOrg = parentOrg;
+    }
+
+    public Org ParentOrg { get; set; }
     public override List<Manifest> Generate()
     {
         Items = CreateManifests().ToList();
@@ -20,8 +26,8 @@ public record Manifests(
             new Manifest() { PropertyName = "propertyName", Value = "value" },
             new Manifest() { PropertyName = "manifest.version", Value = "1.0" },
             new Manifest() { PropertyName = "oneroster.version", Value = "1.1" },
-            new Manifest() { PropertyName = "source.systemName", Value = parentOrg.Name + " OneRoster" },
-            new Manifest() { PropertyName = "source.systemCode", Value = parentOrg.Identifier },
+            new Manifest() { PropertyName = "source.systemName", Value = ParentOrg.Name + " OneRoster" },
+            new Manifest() { PropertyName = "source.systemCode", Value = ParentOrg.Identifier },
             new Manifest() { PropertyName = "file.academicSessions", Value = "bulk" },
             new Manifest() { PropertyName = "file.orgs", Value = "bulk" },
             new Manifest() { PropertyName = "file.courses", Value = "bulk" },

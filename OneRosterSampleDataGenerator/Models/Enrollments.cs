@@ -6,9 +6,13 @@ using System.Linq;
 
 namespace OneRosterSampleDataGenerator.Models;
 
-public record Enrollments(
-    DateTime createdAt) : Generator<Enrollment>
+public class Enrollments : Generator<Enrollment>
 {
+    public Enrollments(DateTime createdAt)
+        : base(createdAt)
+    {
+    }
+
     public override List<Enrollment> Generate()
     {
         Items = CreateEnrollments().ToList();
@@ -26,21 +30,37 @@ public record Enrollments(
         Guid classSourcedId,
         Guid courseSourcedId,
         Guid schoolSourcedId,
-        RoleType role)
+        RoleType role,
+        DateTime? createdAt = null)
     {
         Enrollment enrollment = new()
         {
-            DateLastModified = createdAt,
             ClassSourcedId = classSourcedId,
             CourseSourcedId = courseSourcedId,
+            DateLastModified = CreatedAt,
+            RoleType = role,
             SchoolSourcedId = schoolSourcedId,
             SourcedId = Guid.NewGuid(),
             Status = StatusType.active,
             UserSourcedId = user.SourcedId,
-            RoleType = role
         };
 
+        if (createdAt.HasValue)
+        {
+            enrollment.DateLastModified = createdAt.Value;
+        }
+
         AddItem(enrollment);
+
+        return enrollment;
+    }
+    public Enrollment InactivateEnrollment(Guid enrollmentId, DateTime dateLastModified)
+    {
+        Enrollment enrollment = Items.FirstOrDefault(x => x.SourcedId == enrollmentId)
+            ?? throw new Exception($"Enrollment with sourcedId {enrollmentId} not found");
+
+        enrollment.Status = StatusType.tobedeleted;
+        enrollment.DateLastModified = dateLastModified;
 
         return enrollment;
     }

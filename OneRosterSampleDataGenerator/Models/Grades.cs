@@ -1,12 +1,18 @@
 ﻿using OneRosterSampleDataGenerator.Models.Base;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
 namespace OneRosterSampleDataGenerator.Models;
 
-public record Grades : Generator<Grade>
+public class Grades : Generator<Grade>
 {
+    public Grades(DateTime createdAt)
+        : base(createdAt)
+    {
+    }
+
     public override List<Grade> Generate()
     {
         Items = CreateGrades().ToList();

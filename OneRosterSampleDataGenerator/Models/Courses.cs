@@ -6,17 +6,33 @@ using System.Linq;
 
 namespace OneRosterSampleDataGenerator.Models;
 
-public record Courses(
-    DateTime createdAt,
-    Org parentOrg,
-    List<Grade> grades,
-    List<AcademicSession> academicSessions) : Generator<Course>
+public class Courses : Generator<Course>
 {
+    public Courses(DateTime createdAt, Org parentOrg, List<AcademicSession> academicSessions, List<Grade> grades)
+        : base(createdAt)
+    {
+        AcademicSessions = academicSessions;
+        Grades = grades;
+        ParentOrg = parentOrg;
+    }
+
+    public Org ParentOrg { get; set; }
+    public List<AcademicSession> AcademicSessions { get; set; }
+    public List<Grade> Grades { get; set; }
+
     public override List<Course> Generate()
     {
         Items = CreateCourses().ToList();
 
         return Items;
+    }
+
+    public string GetCourseTitle(Guid courseSourcedId)
+    {
+        return Items
+            .Where(x => x.SourcedId == courseSourcedId)
+            .FirstOrDefault()?
+            .Title;
     }
 
     private IEnumerable<Course> CreateCourses()
@@ -31,12 +47,13 @@ public record Courses(
             var grade = tmpGrade.Substring(tmpGrade.Length - 2, 2);
             Course newCourse = new()
             {
+                CourseCode = values[0],
+                DateLastModified = CreatedAt,
+                Grade = Grades.Where(e => e.Name.Contains(grade)).First(),
+                OrgSourcedId = ParentOrg.SourcedId,
+                SchoolYearSourcedId = AcademicSessions.Where(e => e.Title.Contains(values[2].ToString())).FirstOrDefault().SourcedId,
                 SourcedId = Guid.NewGuid(),
                 Title = values[1],
-                CourseCode = values[0],
-                OrgSourcedId = parentOrg.SourcedId,
-                SchoolYearSourcedId = academicSessions.Where(e => e.Title.Contains(values[2].ToString())).FirstOrDefault().SourcedId,
-                Grade = grades.Where(e => e.Name.Contains(grade)).First()
             };
 
             yield return newCourse;

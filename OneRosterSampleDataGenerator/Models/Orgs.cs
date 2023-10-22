@@ -7,15 +7,26 @@ using System.Text;
 
 namespace OneRosterSampleDataGenerator.Models;
 
-public record Orgs(
-    DateTime createdAt,
-    int schoolCount,
-    Org parentOrg,
-    List<Grade> grades) : Generator<Org>
+public class Orgs : Generator<Org>
 {
+    public Orgs(
+        DateTime createdAt,
+        Org parentOrg,
+        int schoolCount,
+        List<Grade> grades) : base(createdAt)
+    {
+        this.parentOrg = parentOrg;
+        this.schoolCount = schoolCount;
+        this.grades = grades;
+    }
+
+    public Org parentOrg { get; set; }
+    public int schoolCount { get; set; }
+    public List<Grade> grades { get; set; }
+
     public override List<Org> Generate()
     {
-        parentOrg.DateLastModified = createdAt;
+        parentOrg.DateLastModified = CreatedAt;
 
         Items = CreateOrgs().ToList();
 
@@ -47,13 +58,38 @@ public record Orgs(
                 $"{line} {GradeHelper.SchoolLevels[count]}";
 
             yield return
-                OrgHelper.CreateSchool(
+                CreateSchool(
                     identifier,
                     schoolName,
-                    createdAt,
+                    CreatedAt,
                     parentOrg.SourcedId,
                     grades
                 );
         }
+    }
+    private static Org CreateSchool(string identifier, string name, DateTime dateLastModified, Guid parentOrgId, List<Grade> grades)
+    {
+        Org newOrg = new()
+        {
+            DateLastModified = dateLastModified,
+            Identifier = identifier,
+            Name = name,
+            OrgType = OrgType.school,
+            ParentSourcedId = parentOrgId,
+            SourcedId = Guid.NewGuid(),
+        };
+        if (newOrg.Name.Contains("Elementary"))
+        {
+            newOrg.GradesOffer = grades.Where(e => GradeHelper.Elementary.Contains(e.Name)).ToList();
+        }
+        if (newOrg.Name.Contains("Middle"))
+        {
+            newOrg.GradesOffer = grades.Where(e => GradeHelper.Middle.Contains(e.Name)).ToList();
+        }
+        if (newOrg.Name.Contains("High"))
+        {
+            newOrg.GradesOffer = grades.Where(e => GradeHelper.High.Contains(e.Name)).ToList();
+        }
+        return newOrg;
     }
 }

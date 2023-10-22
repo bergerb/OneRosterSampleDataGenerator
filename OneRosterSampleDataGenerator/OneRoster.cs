@@ -1,7 +1,7 @@
 ﻿using OneRosterSampleDataGenerator.Helpers;
 using OneRosterSampleDataGenerator.Models;
 using OneRosterSampleDataGenerator.Models.Exports;
-using OneRosterSampleDataGenerator.Models.Interfaces;
+using OneRosterSampleDataGenerator.Services;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -87,26 +87,28 @@ public class OneRoster
             .Generate();
 
         // Build Grades
-        this.Grades = new Grades()
+        this.Grades = new Grades(DateLastModified)
             .Generate();
 
         // Build Orgs
         // -----> Orgs Rely on Grades
-        this.Orgs = new Orgs(DateLastModified,
-            _args.SchoolCount,
+        var orgs = new Orgs(DateLastModified,
             ParentOrg,
-            Grades)
+            _args.SchoolCount,
+            Grades);
+        this.Orgs = orgs
             .Generate();
 
         // Build Course List
-        this.Courses = new Courses(DateLastModified,
+        var courses = new Courses(
+            DateLastModified,
             ParentOrg,
-            Grades,
-            AcademicSessions)
-            .Generate();
+            AcademicSessions,
+            Grades);
+        this.Courses = courses.Generate();
 
         // Build Students List
-        var students = new Students(DateLastModified, _args.StudentsPerGrade, Courses, Orgs)
+        var students = new Students(DateLastModified, Orgs, Courses, _args.StudentsPerGrade)
         {
             RunningId = _args.StudentIdStart
         };
@@ -122,7 +124,15 @@ public class OneRoster
         var enrollments = new Enrollments(DateLastModified);
 
         // Build Classes List
-        this.Classes = new Classes(DateLastModified, _args.ClassSize, _args.MaxTeacherClassCount, Courses, Students, Orgs, staff, enrollments)
+        this.Classes = new Classes(
+            DateLastModified,
+            _args.ClassSize,
+            _args.MaxTeacherClassCount,
+            Orgs,
+            Courses,
+            Students,
+            staff,
+            enrollments)
             .Generate();
 
         // Build Demographic List
@@ -130,7 +140,7 @@ public class OneRoster
             .Generate();
 
         // Build Manifest List
-        this.Manifest = new Manifests(ParentOrg)
+        this.Manifest = new Manifests(DateLastModified, ParentOrg)
             .Generate();
 
         Staff = staff.Generate();
@@ -138,11 +148,16 @@ public class OneRoster
 
         if (_args.IncrementalDaysToCreate.HasValue)
         {
-            CreateIncrementalFiles(students);
+            CreateIncrementalFiles(students, enrollments, orgs, courses, StatusChangeBuilder);
         }
     }
 
-    private void CreateIncrementalFiles(Students students)
+    private void CreateIncrementalFiles(
+        Students students,
+        Enrollments enrollments,
+        Orgs orgs,
+        Courses courses,
+        StatusChangeBuilder statusChangeBuilder)
     {
         OutputOneRosterZipFile();
 
@@ -150,14 +165,34 @@ public class OneRoster
         {
             DateLastModified = DateLastModified.AddDays(1);
 
-            for (int j = 0; j <= new Random().Next(0, 3); j++)
-            {
-                DeactivateRandomStudent();
-            }
-            for (int k = 0; k <= new Random().Next(0, 3); k++)
-            {
-                AddRandomStudent();
-            }
+            DeactivateStudentDataService deactivateStudentDataService = new(
+                DateLastModified,
+                students,
+                enrollments,
+                //orgs,
+                courses,
+                statusChangeBuilder);
+            var deactivated = deactivateStudentDataService
+                .DeactivateStudents(3);
+
+            students = deactivated.Students;
+            enrollments = deactivated.Enrollments;
+
+            AddStudentDataService incrementStudentDataService = new(
+                DateLastModified,
+                students,
+                enrollments,
+                orgs,
+                courses,
+                statusChangeBuilder);
+            var added = incrementStudentDataService
+                .AddStudents(3);
+            students = added.Students;
+            enrollments = added.Enrollments;
+
+            //// Update the existing students and enrollments
+            //Students = students.Generate();
+            //Enrollments = enrollments.Generate();
 
             OutputOneRosterZipFile(i.ToString());
 
@@ -166,77 +201,79 @@ public class OneRoster
 
         #region Local Functions
 
-        void AddRandomStudent()
-        {
-            var org = Utility.GetRandomItem(Orgs.Where(x => x.OrgType == OrgType.school).ToList());
-            var grade = Utility.GetRandomItem(org.GradesOffer);
+        //void AddRandomStudent()
+        //{
+        //    var org = Utility.GetRandomItem(Orgs.Where(x => x.OrgType == OrgType.school).ToList());
+        //    var grade = Utility.GetRandomItem(org.GradesOffer);
 
-            var existingStudent = Students
-                .Where(x => x.Org.Id == org.Id)
-                .Where(x => x.Grade.Id == grade.Id)
-                .FirstOrDefault();
+        //    var existingStudent = Students
+        //        .Where(x => x.Org.Id == org.Id)
+        //        .Where(x => x.Grade.Id == grade.Id)
+        //        .FirstOrDefault();
 
-            var student = students.AddStudent(org, grade);
-            StatusChangeBuilder.AddEvent(
-                StatusChangeBuilder.EventAction.Created,
-                StatusChangeBuilder.Type.Student,
-                $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) created at {org.Name}.");
+        //    var student = students.AddStudent(org, grade);
+        //    StatusChangeBuilder.AddEvent(
+        //        StatusChangeBuilder.EventAction.Created,
+        //        StatusChangeBuilder.Type.Student,
+        //        $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) created at {org.Name}.");
 
-            // Add enrollments
-            if (existingStudent is not null)
-            {
-                var enrollments = Enrollments
-                    .Where(x => x.UserSourcedId == existingStudent.SourcedId)
-                    .ToList();
-                foreach (var enrollment in enrollments)
-                {
-                    EnrollStudent(student, enrollment);
-                }
-            }
+        //    // Add enrollments
+        //    if (existingStudent is not null)
+        //    {
+        //        var enrollments = Enrollments
+        //            .Where(x => x.UserSourcedId == existingStudent.SourcedId)
+        //            .ToList();
 
-            #region Local Functions
+        //        foreach (var enrollment in enrollments)
+        //        {
+        //            EnrollStudent(student, enrollment);
+        //        }
+        //    }
 
-            void EnrollStudent(User student, Enrollment enrollment)
-            {
-                AddStudentEnrollment(student, enrollment.ClassSourcedId, enrollment.CourseSourcedId, enrollment.SchoolSourcedId);
+        //    #region Local Functions
 
-                var courseTitle = GetCourseTitle(enrollment.CourseSourcedId);
-                StatusChangeBuilder.AddEvent(
-                    StatusChangeBuilder.EventAction.Created,
-                    StatusChangeBuilder.Type.Enrollment,
-                    $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) enrolled into {courseTitle}.");
-            }
+        //    void EnrollStudent(User student, Enrollment enrollment)
+        //    {
+        //        AddStudentEnrollment(student, enrollment.ClassSourcedId, enrollment.CourseSourcedId, enrollment.SchoolSourcedId);
 
-            #endregion
-        }
+        //        var courseTitle = GetCourseTitle(enrollment.CourseSourcedId);
+        //        StatusChangeBuilder.AddEvent(
+        //            StatusChangeBuilder.EventAction.Created,
+        //            StatusChangeBuilder.Type.Enrollment,
+        //            $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) enrolled into {courseTitle}.");
+        //    }
 
-        void DeactivateRandomStudent()
-        {
-            var randomStudent = new Random().Next(0, Students.Count - 1);
-            var student = Students[randomStudent];
-            Students[randomStudent] = StudentHelper.DeactivateStudent(student, DateLastModified);
-            StatusChangeBuilder.AddEvent(
-                StatusChangeBuilder.EventAction.Deactivated,
-                StatusChangeBuilder.Type.Student,
-                $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) modified at {student.Org.Name}.");
+        //    #endregion
+        //}
 
-            DeactivateEnrollmentsForUser(student);
-        }
+        //void DeactivateRandomStudent(Enrollments enrollments)
+        //{
+        //    var randomStudent = new Random().Next(0, Students.Count - 1);
+        //    var student = Students[randomStudent];
+        //    Students[randomStudent] = StudentHelper.DeactivateStudent(student, DateLastModified);
+        //    StatusChangeBuilder.AddEvent(
+        //        StatusChangeBuilder.EventAction.Deactivated,
+        //        StatusChangeBuilder.Type.Student,
+        //        $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) modified at {student.Org.Name}.");
 
-        void DeactivateEnrollmentsForUser(ILeaUser user)
-        {
-            var enrollments = Enrollments.Where(x => x.UserSourcedId == user.SourcedId)
-            .ToList();
-            foreach (var enrollment in enrollments)
-            {
-                EnrollmentHelper.InactivateEnrollment(enrollment, DateLastModified);
-                var courseTitle = GetCourseTitle(enrollment.CourseSourcedId);
-                StatusChangeBuilder.AddEvent(
-                    StatusChangeBuilder.EventAction.Deactivated,
-                    StatusChangeBuilder.Type.Enrollment,
-                    $"{user.FamilyName}, {user.GivenName} enrollment has been deactivated for {courseTitle}.");
-            }
-        }
+        //    DeactivateEnrollmentsForUser(student, enrollments);
+        //}
+
+        //void DeactivateEnrollmentsForUser(ILeaUser user, Enrollments enrollments)
+        //{
+        //    var studentEnrollments = enrollments.Items
+        //        .Where(x => x.UserSourcedId == user.SourcedId)
+        //        .ToList();
+        //    foreach (var enrollment in studentEnrollments)
+        //    {
+        //        EnrollmentHelper.InactivateEnrollment(enrollment, DateLastModified);
+        //        var courseTitle = GetCourseTitle(enrollment.CourseSourcedId);
+        //        StatusChangeBuilder.AddEvent(
+        //            StatusChangeBuilder.EventAction.Deactivated,
+        //            StatusChangeBuilder.Type.Enrollment,
+        //            $"{user.FamilyName}, {user.GivenName} enrollment has been deactivated for {courseTitle}.");
+        //    }
+        //}
 
         #endregion
 
@@ -250,25 +287,40 @@ public class OneRoster
         SetupDirectory();
 
         FileProcessor processor = new(StatusChangeBuilder);
-        processor.ProcessFile<AcademicSession, AcademicSessionFile>(AcademicSessions, "OneRoster\\academicSessions.csv");
 
-        processor.ProcessFile<Org, OrgFile>(Orgs, "OneRoster\\orgs.csv");
-
-        processor.ProcessFile<Course, CourseFile>(Courses, "OneRoster\\courses.csv");
+        processor.ProcessFile<AcademicSession, AcademicSessionFile>(
+            AcademicSessions,
+            "OneRoster\\academicSessions.csv");
+        processor.ProcessFile<Org, OrgFile>(
+            Orgs,
+            "OneRoster\\orgs.csv");
+        processor.ProcessFile<Course, CourseFile>(
+            Courses,
+            "OneRoster\\courses.csv");
 
         var users = Students.Union(Staff);
+        processor.ProcessFile<User, UserFile>(
+            users,
+            "OneRoster\\users.csv");
 
-        processor.ProcessFile<User, UserFile>(users, "OneRoster\\users.csv");
+        processor.ProcessFile<Class, ClassFile>(
+            Classes,
+            "OneRoster\\classes.csv");
 
-        processor.ProcessFile<Class, ClassFile>(Classes, "OneRoster\\classes.csv");
+        processor.ProcessFile<Enrollment, EnrollmentFile>(
+            Enrollments,
+            "OneRoster\\enrollments.csv");
 
-        processor.ProcessFile<Enrollment, EnrollmentFile>(Enrollments, "OneRoster\\enrollments.csv");
+        processor.ProcessFile<Demographic, DemographicFile>(
+            Demographics,
+            "OneRoster\\demographics.csv");
 
-        processor.ProcessFile<Demographic, DemographicFile>(Demographics, "OneRoster\\demographics.csv");
-
-        processor.ProcessFile<Manifest, ManifestFile>(Manifest, "OneRoster\\manifest.csv");
+        processor.ProcessFile<Manifest, ManifestFile>(
+            Manifest,
+            "OneRoster\\manifest.csv");
 
         StatusChangeBuilder.OutputChangeLog();
+
         #region Local Functions
 
         static void SetupDirectory()
@@ -304,55 +356,55 @@ public class OneRoster
 
     }
 
-    /// <summary>
-    /// Add Enrollment for IUser for given class, course, and org
-    /// </summary>
-    /// <param name="user"></param>
-    /// <param name="classSourcedId"></param>
-    /// <param name="courseSourcedId"></param>
-    /// <param name="schoolSourcedId"></param>
-    /// <param name="role"></param>
-    /// <returns></returns>
-    public Enrollment AddEnrollment(ILeaUser user, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId, RoleType role)
-    {
-        Enrollment enrollment = new()
-        {
-            DateLastModified = DateLastModified,
-            ClassSourcedId = classSourcedId,
-            CourseSourcedId = courseSourcedId,
-            SchoolSourcedId = schoolSourcedId,
-            SourcedId = Guid.NewGuid(),
-            Status = StatusType.active,
-            UserSourcedId = user.SourcedId,
-            RoleType = role
+    ///// <summary>
+    ///// Add Enrollment for IUser for given class, course, and org
+    ///// </summary>
+    ///// <param name="user"></param>
+    ///// <param name="classSourcedId"></param>
+    ///// <param name="courseSourcedId"></param>
+    ///// <param name="schoolSourcedId"></param>
+    ///// <param name="role"></param>
+    ///// <returns></returns>
+    //public Enrollment AddEnrollment(ILeaUser user, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId, RoleType role)
+    //{
+    //    Enrollment enrollment = new()
+    //    {
+    //        DateLastModified = DateLastModified,
+    //        ClassSourcedId = classSourcedId,
+    //        CourseSourcedId = courseSourcedId,
+    //        SchoolSourcedId = schoolSourcedId,
+    //        SourcedId = Guid.NewGuid(),
+    //        Status = StatusType.active,
+    //        UserSourcedId = user.SourcedId,
+    //        RoleType = role
 
-        };
-        Enrollments.Add(enrollment);
-        return enrollment;
-    }
+    //    };
+    //    Enrollments.Add(enrollment);
+    //    return enrollment;
+    //}
 
-    /// <summary>
-    /// Add Student Enrollment
-    /// </summary>
-    /// <param name="student"></param>
-    /// <param name="classSourcedId"></param>
-    /// <param name="courseSourcedId"></param>
-    /// <param name="schoolSourcedId"></param>
-    /// <returns></returns>
-    public Enrollment AddStudentEnrollment(User student, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
-    {
-        return AddEnrollment(student, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.student);
-    }
+    ///// <summary>
+    ///// Add Student Enrollment
+    ///// </summary>
+    ///// <param name="student"></param>
+    ///// <param name="classSourcedId"></param>
+    ///// <param name="courseSourcedId"></param>
+    ///// <param name="schoolSourcedId"></param>
+    ///// <returns></returns>
+    //public Enrollment AddStudentEnrollment(User student, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
+    //{
+    //    return AddEnrollment(student, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.student);
+    //}
 
-    #region "Courses"
+    //#region "Courses"
 
-    private string GetCourseTitle(Guid courseSourcedId)
-    {
-        return Courses
-            .Where(x => x.SourcedId == courseSourcedId)
-            .FirstOrDefault()?
-            .Title;
-    }
+    //private string GetCourseTitle(Guid courseSourcedId)
+    //{
+    //    return Courses
+    //        .Where(x => x.SourcedId == courseSourcedId)
+    //        .FirstOrDefault()?
+    //        .Title;
+    //}
 
-    #endregion
+    //#endregion
 }

@@ -6,9 +6,18 @@ using System.Linq;
 
 namespace OneRosterSampleDataGenerator.Models;
 
-public record Staffs(DateTime createdAt, List<Org> orgs) : Generator<User>
+public class Staffs : Generator<User>
 {
     readonly Faker faker = new("en");
+
+    public Staffs(DateTime createdAt, List<Org> orgs)
+        : base(createdAt)
+    {
+        CreatedAt = createdAt;
+        Orgs = orgs;
+    }
+
+    public List<Org> Orgs { get; set; }
 
     public override List<User> Generate()
     {
@@ -17,7 +26,7 @@ public record Staffs(DateTime createdAt, List<Org> orgs) : Generator<User>
 
     public void GenerateAdministration()
     {
-        foreach (Org org in orgs.Where(e => e.OrgType == OrgType.school))
+        foreach (Org org in Orgs.Where(e => e.OrgType == OrgType.school))
         {
             for (int i = 0; i < (org.IsHigh ? 3 : org.IsMiddle ? 2 : org.IsElementary ? 1 : 1); i++)
             {
@@ -31,14 +40,14 @@ public record Staffs(DateTime createdAt, List<Org> orgs) : Generator<User>
 
         User newStaff = new()
         {
-            SourcedId = Guid.NewGuid(),
-            DateLastModified = createdAt,
-            Identifier = staffid.Substring(staffid.Length - 8, 8),
+            DateLastModified = CreatedAt,
             EnabledUser = true,
-            GivenName = faker.Name.FirstName(),
             FamilyName = faker.Name.LastName(),
+            GivenName = faker.Name.FirstName(),
+            Identifier = staffid.Substring(staffid.Length - 8, 8),
+            Org = org,
             RoleType = roleType,
-            Org = org
+            SourcedId = Guid.NewGuid(),
         };
 
         newStaff.UserName = Utility.CreateTeacherUserName(Items, newStaff.GivenName, newStaff.FamilyName);
