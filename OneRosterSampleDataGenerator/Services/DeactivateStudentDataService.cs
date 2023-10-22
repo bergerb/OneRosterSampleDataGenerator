@@ -22,11 +22,11 @@ namespace OneRosterSampleDataGenerator.Services
             Courses courses,
             StatusChangeBuilder statusChangeBuilder)
         {
-            this._dateLastModified = dateLastModified;
-            this._enrollments = enrollments;
-            this._students = students;
-            this._courses = courses;
-            this._statusChangeBuilder = statusChangeBuilder;
+            _dateLastModified = dateLastModified;
+            _enrollments = enrollments;
+            _students = students;
+            _courses = courses;
+            _statusChangeBuilder = statusChangeBuilder;
         }
 
         public class DataContext

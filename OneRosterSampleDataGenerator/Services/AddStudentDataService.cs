@@ -22,12 +22,12 @@ namespace OneRosterSampleDataGenerator.Services
             Courses courses,
             StatusChangeBuilder statusChangeBuilder)
         {
-            this._dateLastModified = dateLastModified;
-            this._students = students;
-            this._enrollments = enrollments;
-            this._orgs = orgs;
-            this._courses = courses;
-            this._statusChangeBuilder = statusChangeBuilder;
+            _dateLastModified = dateLastModified;
+            _students = students;
+            _enrollments = enrollments;
+            _orgs = orgs;
+            _courses = courses;
+            _statusChangeBuilder = statusChangeBuilder;
         }
 
         public class DataContext
@@ -37,9 +37,9 @@ namespace OneRosterSampleDataGenerator.Services
         }
 
 
-        public DataContext AddStudents(int studentsToAdd)
+        public DataContext AddStudents(int maxRecordCount)
         {
-            for (int i = 0; i <= new Random().Next(0, studentsToAdd); i++)
+            for (int i = 0; i <= new Random().Next(0, maxRecordCount); i++)
             {
                 AddRandomStudent();
             }
