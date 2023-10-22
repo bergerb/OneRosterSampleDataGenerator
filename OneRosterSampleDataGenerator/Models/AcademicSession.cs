@@ -12,4 +12,5 @@ public class AcademicSession : BaseModel
     public string Title { get; set; } = null!;
     public string Type => SessionType.ToString();
     public SessionType SessionType { get; set; }
+    public AcademicSession? ParentAcademicSession { get; set; }
 }

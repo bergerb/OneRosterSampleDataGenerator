@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OneRosterSampleDataGenerator.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -56,7 +57,7 @@ public class Utility
     /// <param name="firstName"></param>
     /// <param name="lastName"></param>
     /// <returns></returns>
-    public static string CreateTeacherUserName(List<Models.Staff> teachers, string firstName, string lastName)
+    public static string CreateTeacherUserName(List<User> teachers, string firstName, string lastName)
     {
         var userName = string.Concat(firstName[0..1], lastName);
 
