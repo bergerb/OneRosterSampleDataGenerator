@@ -40,7 +40,7 @@
     <OutputType>library</OutputType>
     <TargetFramework>net7.0</TargetFramework>
     <PackageId>OneRosterSampleDataGenerator</PackageId>
-    <Version>1.0.4-beta</Version>
+    <Version>1.0.5-beta</Version>
     <Authors>bergerb</Authors>
     <Company></Company>
     <PackageDescription>OneRoster Sample Data Generator Class Library</PackageDescription>
