@@ -7,12 +7,12 @@ namespace OneRosterSampleDataGenerator.Services
 {
     public class AddStudentDataService
     {
+        private readonly Courses _courses;
         private readonly DateTime _dateLastModified;
-        private readonly Students _students;
         private readonly Enrollments _enrollments;
         private readonly Orgs _orgs;
-        private readonly Courses _courses;
         private readonly StatusChangeBuilder _statusChangeBuilder;
+        private readonly Students _students;
 
         public AddStudentDataService(
             DateTime dateLastModified,

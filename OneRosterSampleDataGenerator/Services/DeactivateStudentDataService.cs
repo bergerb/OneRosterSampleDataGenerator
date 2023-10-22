@@ -9,11 +9,11 @@ namespace OneRosterSampleDataGenerator.Services
 {
     public record DeactivateStudentDataService
     {
-        private readonly DateTime _dateLastModified;
-        private readonly Students _students;
-        private readonly Enrollments _enrollments;
         private readonly Courses _courses;
+        private readonly DateTime _dateLastModified;
+        private readonly Enrollments _enrollments;
         private readonly StatusChangeBuilder _statusChangeBuilder;
+        private readonly Students _students;
 
         public DeactivateStudentDataService(
             DateTime dateLastModified,
