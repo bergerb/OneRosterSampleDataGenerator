@@ -54,6 +54,7 @@ public class Enrollments : Generator<Enrollment>
 
         return enrollment;
     }
+
     public Enrollment InactivateEnrollment(Guid enrollmentId, DateTime dateLastModified)
     {
         Enrollment enrollment = Items.FirstOrDefault(x => x.SourcedId == enrollmentId)

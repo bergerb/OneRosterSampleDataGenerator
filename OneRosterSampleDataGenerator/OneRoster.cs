@@ -169,7 +169,6 @@ public class OneRoster
                 DateLastModified,
                 students,
                 enrollments,
-                //orgs,
                 courses,
                 statusChangeBuilder);
             var deactivated = deactivateStudentDataService
@@ -190,93 +189,13 @@ public class OneRoster
             students = added.Students;
             enrollments = added.Enrollments;
 
-            //// Update the existing students and enrollments
-            //Students = students.Generate();
-            //Enrollments = enrollments.Generate();
+            Students = students.Items;
+            Enrollments = enrollments.Items;
 
             OutputOneRosterZipFile(i.ToString());
 
             StatusChangeBuilder.OutputChangeLog();
         }
-
-        #region Local Functions
-
-        //void AddRandomStudent()
-        //{
-        //    var org = Utility.GetRandomItem(Orgs.Where(x => x.OrgType == OrgType.school).ToList());
-        //    var grade = Utility.GetRandomItem(org.GradesOffer);
-
-        //    var existingStudent = Students
-        //        .Where(x => x.Org.Id == org.Id)
-        //        .Where(x => x.Grade.Id == grade.Id)
-        //        .FirstOrDefault();
-
-        //    var student = students.AddStudent(org, grade);
-        //    StatusChangeBuilder.AddEvent(
-        //        StatusChangeBuilder.EventAction.Created,
-        //        StatusChangeBuilder.Type.Student,
-        //        $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) created at {org.Name}.");
-
-        //    // Add enrollments
-        //    if (existingStudent is not null)
-        //    {
-        //        var enrollments = Enrollments
-        //            .Where(x => x.UserSourcedId == existingStudent.SourcedId)
-        //            .ToList();
-
-        //        foreach (var enrollment in enrollments)
-        //        {
-        //            EnrollStudent(student, enrollment);
-        //        }
-        //    }
-
-        //    #region Local Functions
-
-        //    void EnrollStudent(User student, Enrollment enrollment)
-        //    {
-        //        AddStudentEnrollment(student, enrollment.ClassSourcedId, enrollment.CourseSourcedId, enrollment.SchoolSourcedId);
-
-        //        var courseTitle = GetCourseTitle(enrollment.CourseSourcedId);
-        //        StatusChangeBuilder.AddEvent(
-        //            StatusChangeBuilder.EventAction.Created,
-        //            StatusChangeBuilder.Type.Enrollment,
-        //            $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) enrolled into {courseTitle}.");
-        //    }
-
-        //    #endregion
-        //}
-
-        //void DeactivateRandomStudent(Enrollments enrollments)
-        //{
-        //    var randomStudent = new Random().Next(0, Students.Count - 1);
-        //    var student = Students[randomStudent];
-        //    Students[randomStudent] = StudentHelper.DeactivateStudent(student, DateLastModified);
-        //    StatusChangeBuilder.AddEvent(
-        //        StatusChangeBuilder.EventAction.Deactivated,
-        //        StatusChangeBuilder.Type.Student,
-        //        $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) modified at {student.Org.Name}.");
-
-        //    DeactivateEnrollmentsForUser(student, enrollments);
-        //}
-
-        //void DeactivateEnrollmentsForUser(ILeaUser user, Enrollments enrollments)
-        //{
-        //    var studentEnrollments = enrollments.Items
-        //        .Where(x => x.UserSourcedId == user.SourcedId)
-        //        .ToList();
-        //    foreach (var enrollment in studentEnrollments)
-        //    {
-        //        EnrollmentHelper.InactivateEnrollment(enrollment, DateLastModified);
-        //        var courseTitle = GetCourseTitle(enrollment.CourseSourcedId);
-        //        StatusChangeBuilder.AddEvent(
-        //            StatusChangeBuilder.EventAction.Deactivated,
-        //            StatusChangeBuilder.Type.Enrollment,
-        //            $"{user.FamilyName}, {user.GivenName} enrollment has been deactivated for {courseTitle}.");
-        //    }
-        //}
-
-        #endregion
-
     }
 
     /// <summary>
@@ -355,56 +274,4 @@ public class OneRoster
         StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, zipFile);
 
     }
-
-    ///// <summary>
-    ///// Add Enrollment for IUser for given class, course, and org
-    ///// </summary>
-    ///// <param name="user"></param>
-    ///// <param name="classSourcedId"></param>
-    ///// <param name="courseSourcedId"></param>
-    ///// <param name="schoolSourcedId"></param>
-    ///// <param name="role"></param>
-    ///// <returns></returns>
-    //public Enrollment AddEnrollment(ILeaUser user, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId, RoleType role)
-    //{
-    //    Enrollment enrollment = new()
-    //    {
-    //        DateLastModified = DateLastModified,
-    //        ClassSourcedId = classSourcedId,
-    //        CourseSourcedId = courseSourcedId,
-    //        SchoolSourcedId = schoolSourcedId,
-    //        SourcedId = Guid.NewGuid(),
-    //        Status = StatusType.active,
-    //        UserSourcedId = user.SourcedId,
-    //        RoleType = role
-
-    //    };
-    //    Enrollments.Add(enrollment);
-    //    return enrollment;
-    //}
-
-    ///// <summary>
-    ///// Add Student Enrollment
-    ///// </summary>
-    ///// <param name="student"></param>
-    ///// <param name="classSourcedId"></param>
-    ///// <param name="courseSourcedId"></param>
-    ///// <param name="schoolSourcedId"></param>
-    ///// <returns></returns>
-    //public Enrollment AddStudentEnrollment(User student, Guid classSourcedId, Guid courseSourcedId, Guid schoolSourcedId)
-    //{
-    //    return AddEnrollment(student, classSourcedId, courseSourcedId, schoolSourcedId, RoleType.student);
-    //}
-
-    //#region "Courses"
-
-    //private string GetCourseTitle(Guid courseSourcedId)
-    //{
-    //    return Courses
-    //        .Where(x => x.SourcedId == courseSourcedId)
-    //        .FirstOrDefault()?
-    //        .Title;
-    //}
-
-    //#endregion
 }

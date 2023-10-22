@@ -89,6 +89,7 @@ public class Classes : Generator<Class>
             }
         }
     }
+
     public void AddStudentsToClass(int i, IEnumerable<User> students, Class @class, Course course, Org org)
     {
         foreach (User student in students.Skip((i - 1) * ClassSize).Take(ClassSize))
