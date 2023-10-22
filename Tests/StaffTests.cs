@@ -8,26 +8,6 @@ namespace Tests;
 
 public class StaffTests : RosterTest
 {
-    //[Test]
-    //public void CreateStaff_CreatesNewStaff()
-    //{
-    //    Staff newTeacher = OneRoster.CreateStaff();
-
-    //    newTeacher.ShouldNotBeNull();
-    //    newTeacher.RoleType.ShouldBe(RoleType.teacher);
-    //    newTeacher.Org.ShouldBeNull();
-    //}
-
-    //[Test]
-    //public void CreateStaff_CreatesNewStaffAtOrg_WhenOrgAdded()
-    //{
-    //    Staff newTeacher = OneRoster.CreateStaff(OneRoster.Orgs.First());
-
-    //    newTeacher.ShouldNotBeNull();
-    //    newTeacher.RoleType.ShouldBe(RoleType.teacher);
-    //    newTeacher.Org.ShouldNotBeNull();
-    //}
-
     [Test]
     public void Staff_ShouldHaveAdmins_WhenGenerated()
     {

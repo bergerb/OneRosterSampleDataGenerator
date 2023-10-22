@@ -77,7 +77,7 @@ public class Students : Generator<User>
             SourcedId = Guid.NewGuid(),
         };
 
-        student.UserName = $"{student.GivenName[..1]}{student.FamilyName}{student.Identifier.Substring(6, 3)}";
+        student.UserName = $"{student.GivenName[..1]}{student.FamilyName}{student.Identifier[^3..]}";
 
         RunningId++;
 

@@ -38,6 +38,7 @@ Semesters (Terms)
 
 * NET 7
 * Bogus 34.0.1
+* CsvHelper 30.0.1
 
 ### Installing
 
