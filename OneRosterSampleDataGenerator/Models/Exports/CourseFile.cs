@@ -21,9 +21,9 @@ public class CourseFile : IExportable<Course, CourseFile>
     public string CourseCode { get; set; } = null!;
     [Name("grades")]
     public string Grades { get; set; } = null!;
-    [Name("subjects")]
+    [Name("orgSourcedId")]
     public string OrgSourcedId { get; set; } = null!;
-    [Name("subjectCodes")]
+    [Name("subjects")]
     public string Subjects { get; set; } = null!;
     [Name("subjectCodes")]
     public string SubjectCodes { get; set; } = null!;
