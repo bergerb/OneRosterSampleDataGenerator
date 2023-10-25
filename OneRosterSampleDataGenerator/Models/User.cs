@@ -11,7 +11,7 @@ public class User : BaseModel, ILeaUser
     public Guid SourcedId { get; set; }
     public Grade Grade { get; set; } = null!;
     public List<Course> Courses { get; set; } = new();
-    public string CurrentGrade => Grade.Name;
+    public string CurrentGrade => Grade?.Name;
     public string CurrentOrgName => Org.Name;
     public string Email => $"{UserName}@domain.local";
     public string FamilyName { get; set; } = null!;

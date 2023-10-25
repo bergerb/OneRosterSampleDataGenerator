@@ -74,6 +74,7 @@ public class Students : Generator<User>
             Grade = grade,
             Identifier = RunningId.ToString(),
             Org = org,
+            RoleType = RoleType.student,
             SourcedId = Guid.NewGuid(),
         };
 
