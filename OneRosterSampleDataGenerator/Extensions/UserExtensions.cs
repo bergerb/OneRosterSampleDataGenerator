@@ -7,6 +7,7 @@ namespace OneRosterSampleDataGenerator.Extensions
     {
         public static User DeactivateUser(this User user, DateTime dateLastModified)
         {
+            user.EnabledUser = false;
             user.Status = StatusType.tobedeleted;
             user.DateLastModified = dateLastModified;
 
