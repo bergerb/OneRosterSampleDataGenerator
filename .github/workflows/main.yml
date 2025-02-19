@@ -1,0 +1,39 @@
+name: Build and Publish NuGet Package
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main (or your default branch)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up .NET
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0' # or your desired version
+
+      # Restore dependencies
+      - name: Restore dependencies
+        run: dotnet restore
+
+      # Build the project
+      - name: Build the project
+        run: dotnet build --configuration Release
+
+      # Pack the project into a NuGet package
+      - name: Pack NuGet package
+        run: dotnet pack --configuration Release --output ./nupkgs
+
+      # Publish to NuGet
+      - name: Publish NuGet package
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: dotnet nuget push ./nupkgs/*.nupkg --api-key $NUGET_API_KEY --source https://nuget.pkg.github.com/bergerb/index.json
