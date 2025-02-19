@@ -26,16 +26,18 @@ public class OneRoster
     private const string OutStatusChangeFileName = "OneRosterChanges.txt";
     private StatusChangeBuilder StatusChangeBuilder = new(OutStatusChangeFileName);
 
-    public List<AcademicSession> AcademicSessions = new();
-    public List<Grade> Grades = new();
-    public List<Org> Orgs = new();
-    public List<Course> Courses = new();
-    public List<User> Students = new();
-    public List<User> Staff = new();
-    public List<Class> Classes = new();
-    public List<Enrollment> Enrollments = new();
-    public List<Demographic> Demographics = new();
-    public List<Manifest> Manifest = new();
+    public List<FileStat> FileStats = [];
+
+    public List<AcademicSession> AcademicSessions = [];
+    public List<Grade> Grades = [];
+    public List<Org> Orgs = [];
+    public List<Course> Courses = [];
+    public List<User> Students = [];
+    public List<User> Staff = [];
+    public List<Class> Classes = [];
+    public List<Enrollment> Enrollments = [];
+    public List<Demographic> Demographics = [];
+    public List<Manifest> Manifest = [];
 
     public readonly Org ParentOrg = new()
     {
@@ -148,7 +150,7 @@ public class OneRoster
 
         if (_args.IncrementalDaysToCreate.HasValue)
         {
-            CreateIncrementalFiles(students, enrollments, orgs, courses, StatusChangeBuilder);
+            this.CreateIncrementalFiles(students, enrollments, orgs, courses, StatusChangeBuilder);
         }
     }
 
@@ -159,9 +161,9 @@ public class OneRoster
         Courses courses,
         StatusChangeBuilder statusChangeBuilder)
     {
-        OutputOneRosterZipFile();
+        this.OutputOneRosterZipFile();
 
-        for (int i = 1; i < _args.IncrementalDaysToCreate.Value; i++)
+        for (int i = 1; i <= _args.IncrementalDaysToCreate.Value; i++)
         {
             DateLastModified = DateLastModified.AddDays(1);
 
@@ -192,7 +194,7 @@ public class OneRoster
             Students = students.Items;
             Enrollments = enrollments.Items;
 
-            OutputOneRosterZipFile(i.ToString());
+            this.OutputOneRosterZipFile(i.ToString());
 
             StatusChangeBuilder.OutputChangeLog();
         }
@@ -259,7 +261,7 @@ public class OneRoster
 
     public void OutputOneRosterZipFile(string version = null)
     {
-        OutputCSVFiles();
+        this.OutputCSVFiles();
 
         string startPath = @".\OneRoster";
         string zipFile = $".\\OneRoster{version}.zip";
@@ -273,5 +275,20 @@ public class OneRoster
 
         StatusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, zipFile);
 
+        this.FileStats.AddRange(this.GetCurrentFileStats(zipFile));
+    }
+
+    private IEnumerable<FileStat> GetCurrentFileStats(string parentFileName)
+    {
+        return
+        [
+            new(parentFileName, Consts.ClassesFile, this.Classes.Count(x => x.Status == StatusType.active)),
+            new(parentFileName, Consts.CoursesFile, this.Courses.Count(x => x.Status == StatusType.active)),
+            new(parentFileName, Consts.DemographicsFile, this.Demographics.Count(x => x.Status == StatusType.active)),
+            new(parentFileName, Consts.EnrollmentsFile, this.Enrollments.Count(x => x.Status == StatusType.active)),
+            new(parentFileName, Consts.ManifestFile, this.Manifest.Count),
+            new(parentFileName, Consts.OrgsFile, this.Orgs.Count(x => x.Status == StatusType.active)),
+            new(parentFileName, Consts.UsersFile, this.Staff.Count(x => x.Status == StatusType.active) + this.Students.Count(x => x.Status == StatusType.active)),
+        ];
     }
 }
