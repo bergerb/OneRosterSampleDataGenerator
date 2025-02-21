@@ -37,8 +37,8 @@ public class Students : Generator<User>
         {
             foreach (var grade in org.GradesOffer)
             {
-                Random r = new();
-                var CALC_NUM_STUDENTS_PER_GRADE = StudentsPerGrade + (r.Next(-30, 30));
+                Random rnd = new();
+                var CALC_NUM_STUDENTS_PER_GRADE = StudentsPerGrade + (rnd.Next(-30, 30));
                 for (var i = 1; i < CALC_NUM_STUDENTS_PER_GRADE; i++)
                 {
                     yield return addStudent(org, grade);

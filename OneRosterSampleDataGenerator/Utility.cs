@@ -74,6 +74,7 @@ public class Utility
 
     public static T GetRandomItem<T>(List<T> list)
     {
-        return list[new Random().Next(0, list.Count - 1)];
+        var rnd = new Random();
+        return list[rnd.Next(0, list.Count - 1)];
     }
 }

@@ -54,7 +54,9 @@ namespace OneRosterSampleDataGenerator.Services
 
         private void DeactivateRandomStudent()
         {
-            var randomStudent = new Random().Next(0, _students.Items.Count - 1);
+            Random rnd = new();
+            var randomStudent = rnd.Next(0, _students.Items.Count - 1);
+
             var student = _students.Items[randomStudent]
                 .DeactivateUser(_dateLastModified);
 
