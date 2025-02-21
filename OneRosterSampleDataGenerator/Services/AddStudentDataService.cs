@@ -53,6 +53,8 @@ namespace OneRosterSampleDataGenerator.Services
 
         void AddRandomStudent()
         {
+            if (_orgs.Items.Count == 0 || _orgs.Items.Count == 0)
+                return;
 
             var org = Utility.GetRandomItem(_orgs.Items.Where(x => x.OrgType == OrgType.school).ToList());
             var grade = Utility.GetRandomItem(org.GradesOffer);
