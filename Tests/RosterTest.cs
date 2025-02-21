@@ -1,17 +1,26 @@
 ﻿using NUnit.Framework;
 using OneRosterSampleDataGenerator;
+using System;
+using System.IO;
 
-namespace Tests
+namespace Tests;
+
+[TestFixture]
+public class RosterTest
 {
-    [TestFixture]
-    public class RosterTest
-    {
-        public OneRoster OneRoster;
+    public OneRoster OneRoster;
 
-        [SetUp]
-        public void TestStaffInitialize()
+    [SetUp]
+    public void SetUp()
+    {
+        string[] zipFiles = Directory.GetFiles(".", "*.zip");
+
+        foreach (string zipFile in zipFiles)
         {
-            OneRoster = new OneRoster();
+            File.Delete(zipFile);
+            Console.WriteLine($"Deleted: {zipFile}");
         }
+
+        OneRoster = new OneRoster();
     }
 }
