@@ -9,6 +9,8 @@ namespace OneRosterSampleDataGenerator;
 
 public class Utility
 {
+    private static readonly Random _random = new();
+
     /// <summary>
     /// Returns the current string year of given date (if given)
     /// </summary>
@@ -74,7 +76,9 @@ public class Utility
 
     public static T GetRandomItem<T>(List<T> list)
     {
-        var rnd = new Random();
-        return list[rnd.Next(0, list.Count - 1)];
+        if (list == null || list.Count == 0)
+            throw new ArgumentException("List cannot be null or empty", nameof(list));
+
+        return list[_random.Next(list.Count)];
     }
 }

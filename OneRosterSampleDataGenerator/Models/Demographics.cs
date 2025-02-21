@@ -5,15 +5,11 @@ using System.Linq;
 
 namespace OneRosterSampleDataGenerator.Models;
 
-public class Demographics : Generator<Demographic>
+public class Demographics(DateTime createdAt, List<User> students) : Generator<Demographic>(createdAt)
 {
-    public Demographics(DateTime createdAt, List<User> students)
-        : base(createdAt)
-    {
-        Students = students;
-    }
+    private static readonly Random _random = new();
 
-    public List<User> Students { get; set; }
+    public List<User> Students { get; set; } = students;
 
     public override List<Demographic> Generate()
     {
@@ -24,18 +20,18 @@ public class Demographics : Generator<Demographic>
 
     private IEnumerable<Demographic> CreateDemographics()
     {
-        foreach (User student in Students)
+        foreach (User student in this.Students)
         {
-            var rnd = new Random();
+
 
             var demographic = new Demographic()
             {
-                BirthDate = GetBirthday(student, rnd),
+                BirthDate = GetBirthday(student, _random),
                 CityOfBirth = "",
                 CountryOfBirthCode = "",
-                DateLastModified = CreatedAt,
+                DateLastModified = this.CreatedAt,
                 PublicSchoolResidenceStatus = "",
-                Sex = rnd.Next(0, 1) == 0 ? "female" : "male",
+                Sex = _random.Next(0, 1) == 0 ? "female" : "male",
                 SourcedId = student.SourcedId,
                 StateOfBirthAbbreviation = "",
                 Status = StatusType.active,
