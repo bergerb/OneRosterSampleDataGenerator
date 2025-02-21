@@ -55,6 +55,9 @@ namespace OneRosterSampleDataGenerator.Services
         private void DeactivateRandomStudent()
         {
             Random rnd = new();
+            if (_students.Items.Count == 0)
+                return;
+
             var randomStudent = rnd.Next(0, _students.Items.Count - 1);
 
             var student = _students.Items[randomStudent]
@@ -67,7 +70,7 @@ namespace OneRosterSampleDataGenerator.Services
                 StatusChangeBuilder.Type.Student,
                 $"{student.SourcedId} {student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) modified at {student.Org.Name}.");
 
-            DeactivateEnrollmentsForUser(student);
+            this.DeactivateEnrollmentsForUser(student);
         }
 
         void DeactivateEnrollmentsForUser(ILeaUser user)
