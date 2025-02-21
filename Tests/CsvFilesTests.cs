@@ -44,7 +44,7 @@ public class CsvFilesTests : RosterTest
     [Test]
     public void SettingIncremental_ShouldCreatedFiveFiles_WhenGenerated()
     {
-        var oneRoster = new OneRoster(new() { IncrementalDaysToCreate = 5, SchoolCount = 3 });
+        var oneRoster = new OneRoster(new() { IncrementalDaysToCreate = 4, SchoolCount = 3 });
 
         Directory.GetFiles(".", "*.zip")
             .Length
