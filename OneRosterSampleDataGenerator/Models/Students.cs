@@ -31,14 +31,12 @@ public class Students : Generator<User>
 
     private IEnumerable<User> CreateStudents()
     {
-        var rnd = new Random();
-
-        foreach (Org org in Orgs.Where(e => e.OrgType == OrgType.school))
+        foreach (Org org in this.Orgs.Where(e => e.OrgType == OrgType.school))
         {
             foreach (var grade in org.GradesOffer)
             {
-                Random rnd = new();
-                var CALC_NUM_STUDENTS_PER_GRADE = StudentsPerGrade + (rnd.Next(-30, 30));
+                Random r = new();
+                var CALC_NUM_STUDENTS_PER_GRADE = StudentsPerGrade + (r.Next(-30, 30));
                 for (var i = 1; i < CALC_NUM_STUDENTS_PER_GRADE; i++)
                 {
                     yield return addStudent(org, grade);
