@@ -37,11 +37,12 @@ namespace OneRosterSampleDataGenerator.Services
 
         public DataContext DeactivateStudents(int maxRecordCount)
         {
-            var numStudents = new Random().Next(0, maxRecordCount);
+            Random rnd = new();
+            var numStudents = rnd.Next(0, maxRecordCount);
 
             for (int j = 0; j <= numStudents; j++)
             {
-                DeactivateRandomStudent();
+                this.DeactivateRandomStudent();
             }
 
             return new()
