@@ -1,5 +1,4 @@
-﻿using OneRosterSampleDataGenerator.Helpers;
-using OneRosterSampleDataGenerator.Models.Base;
+﻿using OneRosterSampleDataGenerator.Models.Base;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +16,7 @@ public class Grades(DateTime createdAt) : Generator<Grade>(createdAt)
 
     public static IEnumerable<Grade> CreateGrades()
     {
-        return GradeHelper.All
+        return Consts.All
             .Select((name, index) => new Grade
             {
                 Id = index + 1,

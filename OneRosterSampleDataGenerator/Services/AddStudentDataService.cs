@@ -58,12 +58,12 @@ namespace OneRosterSampleDataGenerator.Services
                 _statusChangeBuilder.AddEvent(
                     StatusChangeBuilder.EventAction.Created,
                     StatusChangeBuilder.Type.Student,
-                    $"{student.SourcedId} {student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) created at {org.Name}.");
+                    $"{student.SourcedId} {student.FamilyName}, {student.GivenName} (Grade: {student.Grade?.Name}) created at {org.Name}.");
 
                 // Find a student in the same org and grade
                 var existingStudent = _students.Items
                     .Where(x => x.Org.Id == org.Id)
-                    .Where(x => x.Grade.Id == grade.Id)
+                    .Where(x => x.Grade?.Id == grade.Id)
                     .FirstOrDefault();
 
                 // Add enrollments
@@ -98,7 +98,7 @@ namespace OneRosterSampleDataGenerator.Services
                     _statusChangeBuilder.AddEvent(
                         StatusChangeBuilder.EventAction.Created,
                         StatusChangeBuilder.Type.Enrollment,
-                        $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) enrolled into {courseTitle}.");
+                        $"{student.FamilyName}, {student.GivenName} (Grade: {student.Grade?.Name}) enrolled into {courseTitle}.");
                 }
 
                 #endregion

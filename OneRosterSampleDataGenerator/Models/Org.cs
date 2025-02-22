@@ -5,9 +5,9 @@ namespace OneRosterSampleDataGenerator.Models;
 
 public class Org : BaseModel
 {
-    public bool IsElementary => this.Name.Contains("Elementary");
-    public bool IsHigh => this.Name.Contains("High");
-    public bool IsMiddle => this.Name.Contains("Middle");
+    public bool IsElementary => this.Name.Contains(Consts.ElementaryName);
+    public bool IsHigh => this.Name.Contains(Consts.HighName);
+    public bool IsMiddle => this.Name.Contains(Consts.MiddleName);
     public DateTime DateLastModified { get; set; }
     public Guid SourcedId { get; set; }
     public Guid? ParentSourcedId { get; set; }

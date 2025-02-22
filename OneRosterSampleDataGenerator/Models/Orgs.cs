@@ -1,5 +1,4 @@
 ﻿using Bogus;
-using OneRosterSampleDataGenerator.Helpers;
 using OneRosterSampleDataGenerator.Models.Base;
 using System;
 using System.Collections.Generic;
@@ -41,7 +40,7 @@ public class Orgs(
             var identifier = paddedOrgNum.Substring(paddedOrgNum.Length - 4, 4);
             var schoolName = this.schoolCount != 3 ?
                 $"{schoolNamePrefix} {schoolTypes[_random.Next(schoolTypes.Length)]}" :
-                $"{schoolNamePrefix} {GradeHelper.SchoolLevels[count]}";
+                $"{schoolNamePrefix} {Consts.SchoolLevels[count]}";
 
             yield return
                 CreateSchool(
@@ -64,17 +63,17 @@ public class Orgs(
             ParentSourcedId = parentOrgId,
             SourcedId = Guid.NewGuid(),
         };
-        if (newOrg.Name.Contains("Elementary"))
+        if (newOrg.Name.Contains(Consts.ElementaryName))
         {
-            newOrg.GradesOffer = grades.Where(e => GradeHelper.Elementary.Contains(e.Name)).ToList();
+            newOrg.GradesOffer = grades.Where(e => Consts.Elementary.Contains(e.Name)).ToList();
         }
-        if (newOrg.Name.Contains("Middle"))
+        if (newOrg.Name.Contains(Consts.MiddleName))
         {
-            newOrg.GradesOffer = grades.Where(e => GradeHelper.Middle.Contains(e.Name)).ToList();
+            newOrg.GradesOffer = grades.Where(e => Consts.Middle.Contains(e.Name)).ToList();
         }
-        if (newOrg.Name.Contains("High"))
+        if (newOrg.Name.Contains(Consts.HighName))
         {
-            newOrg.GradesOffer = grades.Where(e => GradeHelper.High.Contains(e.Name)).ToList();
+            newOrg.GradesOffer = grades.Where(e => Consts.High.Contains(e.Name)).ToList();
         }
         return newOrg;
     }
