@@ -102,7 +102,11 @@ public class OneRosterGenerationTests
     [Test]
     public void FileStats_ShouldMatch_WhenGeneratedThreeSchoolsAndMultipleFiles()
     {
-        var oneRoster = new OneRoster(new() { SchoolCount = 3, IncrementalDaysToCreate = 1 });
+        var oneRoster = new OneRoster(new()
+        {
+            SchoolCount = 3,
+            IncrementalDaysToCreate = 1
+        });
 
         var result = oneRoster.FileStats;
         result.Count.ShouldBe(14);

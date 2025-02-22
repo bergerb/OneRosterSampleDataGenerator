@@ -1,42 +1,27 @@
-﻿using OneRosterSampleDataGenerator.Models.Base;
+﻿using OneRosterSampleDataGenerator.Helpers;
+using OneRosterSampleDataGenerator.Models.Base;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace OneRosterSampleDataGenerator.Models;
 
-public class Grades : Generator<Grade>
+public class Grades(DateTime createdAt) : Generator<Grade>(createdAt)
 {
-    public Grades(DateTime createdAt)
-        : base(createdAt)
-    {
-    }
-
     public override List<Grade> Generate()
     {
-        Items = CreateGrades().ToList();
+        this.Items = CreateGrades().ToList();
 
-        return Items;
+        return this.Items;
     }
 
-    private static IEnumerable<Grade> CreateGrades()
+    public static IEnumerable<Grade> CreateGrades()
     {
-        using var reader = new StreamReader(Utility.StringToMemoryStream(Properties.Resources.grades));
-
-        int gradeId = 1;
-        while (!reader.EndOfStream)
-        {
-            var line = reader.ReadLine();
-            var values = line.Split(',');
-            Grade newGrade = new()
+        return GradeHelper.All
+            .Select((name, index) => new Grade
             {
-                Id = gradeId,
-                Name = values[0]
-            };
-            gradeId++;
-
-            yield return newGrade;
-        }
+                Id = index + 1,
+                Name = name
+            });
     }
 }

@@ -13,9 +13,9 @@ public class Demographics(DateTime createdAt, List<User> students) : Generator<D
 
     public override List<Demographic> Generate()
     {
-        Items = CreateDemographics().ToList();
+        this.Items = this.CreateDemographics().ToList();
 
-        return Items;
+        return this.Items;
     }
 
     private IEnumerable<Demographic> CreateDemographics()

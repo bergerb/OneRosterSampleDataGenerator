@@ -105,6 +105,10 @@ namespace OneRosterSampleDataGenerator.Services
             }
             catch (Exception ex)
             {
+                _statusChangeBuilder.AddEvent(
+                       StatusChangeBuilder.EventAction.Error,
+                       StatusChangeBuilder.Type.Enrollment,
+                       ex.Message.ToString());
                 return;
             }
         }

@@ -32,7 +32,7 @@ public class OrgFile : IExportable<Org, OrgFile>
             Name = item.Name,
             Type = item.Type,
             Identifier = item.Identifier,
-            ParentSourcedId = item.ParentSourcedId.ToString(),
+            ParentSourcedId = item.ParentSourcedId.ToString()!,
         };
     }
 }

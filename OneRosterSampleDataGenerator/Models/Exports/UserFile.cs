@@ -54,7 +54,7 @@ public class UserFile : IExportable<User, UserFile>
             EnabledUser = item.EnabledUser.ToString().ToLower(),
             FamilyName = item.FamilyName,
             GivenName = item.GivenName,
-            Grades = item.CurrentGrade,
+            Grades = item.CurrentGrade!,
             Identifier = item.Identifier,
             OrgSourcedIds = item.Org.Id,
             Role = item.RoleType.ToString(),

@@ -11,6 +11,6 @@ public class Enrollment : BaseModel
     public Guid SchoolSourcedId { get; set; }
     public Guid UserSourcedId { get; set; }
     public RoleType RoleType { get; set; }
-    public string Role => RoleType.ToString();
+    public string Role => this.RoleType.ToString();
 
 }

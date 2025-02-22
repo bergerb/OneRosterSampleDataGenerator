@@ -5,28 +5,24 @@ using System.Linq;
 
 namespace OneRosterSampleDataGenerator.Models;
 
-public class AcademicSessions : Generator<AcademicSession>
+public class AcademicSessions(DateTime createdAt) : Generator<AcademicSession>(createdAt)
 {
-    public AcademicSessions(DateTime createdAt)
-        : base(createdAt)
-    {
-    }
-
     public override List<AcademicSession> Generate()
     {
-        Items = CreateSessions().ToList();
+        this.Items = this.CreateSessions().ToList();
 
-        return Items;
+        return this.Items;
     }
 
     private IEnumerable<AcademicSession> CreateSessions()
     {
         var schoolYear = Utility.GetCurrentSchoolYear();
         var nextSchoolYear = Utility.GetNextSchoolYear();
+
         // Create SchoolYear Term
         AcademicSession academicSession = new()
         {
-            DateLastModified = CreatedAt,
+            DateLastModified = this.CreatedAt,
             EndDate = DateTime.Parse($"8/15/{nextSchoolYear}"),
             SchoolYear = schoolYear,
             SessionType = SessionType.schoolYear,
@@ -40,7 +36,7 @@ public class AcademicSessions : Generator<AcademicSession>
         // Marking Periods
         AcademicSession academicSessionMP1 = new()
         {
-            DateLastModified = CreatedAt,
+            DateLastModified = this.CreatedAt,
             EndDate = DateTime.Parse($"11/09/{schoolYear}"),
             SchoolYear = schoolYear,
             SessionType = SessionType.gradingPeriod,
@@ -53,7 +49,7 @@ public class AcademicSessions : Generator<AcademicSession>
 
         AcademicSession academicSessionMP2 = new()
         {
-            DateLastModified = CreatedAt,
+            DateLastModified = this.CreatedAt,
             EndDate = DateTime.Parse($"01/29/{nextSchoolYear}"),
             SchoolYear = schoolYear,
             SessionType = SessionType.gradingPeriod,
@@ -66,7 +62,7 @@ public class AcademicSessions : Generator<AcademicSession>
 
         AcademicSession academicSessionMP3 = new()
         {
-            DateLastModified = CreatedAt,
+            DateLastModified = this.CreatedAt,
             EndDate = DateTime.Parse($"04/13/{nextSchoolYear}"),
             SchoolYear = schoolYear,
             SessionType = SessionType.gradingPeriod,
@@ -79,7 +75,7 @@ public class AcademicSessions : Generator<AcademicSession>
 
         AcademicSession academicSessionMP4 = new()
         {
-            DateLastModified = CreatedAt,
+            DateLastModified = this.CreatedAt,
             EndDate = DateTime.Parse($"6/30/{nextSchoolYear}"),
             SchoolYear = schoolYear,
             SessionType = SessionType.gradingPeriod,
@@ -94,7 +90,7 @@ public class AcademicSessions : Generator<AcademicSession>
 
         AcademicSession academicSessionS1 = new()
         {
-            DateLastModified = CreatedAt,
+            DateLastModified = this.CreatedAt,
             EndDate = DateTime.Parse($"1/29/{nextSchoolYear}"),
             SchoolYear = schoolYear,
             SessionType = SessionType.term,
@@ -107,20 +103,20 @@ public class AcademicSessions : Generator<AcademicSession>
 
         AcademicSession academicSessionS2 = new()
         {
+            DateLastModified = this.CreatedAt,
+            EndDate = DateTime.Parse($"6/30/{nextSchoolYear}"),
+            SchoolYear = schoolYear,
+            SessionType = SessionType.term,
             SourcedId = Guid.NewGuid(),
-            DateLastModified = CreatedAt,
+            StartDate = DateTime.Parse($"1/30/{nextSchoolYear}"),
             Status = StatusType.active,
             Title = $"S2 {schoolYear}-{nextSchoolYear}",
-            StartDate = DateTime.Parse($"1/30/{nextSchoolYear}"),
-            EndDate = DateTime.Parse($"6/30/{nextSchoolYear}"),
-            SessionType = SessionType.term,
-            SchoolYear = schoolYear
         };
         yield return academicSessionS2;
 
         AcademicSession academicSessionSummer = new()
         {
-            DateLastModified = CreatedAt,
+            DateLastModified = this.CreatedAt,
             EndDate = DateTime.Parse($"8/15/{nextSchoolYear}"),
             SchoolYear = schoolYear,
             SessionType = SessionType.semester,

@@ -59,7 +59,7 @@ public class DeactivateStudentDataService(
         _statusChangeBuilder.AddEvent(
             StatusChangeBuilder.EventAction.Deactivated,
             StatusChangeBuilder.Type.Student,
-            $"{student.SourcedId} {student.FamilyName}, {student.GivenName} (Grade: {student.Grade.Name}) modified at {student.Org.Name}.");
+            $"{student.SourcedId} {student.FamilyName}, {student.GivenName} (Grade: {student.Grade?.Name}) modified at {student.Org.Name}.");
 
         this.DeactivateEnrollmentsForUser(student);
     }

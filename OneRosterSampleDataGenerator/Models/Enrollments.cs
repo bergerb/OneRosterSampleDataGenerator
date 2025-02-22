@@ -6,23 +6,18 @@ using System.Linq;
 
 namespace OneRosterSampleDataGenerator.Models;
 
-public class Enrollments : Generator<Enrollment>
+public class Enrollments(DateTime createdAt) : Generator<Enrollment>(createdAt)
 {
-    public Enrollments(DateTime createdAt)
-        : base(createdAt)
-    {
-    }
-
     public override List<Enrollment> Generate()
     {
-        Items = CreateEnrollments().ToList();
+        this.Items = this.CreateEnrollments();
 
-        return Items.ToList();
+        return [.. this.Items];
     }
 
-    private IEnumerable<Enrollment> CreateEnrollments()
+    private List<Enrollment> CreateEnrollments()
     {
-        return Items;
+        return this.Items;
     }
 
     public Enrollment AddEnrollment(
@@ -37,7 +32,7 @@ public class Enrollments : Generator<Enrollment>
         {
             ClassSourcedId = classSourcedId,
             CourseSourcedId = courseSourcedId,
-            DateLastModified = CreatedAt,
+            DateLastModified = this.CreatedAt,
             RoleType = role,
             SchoolSourcedId = schoolSourcedId,
             SourcedId = Guid.NewGuid(),
@@ -50,14 +45,14 @@ public class Enrollments : Generator<Enrollment>
             enrollment.DateLastModified = createdAt.Value;
         }
 
-        AddItem(enrollment);
+        this.AddItem(enrollment);
 
         return enrollment;
     }
 
     public Enrollment InactivateEnrollment(Guid enrollmentId, DateTime dateLastModified)
     {
-        Enrollment enrollment = Items.FirstOrDefault(x => x.SourcedId == enrollmentId)
+        Enrollment enrollment = this.Items.FirstOrDefault(x => x.SourcedId == enrollmentId)
             ?? throw new Exception($"Enrollment with sourcedId {enrollmentId} not found");
 
         enrollment.Status = StatusType.tobedeleted;

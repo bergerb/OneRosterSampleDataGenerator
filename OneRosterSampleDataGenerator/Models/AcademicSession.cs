@@ -10,7 +10,7 @@ public class AcademicSession : BaseModel
     public Guid SourcedId { get; set; }
     public string SchoolYear { get; set; } = null!;
     public string Title { get; set; } = null!;
-    public string Type => SessionType.ToString();
+    public string Type => this.SessionType.ToString();
     public SessionType SessionType { get; set; }
     public AcademicSession? ParentAcademicSession { get; set; }
 }

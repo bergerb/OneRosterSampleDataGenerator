@@ -38,7 +38,7 @@ internal record FileProcessor(StatusChangeBuilder statusChangeBuilder)
 
         csv.WriteRecords(exports);
 
-        statusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, typeof(T2).Name);
+        this.statusChangeBuilder.AddEvent(StatusChangeBuilder.EventAction.Created, StatusChangeBuilder.Type.File, typeof(T2).Name);
 
     }
 
@@ -46,16 +46,19 @@ internal record FileProcessor(StatusChangeBuilder statusChangeBuilder)
         where T1 : class
         where T2 : class, new()
     {
+        if (typeof(T1).Name is null)
+            throw new ArgumentException("Null type.");
+
         return typeof(T1).Name switch
         {
-            nameof(AcademicSession) => new AcademicSessionFile() as IExportable<T1, T2>,
-            nameof(Class) => new ClassFile() as IExportable<T1, T2>,
-            nameof(Course) => new CourseFile() as IExportable<T1, T2>,
-            nameof(Demographic) => new DemographicFile() as IExportable<T1, T2>,
-            nameof(Enrollment) => new EnrollmentFile() as IExportable<T1, T2>,
-            nameof(Manifest) => new ManifestFile() as IExportable<T1, T2>,
-            nameof(Org) => new OrgFile() as IExportable<T1, T2>,
-            nameof(User) => new UserFile() as IExportable<T1, T2>,
+            nameof(AcademicSession) => (IExportable<T1, T2>)new AcademicSessionFile(),
+            nameof(Class) => (IExportable<T1, T2>)new ClassFile(),
+            nameof(Course) => (IExportable<T1, T2>)new CourseFile(),
+            nameof(Demographic) => (IExportable<T1, T2>)new DemographicFile(),
+            nameof(Enrollment) => (IExportable<T1, T2>)new EnrollmentFile(),
+            nameof(Manifest) => (IExportable<T1, T2>)new ManifestFile(),
+            nameof(Org) => (IExportable<T1, T2>)new OrgFile(),
+            nameof(User) => (IExportable<T1, T2>)new UserFile(),
             _ => throw new ArgumentException("Invalid Type", typeof(T1).Name),
         };
     }

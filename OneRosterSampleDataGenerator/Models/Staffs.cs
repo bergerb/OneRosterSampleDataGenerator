@@ -13,34 +13,35 @@ public class Staffs : Generator<User>
     public Staffs(DateTime createdAt, List<Org> orgs)
         : base(createdAt)
     {
-        CreatedAt = createdAt;
-        Orgs = orgs;
+        this.CreatedAt = createdAt;
+        this.Orgs = orgs;
     }
 
     public List<Org> Orgs { get; set; }
 
     public override List<User> Generate()
     {
-        return Items.ToList();
+        return [.. this.Items];
     }
 
     public void GenerateAdministration()
     {
-        foreach (Org org in Orgs.Where(e => e.OrgType == OrgType.school))
+        foreach (Org org in this.Orgs.Where(e => e.OrgType == OrgType.school))
         {
             for (int i = 0; i < (org.IsHigh ? 3 : org.IsMiddle ? 2 : org.IsElementary ? 1 : 1); i++)
             {
-                CreateStaff(org, RoleType.administrator);
+                this.CreateStaff(org, RoleType.administrator);
             }
         }
     }
-    public User CreateStaff(Org org = null, RoleType roleType = RoleType.teacher)
+
+    public User CreateStaff(Org org, RoleType roleType = RoleType.teacher)
     {
-        var staffid = "00000000" + RunningId.ToString();
+        var staffid = "00000000" + this.RunningId.ToString();
 
         User newStaff = new()
         {
-            DateLastModified = CreatedAt,
+            DateLastModified = this.CreatedAt,
             EnabledUser = true,
             FamilyName = faker.Name.LastName(),
             GivenName = faker.Name.FirstName(),
@@ -52,9 +53,9 @@ public class Staffs : Generator<User>
 
         newStaff.UserName = Utility.CreateTeacherUserName(Items, newStaff.GivenName, newStaff.FamilyName);
 
-        RunningId++;
+        this.RunningId++;
 
-        AddItem(newStaff);
+        this.AddItem(newStaff);
 
         return newStaff;
     }

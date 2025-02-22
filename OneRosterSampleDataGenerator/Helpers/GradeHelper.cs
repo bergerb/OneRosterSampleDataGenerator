@@ -19,35 +19,41 @@ public static class GradeHelper
     public const string Eleventh = "11";
     public const string Twelveth = "12";
 
+    public const string ElementaryLevel = "Elementary";
+    public const string MiddleLevel = "Middle";
+    public const string HighLevel = "High";
+
     public readonly static string[] SchoolLevels =
-    {
-        "Elementary",
-        "Middle",
-        "High"
-    };
+    [
+        ElementaryLevel,
+        MiddleLevel,
+        HighLevel,
+    ];
 
     public readonly static string[] Elementary =
-    {
+    [
         Kintergarden,
         First,
         Second,
         Third,
         Fourth,
         Fifth,
-    };
+    ];
 
     public readonly static string[] Middle =
-    {
+    [
         Sixth,
         Seventh,
         Eighth,
-    };
+    ];
 
     public readonly static string[] High =
-    {
+    [
         Ninth,
         Tenth,
         Eleventh,
         Twelveth,
-    };
+    ];
+
+    public static readonly string[] All = [.. Elementary, .. Middle, .. High];
 }

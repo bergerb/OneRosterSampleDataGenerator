@@ -4,21 +4,16 @@ using System.Collections.Generic;
 
 namespace OneRosterSampleDataGenerator.Models.Base;
 
-public abstract class Generator<T> : IGenerates<T>
+public abstract class Generator<T>(DateTime createdAt) : IGenerates<T>
     where T : class, new()
 {
-    public Generator(DateTime createdAt)
-    {
-        CreatedAt = createdAt;
-    }
+    public DateTime CreatedAt { get; set; } = createdAt;
 
-    public DateTime CreatedAt { get; set; }
-
-    public List<T> Items { get; set; } = new List<T>();
+    public List<T> Items { get; set; } = [];
 
     public void AddItem(T item)
     {
-        Items.Add(item);
+        this.Items.Add(item);
     }
 
     public virtual List<T> Generate()
