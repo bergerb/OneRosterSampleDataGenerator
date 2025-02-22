@@ -35,7 +35,7 @@ public class AcademicSessionFile : IExportable<AcademicSession, AcademicSessionF
             DateLastModified = item.DateLastModified,
             EndDate = item.EndDate,
             StartDate = item.StartDate,
-            ParentSourcedId = item.ParentAcademicSession?.SourcedId.ToString(),
+            ParentSourcedId = item.ParentAcademicSession?.SourcedId.ToString() ?? "",
             SchoolYear = item.SchoolYear,
             SourcedId = item.SourcedId.ToString(),
             Status = item.Status.ToString(),

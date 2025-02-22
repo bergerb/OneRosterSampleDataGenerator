@@ -72,7 +72,7 @@ public class OneRoster
     /// </summary>
     /// <param name="args">Arguments Record</param>
     /// <exception cref="ArgumentException"></exception>
-    public OneRoster(Args args = null)
+    public OneRoster(Args? args = null)
     {
         _args = args ?? new Args();
 
@@ -162,6 +162,9 @@ public class OneRoster
         StatusChangeBuilder statusChangeBuilder)
     {
         this.OutputOneRosterZipFile();
+
+        if (_args.IncrementalDaysToCreate is null)
+            return;
 
         for (int i = 1; i <= _args.IncrementalDaysToCreate.Value; i++)
         {
@@ -259,7 +262,7 @@ public class OneRoster
         #endregion
     }
 
-    public void OutputOneRosterZipFile(string version = null)
+    public void OutputOneRosterZipFile(string? version = null)
     {
         this.OutputCSVFiles();
 

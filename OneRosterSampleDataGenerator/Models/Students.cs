@@ -6,27 +6,19 @@ using System.Linq;
 
 namespace OneRosterSampleDataGenerator.Models;
 
-public class Students : Generator<User>
+public class Students(DateTime createdAt, List<Org> orgs, List<Course> courses, int studentsPerGrade) : Generator<User>(createdAt)
 {
     private readonly Faker faker = new("en");
 
-    public Students(DateTime createdAt, List<Org> orgs, List<Course> courses, int studentsPerGrade)
-        : base(createdAt)
-    {
-        Orgs = orgs;
-        Courses = courses;
-        StudentsPerGrade = studentsPerGrade;
-    }
-
-    public List<Org> Orgs { get; set; }
-    public List<Course> Courses { get; set; }
-    public int StudentsPerGrade { get; set; }
+    public List<Org> Orgs { get; set; } = orgs;
+    public List<Course> Courses { get; set; } = courses;
+    public int StudentsPerGrade { get; set; } = studentsPerGrade;
 
     public override List<User> Generate()
     {
-        Items = CreateStudents().ToList();
+        this.Items = this.CreateStudents().ToList();
 
-        return Items;
+        return this.Items;
     }
 
     private IEnumerable<User> CreateStudents()
@@ -36,10 +28,10 @@ public class Students : Generator<User>
             foreach (var grade in org.GradesOffer)
             {
                 Random r = new();
-                var CALC_NUM_STUDENTS_PER_GRADE = StudentsPerGrade + (r.Next(-30, 30));
+                var CALC_NUM_STUDENTS_PER_GRADE = this.StudentsPerGrade + (r.Next(-30, 30));
                 for (var i = 1; i < CALC_NUM_STUDENTS_PER_GRADE; i++)
                 {
-                    yield return addStudent(org, grade);
+                    yield return this.CreateUser(org, grade);
                 }
             }
         }
@@ -47,30 +39,30 @@ public class Students : Generator<User>
 
     public User AddStudent(Org org, Grade grade, DateTime? createdAt = null)
     {
-        var student = addStudent(org, grade);
+        var student = this.CreateUser(org, grade);
 
         if (createdAt.HasValue)
         {
             student.DateLastModified = (DateTime)createdAt;
         }
 
-        AddItem(student);
+        this.AddItem(student);
 
         return student;
     }
 
-    private User addStudent(Org org, Grade grade)
+    private User CreateUser(Org org, Grade grade)
     {
         var student = new User
         {
             // Assign each student all courses of their current grade
-            Courses = Courses.Where(e => e.Title.Contains(grade.Name)).ToList(),
-            DateLastModified = CreatedAt,
+            Courses = this.Courses.Where(e => e.Title.Contains(grade.Name)).ToList(),
+            DateLastModified = this.CreatedAt,
             EnabledUser = true,
             FamilyName = faker.Name.LastName(),
             GivenName = faker.Name.FirstName(),
             Grade = grade,
-            Identifier = RunningId.ToString(),
+            Identifier = this.RunningId.ToString(),
             Org = org,
             RoleType = RoleType.student,
             SourcedId = Guid.NewGuid(),
@@ -78,7 +70,7 @@ public class Students : Generator<User>
 
         student.UserName = $"{student.GivenName[..1]}{student.FamilyName}{student.Identifier[^3..]}";
 
-        RunningId++;
+        this.RunningId++;
 
         return student;
     }

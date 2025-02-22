@@ -9,9 +9,9 @@ namespace OneRosterSampleDataGenerator.Helpers;
 /// Track changes of a series of related status changes
 /// Outputs to given filename
 /// </summary>
-public class StatusChangeBuilder
+public class StatusChangeBuilder(string fileName)
 {
-    private readonly string _fileName = null!;
+    private readonly string _fileName = fileName;
     private readonly List<_event> _events = new();
 
     private record _event(EventAction eventAction, Type @type, string message)
@@ -23,6 +23,7 @@ public class StatusChangeBuilder
     {
         Created,
         Deactivated,
+        Error,
     }
 
     public enum @Type
@@ -31,11 +32,6 @@ public class StatusChangeBuilder
         Enrollment,
         Staff,
         Student,
-    }
-
-    public StatusChangeBuilder(string fileName)
-    {
-        _fileName = fileName;
     }
 
     /// <summary>

@@ -13,7 +13,7 @@ namespace OneRosterSampleDataGenerator.Models.Interfaces
         bool EnabledUser { get; set; }
         string FamilyName { get; set; }
         string GivenName { get; set; }
-        Grade Grade { get; set; }
+        Grade? Grade { get; set; }
         string Identifier { get; set; }
         Org Org { get; set; }
         RoleType RoleType { get; set; }

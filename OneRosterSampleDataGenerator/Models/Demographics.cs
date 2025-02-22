@@ -13,9 +13,9 @@ public class Demographics(DateTime createdAt, List<User> students) : Generator<D
 
     public override List<Demographic> Generate()
     {
-        Items = CreateDemographics().ToList();
+        this.Items = this.CreateDemographics().ToList();
 
-        return Items;
+        return this.Items;
     }
 
     private IEnumerable<Demographic> CreateDemographics()
@@ -42,7 +42,7 @@ public class Demographics(DateTime createdAt, List<User> students) : Generator<D
 
         static DateTime GetBirthday(User student, Random rnd)
         {
-            return DateTime.Parse($"7/1/{int.Parse(Utility.GetCurrentSchoolYear()) - (4 + student.Grade.Id)}").AddDays(rnd.Next(0, 365));
+            return DateTime.Parse($"7/1/{int.Parse(Utility.GetCurrentSchoolYear()) - (4 + student.Grade?.Id)}").AddDays(rnd.Next(0, 365));
         }
     }
 }
