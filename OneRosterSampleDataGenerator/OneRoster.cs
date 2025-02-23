@@ -138,7 +138,8 @@ public class OneRoster
             .Generate();
 
         // Build Demographic List
-        this.Demographics = new Demographics(DateLastModified, Students)
+        var demographics = new Demographics(DateLastModified, Students);
+        this.Demographics = demographics
             .Generate();
 
         // Build Manifest List
@@ -150,7 +151,7 @@ public class OneRoster
 
         if (_args.IncrementalDaysToCreate.HasValue)
         {
-            this.CreateIncrementalFiles(students, enrollments, orgs, courses, StatusChangeBuilder);
+            this.CreateIncrementalFiles(students, enrollments, orgs, courses, demographics, StatusChangeBuilder);
         }
     }
 
@@ -159,6 +160,7 @@ public class OneRoster
         Enrollments enrollments,
         Orgs orgs,
         Courses courses,
+        Demographics demographics,
         StatusChangeBuilder statusChangeBuilder)
     {
         this.OutputOneRosterZipFile();
@@ -177,7 +179,7 @@ public class OneRoster
                 courses,
                 statusChangeBuilder);
             var deactivated = deactivateStudentDataService
-                .DeactivateStudents(3);
+                .DeactivateStudents(1, 10);
 
             students = deactivated.Students;
             enrollments = deactivated.Enrollments;
@@ -188,14 +190,17 @@ public class OneRoster
                 enrollments,
                 orgs,
                 courses,
+                demographics,
                 statusChangeBuilder);
             var added = incrementStudentDataService
-                .AddStudents(3);
+                .AddStudents(1, 10);
             students = added.Students;
             enrollments = added.Enrollments;
+            demographics = added.Demographics;
 
             Students = students.Items;
             Enrollments = enrollments.Items;
+            Demographics = demographics.Items;
 
             this.OutputOneRosterZipFile(i.ToString());
 

@@ -13,13 +13,13 @@ public class DeactivateStudentDataService(
     Courses courses,
     StatusChangeBuilder statusChangeBuilder)
 {
-    private static readonly Random _random = new();
-
     private readonly Courses _courses = courses;
     private readonly DateTime _dateLastModified = dateLastModified;
     private readonly Enrollments _enrollments = enrollments;
     private readonly StatusChangeBuilder _statusChangeBuilder = statusChangeBuilder;
     private readonly Students _students = students;
+
+    private static readonly Random _random = new();
 
     public class DataContext
     {
@@ -27,11 +27,11 @@ public class DeactivateStudentDataService(
         public Enrollments Enrollments { get; set; }
     }
 
-    public DataContext DeactivateStudents(int maxRecordCount)
+    public DataContext DeactivateStudents(int minRecords, int maxRecords)
     {
-        var numStudents = _random.Next(0, maxRecordCount);
+        var recordsToDeactivate = _random.Next(minRecords, maxRecords);
 
-        for (int j = 0; j <= numStudents; j++)
+        for (int j = 0; j <= recordsToDeactivate; j++)
         {
             this.DeactivateRandomStudent();
         }
@@ -45,11 +45,10 @@ public class DeactivateStudentDataService(
 
     private void DeactivateRandomStudent()
     {
-        Random rnd = new();
         if (_students.Items.Count == 0)
             return;
 
-        var randomStudent = rnd.Next(0, _students.Items.Count - 1);
+        var randomStudent = _random.Next(0, _students.Items.Count - 1);
 
         var student = _students.Items[randomStudent]
             .DeactivateUser(_dateLastModified);

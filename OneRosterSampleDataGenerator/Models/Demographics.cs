@@ -18,31 +18,35 @@ public class Demographics(DateTime createdAt, List<User> students) : Generator<D
         return this.Items;
     }
 
+    public Demographic CreateDemographic(Guid sourcedId, User student)
+    {
+        var demographic = new Demographic()
+        {
+            BirthDate = GetBirthday(student, _random),
+            CityOfBirth = "",
+            CountryOfBirthCode = "",
+            DateLastModified = this.CreatedAt,
+            PublicSchoolResidenceStatus = "",
+            Sex = _random.Next(0, 1) == 0 ? "female" : "male",
+            SourcedId = sourcedId,
+            StateOfBirthAbbreviation = "",
+            Status = StatusType.active,
+        };
+
+        return demographic;
+    }
+
     private IEnumerable<Demographic> CreateDemographics()
     {
         foreach (User student in this.Students)
         {
-
-
-            var demographic = new Demographic()
-            {
-                BirthDate = GetBirthday(student, _random),
-                CityOfBirth = "",
-                CountryOfBirthCode = "",
-                DateLastModified = this.CreatedAt,
-                PublicSchoolResidenceStatus = "",
-                Sex = _random.Next(0, 1) == 0 ? "female" : "male",
-                SourcedId = student.SourcedId,
-                StateOfBirthAbbreviation = "",
-                Status = StatusType.active,
-            };
-
-            yield return demographic;
+            yield return this.CreateDemographic(student.SourcedId, student);
         }
 
-        static DateTime GetBirthday(User student, Random rnd)
-        {
-            return DateTime.Parse($"7/1/{int.Parse(Utility.GetCurrentSchoolYear()) - (4 + student.Grade?.Id)}").AddDays(rnd.Next(0, 365));
-        }
+    }
+
+    private static DateTime GetBirthday(User student, Random rnd)
+    {
+        return DateTime.Parse($"7/1/{int.Parse(Utility.GetCurrentSchoolYear()) - (4 + student.Grade?.Id)}").AddDays(rnd.Next(0, 365));
     }
 }
