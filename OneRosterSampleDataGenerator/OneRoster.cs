@@ -271,8 +271,9 @@ public class OneRoster
     {
         this.OutputCSVFiles();
 
-        string startPath = @".\OneRoster";
-        string zipFile = $".\\OneRoster{version}.zip";
+        string baseDirectory = AppContext.BaseDirectory;
+        string startPath = Path.Combine(baseDirectory, "OneRoster");
+        string zipFile = Path.Combine(baseDirectory, $"OneRoster{version}.zip");
 
         if (File.Exists(zipFile))
         {
