@@ -214,41 +214,21 @@ public class OneRoster
     public void OutputCSVFiles()
     {
         SetupDirectory();
+        FileProcessor fileProcessor = new(StatusChangeBuilder);
 
-        FileProcessor processor = new(StatusChangeBuilder);
+        fileProcessor.ProcessFile<AcademicSession, AcademicSessionFile>(AcademicSessions, Path.Combine("OneRoster", "academicSessions.csv"));
+        fileProcessor.ProcessFile<Org, OrgFile>(Orgs, Path.Combine("OneRoster", "orgs.csv"));
+        fileProcessor.ProcessFile<Course, CourseFile>(Courses, Path.Combine("OneRoster", "courses.csv"));
 
-        processor.ProcessFile<AcademicSession, AcademicSessionFile>(
-            AcademicSessions,
-            "OneRoster\\academicSessions.csv");
-        processor.ProcessFile<Org, OrgFile>(
-            Orgs,
-            "OneRoster\\orgs.csv");
-        processor.ProcessFile<Course, CourseFile>(
-            Courses,
-            "OneRoster\\courses.csv");
-
-        var users = Students.Union(Staff);
-        processor.ProcessFile<User, UserFile>(
-            users,
-            "OneRoster\\users.csv");
-
-        processor.ProcessFile<Class, ClassFile>(
-            Classes,
-            "OneRoster\\classes.csv");
-
-        processor.ProcessFile<Enrollment, EnrollmentFile>(
-            Enrollments,
-            "OneRoster\\enrollments.csv");
-
-        processor.ProcessFile<Demographic, DemographicFile>(
-            Demographics,
-            "OneRoster\\demographics.csv");
-
-        processor.ProcessFile<Manifest, ManifestFile>(
-            Manifest,
-            "OneRoster\\manifest.csv");
+        IEnumerable<User> records = Students.Union(Staff);
+        fileProcessor.ProcessFile<User, UserFile>(records, Path.Combine("OneRoster", "users.csv"));
+        fileProcessor.ProcessFile<Class, ClassFile>(Classes, Path.Combine("OneRoster", "classes.csv"));
+        fileProcessor.ProcessFile<Enrollment, EnrollmentFile>(Enrollments, Path.Combine("OneRoster", "enrollments.csv"));
+        fileProcessor.ProcessFile<Demographic, DemographicFile>(Demographics, Path.Combine("OneRoster", "demographics.csv"));
+        fileProcessor.ProcessFile<Manifest, ManifestFile>(Manifest, Path.Combine("OneRoster", "manifest.csv"));
 
         StatusChangeBuilder.OutputChangeLog();
+
 
         #region Local Functions
 
