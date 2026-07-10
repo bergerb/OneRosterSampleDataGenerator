@@ -22,7 +22,7 @@ public class OneRoster
     public const int DEFAULT_NUM_MAX_TEACHER_CLASS_COUNT = 8;
     public const int DEFAULT_NUM_STUDENT_ID = 910000000;
     public const int DEFAULT_NUM_STAFF_ID = 1;
-    private const string OutputDirectory = "OneRoster";
+    internal const string OutputDirectory = "OneRoster";
     private const string OutStatusChangeFileName = "OneRosterChanges.txt";
     private StatusChangeBuilder StatusChangeBuilder = new(OutStatusChangeFileName);
 
@@ -216,16 +216,15 @@ public class OneRoster
         SetupDirectory();
         FileProcessor fileProcessor = new(StatusChangeBuilder);
 
-        fileProcessor.ProcessFile<AcademicSession, AcademicSessionFile>(AcademicSessions, Path.Combine("OneRoster", "academicSessions.csv"));
-        fileProcessor.ProcessFile<Org, OrgFile>(Orgs, Path.Combine("OneRoster", "orgs.csv"));
-        fileProcessor.ProcessFile<Course, CourseFile>(Courses, Path.Combine("OneRoster", "courses.csv"));
+        fileProcessor.ProcessFile<AcademicSession, AcademicSessionFile>(AcademicSessions);
+        fileProcessor.ProcessFile<Org, OrgFile>(Orgs);
+        fileProcessor.ProcessFile<Course, CourseFile>(Courses);
 
-        IEnumerable<User> records = Students.Union(Staff);
-        fileProcessor.ProcessFile<User, UserFile>(records, Path.Combine("OneRoster", "users.csv"));
-        fileProcessor.ProcessFile<Class, ClassFile>(Classes, Path.Combine("OneRoster", "classes.csv"));
-        fileProcessor.ProcessFile<Enrollment, EnrollmentFile>(Enrollments, Path.Combine("OneRoster", "enrollments.csv"));
-        fileProcessor.ProcessFile<Demographic, DemographicFile>(Demographics, Path.Combine("OneRoster", "demographics.csv"));
-        fileProcessor.ProcessFile<Manifest, ManifestFile>(Manifest, Path.Combine("OneRoster", "manifest.csv"));
+        fileProcessor.ProcessFile<User, UserFile>(Students.Union(Staff));
+        fileProcessor.ProcessFile<Class, ClassFile>(Classes);
+        fileProcessor.ProcessFile<Enrollment, EnrollmentFile>(Enrollments);
+        fileProcessor.ProcessFile<Demographic, DemographicFile>(Demographics);
+        fileProcessor.ProcessFile<Manifest, ManifestFile>(Manifest);
 
         StatusChangeBuilder.OutputChangeLog();
 

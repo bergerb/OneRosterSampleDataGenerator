@@ -1,9 +1,9 @@
-﻿namespace OneRosterSampleDataGenerator.Models.Interfaces
+﻿namespace OneRosterSampleDataGenerator.Models.Interfaces;
+
+public interface IExportable<T1, T2>
+    where T1 : class
+    where T2 : class
 {
-    public interface IExportable<T1, T2>
-        where T1 : class
-        where T2 : class
-    {
-        public T2 Map(T1 item);
-    }
+    static abstract string FileName { get; }
+    T2 Map(T1 item);
 }
