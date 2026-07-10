@@ -97,6 +97,8 @@ Brent Berger
 
 ## Version History
 
+* 2.1.0-beta
+    * Refactor IExportable to reduce maintenance cost for new file specs
 * 2.0.0-beta
     * Upgrade to .NET 10
     * Updated NuGet packages to latest versions
