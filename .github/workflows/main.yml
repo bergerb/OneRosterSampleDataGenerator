@@ -35,5 +35,5 @@ jobs:
       # Publish to NuGet
       - name: Publish NuGet package
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        run: dotnet nuget push ./nupkgs/*.nupkg --api-key $NUGET_API_KEY --source https://nuget.pkg.github.com/bergerb/index.json
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: dotnet nuget push ./nupkgs/*.nupkg --api-key $GITHUB_TOKEN --source https://nuget.pkg.github.com/bergerb/index.json
