@@ -32,7 +32,7 @@ public class ClassFile : IExportable<Class, ClassFile>
     public string TermSourcedId { get; set; } = null!;
     [Name("subjects")]
     public string Subjects { get; set; } = null!;
-    [Name("SubjectCodes")]
+    [Name("subjectCodes")]
     public string SubjectCodes { get; set; } = null!;
     [Name("periods")]
     public string Periods { get; set; } = null!;

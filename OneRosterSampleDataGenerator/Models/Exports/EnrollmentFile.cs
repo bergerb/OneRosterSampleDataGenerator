@@ -30,12 +30,15 @@ public class EnrollmentFile : IExportable<Enrollment, EnrollmentFile>
     [Name("endDate")]
     [Format("yyyy-MM-dd")]
     public DateTime? EndDate { get; set; }
+    [Name("courseSourcedId")]
+    public string CourseSourcedId { get; set; } = null!;
 
     public EnrollmentFile Map(Enrollment item)
     {
         return new()
         {
             ClassSourcedId = item.ClassSourcedId.ToString(),
+            CourseSourcedId = item.CourseSourcedId.ToString(),
             DateLastModified = item.DateLastModified,
             Role = item.Role.ToString(),
             SchoolSourcedId = item.SchoolSourcedId.ToString(),
