@@ -66,7 +66,7 @@ Copy generated dll into your bin
 ```csharp
     OneRoster oneRoster = new(new() { SchoolCount = 3 });
 ```
-> The ability to set the number of generated school.  The default is `22`.
+> The ability to set the number of generated schools.  The default is `22`.
 
 #### Configurable Settings
 
