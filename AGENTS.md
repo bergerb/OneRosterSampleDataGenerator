@@ -1,3 +1,3 @@
 # Guiding Rules
 
-- I (the Software Developer) always commit the code after making changes.
+- The AI stages the changes only — it never commits on its own.
