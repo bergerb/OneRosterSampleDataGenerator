@@ -4,7 +4,7 @@ This class library can be utilized to generate randomly generated data or in-mem
 
 ## Description
 
-The objects generated in this class can be used for a number of things.  They can be outputted to to `Csv` and `OneRoster` file types.  They are generated and well-formed OneRoster files that match the `1.1` spec of OneRoster.  The in-memory construct can also be used to import into various systems, test-systems, and other EdTech applications.
+The objects generated in this class can be used for a number of things.  They can be outputted to `Csv` and `OneRoster` file types.  They are well-formed OneRoster files that match the `1.1` spec of OneRoster.  The in-memory construct can also be used to import into various systems, test-systems, and other EdTech applications.
 
 Creates
 --
@@ -36,9 +36,9 @@ Semesters (Terms)
 
 ### Dependencies
 
-* NET 7
-* Bogus 34.0.1
-* CsvHelper 30.0.1
+* .NET 10
+* Bogus 35.6.5
+* CsvHelper 33.1.0
 
 ### Installing
 
@@ -46,7 +46,7 @@ Copy generated dll into your bin
 
 ### Executing program
 
-#### Simpliest Execution
+#### Simplest Execution
 
 ```csharp
 	var oneRoster = new OneRoster();
@@ -60,11 +60,11 @@ Copy generated dll into your bin
 	oneRoster.OutputOneRosterZipFile();
 ```
 
-> This generates the needed OneRoster files to current application (AppDomain.CurrentDomain.BaseDirectory) path `OneRoster` folder.
+> This generates the needed OneRoster files to the current application's base directory path `OneRoster` folder.
 > Then compiles the files into a `OneRoster.zip` file
 
 ```csharp
-    OneRoster oneRoster = new(new() { schoolCount = 3 });
+    OneRoster oneRoster = new(new() { SchoolCount = 3 });
 ```
 > The ability to set the number of generated school.  The default is `22`.
 
@@ -74,12 +74,13 @@ The argument for the constructor is a configurable record with optional fields t
 
 |    Setting   |   Default   |
 | --- | --- |
+| ClassSize | 20 |
 | IncrementalDaysToCreate | null |
+| MaxTeacherClassCount | 8 |
 | SchoolCount | 22 |
 | StaffIdStart | 1 |
 | StudentIdStart |  910000000 |
 | StudentsPerGrade | 200 |
-| MaxTeacherClassCount | 8 |
 
 More documentation to come.
 
@@ -96,9 +97,10 @@ Brent Berger
 
 ## Version History
 
-* TBD
-    * Current Release
+* 2.0.0-beta
+    * Upgrade to .NET 10
+    * Updated NuGet packages to latest versions
 
 ## License
 
-This project is licensed under the `Unlicense license` License
+This project is licensed under the [Unlicense](https://unlicense.org/)

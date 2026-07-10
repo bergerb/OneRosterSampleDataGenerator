@@ -123,7 +123,7 @@ public class OneRosterGenerationTests
 
         foreach (var entry in expectedCounts)
         {
-            result.Where(x => x.File == entry.Key && x.ParentFile == ".\\OneRoster1.zip")
+            result.Where(x => x.File == entry.Key && x.ParentFile.EndsWith("OneRoster1.zip"))
                 .ShouldHaveSingleItem()
                 .RecordCount
                 .ShouldBe(entry.Value);
