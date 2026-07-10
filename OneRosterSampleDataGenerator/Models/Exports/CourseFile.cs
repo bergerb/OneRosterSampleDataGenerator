@@ -6,6 +6,7 @@ namespace OneRosterSampleDataGenerator.Models.Exports;
 
 public class CourseFile : IExportable<Course, CourseFile>
 {
+    public static string FileName => "courses.csv";
     [Name("sourcedId")]
     public string SourcedId { get; set; } = null!;
     [Name("status")]

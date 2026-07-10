@@ -5,6 +5,7 @@ namespace OneRosterSampleDataGenerator.Models.Exports;
 
 public class ManifestFile : IExportable<Manifest, ManifestFile>
 {
+    public static string FileName => "manifest.csv";
     [Name("propertyName")]
     public string PropertyName { get; set; } = null!;
     [Name("value")]

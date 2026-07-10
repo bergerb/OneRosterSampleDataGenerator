@@ -6,6 +6,7 @@ namespace OneRosterSampleDataGenerator.Models.Exports;
 
 public class OrgFile : IExportable<Org, OrgFile>
 {
+    public static string FileName => "orgs.csv";
     [Name("sourcedId")]
     public string SourcedId { get; set; } = null!;
     [Name("status")]
