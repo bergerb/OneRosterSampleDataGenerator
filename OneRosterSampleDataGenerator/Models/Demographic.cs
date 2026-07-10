@@ -5,10 +5,11 @@ namespace OneRosterSampleDataGenerator.Models;
 public class Demographic : BaseModel
 {
     public bool AmericanIndianOrAlaskaNative { get; set; }
+    public bool Asian { get; set; }
     public bool BlackOrAfricanAmerican { get; set; }
     public bool NativeHawaiianOrOtherPacificIslander { get; set; }
     public bool DemographicRaceTwoOrMoreRaces { get; set; }
-    public bool HispanicOrLationEthnicity { get; set; }
+    public bool HispanicOrLatinoEthnicity { get; set; }
     public bool White { get; set; }
     public DateTime BirthDate { get; set; }
     public DateTime DateLastModified { get; set; }

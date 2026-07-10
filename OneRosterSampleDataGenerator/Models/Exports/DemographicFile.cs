@@ -47,13 +47,14 @@ public class DemographicFile : IExportable<Demographic, DemographicFile>
         return new()
         {
             AmericanIndianOrAlaskaNative = item.AmericanIndianOrAlaskaNative.ToString().ToLower(),
+            Asian = item.Asian.ToString().ToLower(),
             BirthDate = item.BirthDate,
             BlackOrAfricanAmerican = item.BlackOrAfricanAmerican.ToString().ToLower(),
             CityOfBirth = item.CityOfBirth,
             CountryOfBirthCode = item.CountryOfBirthCode,
             DateLastModified = item.DateLastModified,
             DemographicRaceTwoOrMoreRaces = item.DemographicRaceTwoOrMoreRaces.ToString().ToLower(),
-            HispanicOrLatinoEthnicity = item.HispanicOrLationEthnicity.ToString().ToLower(),
+            HispanicOrLatinoEthnicity = item.HispanicOrLatinoEthnicity.ToString().ToLower(),
             NativeHawaiianOrOtherPacificIslander = item.NativeHawaiianOrOtherPacificIslander.ToString().ToLower(),
             PublicSchoolResidenceStatus = item.PublicSchoolResidenceStatus,
             Sex = item.Sex,

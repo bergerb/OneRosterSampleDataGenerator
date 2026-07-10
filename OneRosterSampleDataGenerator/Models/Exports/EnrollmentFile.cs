@@ -24,14 +24,14 @@ public class EnrollmentFile : IExportable<Enrollment, EnrollmentFile>
     public string Role { get; set; } = null!;
     [Name("primary")]
     public string Primary { get; set; } = null!;
-    [Name("courseSourcedId")]
-    public string CourseSourcedId { get; set; } = null!;
     [Name("beginDate")]
     [Format("yyyy-MM-dd")]
     public DateTime? BeginDate { get; set; }
     [Name("endDate")]
     [Format("yyyy-MM-dd")]
     public DateTime? EndDate { get; set; }
+    [Name("courseSourcedId")]
+    public string CourseSourcedId { get; set; } = null!;
 
     public EnrollmentFile Map(Enrollment item)
     {
