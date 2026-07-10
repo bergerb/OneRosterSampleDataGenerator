@@ -97,6 +97,10 @@ Brent Berger
 
 ## Version History
 
+* 2.1.1-beta
+    * Fix demographics.csv column names and add missing columns
+    * Fix classes.csv SubjectCodes -> subjectCodes casing
+    * Add missing courseSourcedId column to enrollments.csv
 * 2.1.0-beta
     * Refactor IExportable to reduce maintenance cost for new file specs
 * 2.0.0-beta
