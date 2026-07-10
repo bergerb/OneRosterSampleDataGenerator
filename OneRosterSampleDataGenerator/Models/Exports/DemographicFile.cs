@@ -25,8 +25,14 @@ public class DemographicFile : IExportable<Demographic, DemographicFile>
     public string Asian { get; set; } = null!;
     [Name("blackOrAfricanAmerican")]
     public string BlackOrAfricanAmerican { get; set; } = null!;
-    [Name("nativeAmericanOrOtherPacificIslander")]
-    public string NativeAmericanOrOtherPacificIslander { get; set; } = null!;
+    [Name("nativeHawaiianOrOtherPacificIslander")]
+    public string NativeHawaiianOrOtherPacificIslander { get; set; } = null!;
+    [Name("white")]
+    public string White { get; set; } = null!;
+    [Name("demographicRaceTwoOrMoreRaces")]
+    public string DemographicRaceTwoOrMoreRaces { get; set; } = null!;
+    [Name("hispanicOrLatinoEthnicity")]
+    public string HispanicOrLatinoEthnicity { get; set; } = null!;
     [Name("countryOfBirthCode")]
     public string CountryOfBirthCode { get; set; } = null!;
     [Name("stateofBirthAbbreviation")]
@@ -40,11 +46,21 @@ public class DemographicFile : IExportable<Demographic, DemographicFile>
     {
         return new()
         {
+            AmericanIndianOrAlaskaNative = item.AmericanIndianOrAlaskaNative.ToString().ToLower(),
             BirthDate = item.BirthDate,
+            BlackOrAfricanAmerican = item.BlackOrAfricanAmerican.ToString().ToLower(),
+            CityOfBirth = item.CityOfBirth,
+            CountryOfBirthCode = item.CountryOfBirthCode,
             DateLastModified = item.DateLastModified,
+            DemographicRaceTwoOrMoreRaces = item.DemographicRaceTwoOrMoreRaces.ToString().ToLower(),
+            HispanicOrLatinoEthnicity = item.HispanicOrLationEthnicity.ToString().ToLower(),
+            NativeHawaiianOrOtherPacificIslander = item.NativeHawaiianOrOtherPacificIslander.ToString().ToLower(),
+            PublicSchoolResidenceStatus = item.PublicSchoolResidenceStatus,
             Sex = item.Sex,
             SourcedId = item.SourcedId.ToString(),
+            StateofBirthAbbreviation = item.StateOfBirthAbbreviation,
             Status = item.Status.ToString(),
+            White = item.White.ToString().ToLower(),
         };
     }
 }

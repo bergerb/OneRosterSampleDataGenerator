@@ -24,6 +24,8 @@ public class EnrollmentFile : IExportable<Enrollment, EnrollmentFile>
     public string Role { get; set; } = null!;
     [Name("primary")]
     public string Primary { get; set; } = null!;
+    [Name("courseSourcedId")]
+    public string CourseSourcedId { get; set; } = null!;
     [Name("beginDate")]
     [Format("yyyy-MM-dd")]
     public DateTime? BeginDate { get; set; }
@@ -36,6 +38,7 @@ public class EnrollmentFile : IExportable<Enrollment, EnrollmentFile>
         return new()
         {
             ClassSourcedId = item.ClassSourcedId.ToString(),
+            CourseSourcedId = item.CourseSourcedId.ToString(),
             DateLastModified = item.DateLastModified,
             Role = item.Role.ToString(),
             SchoolSourcedId = item.SchoolSourcedId.ToString(),
