@@ -84,6 +84,18 @@ The argument for the constructor is a configurable record with optional fields t
 
 More documentation to come.
 
+## CI/CD
+
+The GitHub Actions workflow builds, packs, and publishes the NuGet package on every push to `main`.
+
+To skip the CI build (and NuGet publish), include `--no-ci` in your commit message:
+
+```
+git commit -m "WIP: working on v1.2 support --no-ci"
+```
+
+The entire build job is skipped when the commit message contains `--no-ci`.
+
 ## Help
 
 Please add an issue to this project
